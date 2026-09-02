@@ -12,21 +12,22 @@ export const AppShell: React.FC = () => {
   const { activeScreen, setActiveScreen, reviewQueue, openUploadModal } = useApp();
 
   const navItems: NavItem[] = [
-    { id: 'dashboard', label: 'Overview', icon: 'dashboard' },
+    { id: 'home', label: 'Home (How It Works)', icon: 'info' },
+    { id: 'dashboard', label: 'Executive Dashboard', icon: 'dashboard' },
     { id: 'datahub', label: 'CPSE Data Hub', icon: 'database' },
     { id: 'harmonization', label: 'Material Harmonization', icon: 'rebase_edit' },
     { id: 'master', label: 'National Material Master', icon: 'inventory_2' },
     { id: 'review', label: 'Review Queue', icon: 'fact_check', badge: reviewQueue.length },
     { id: 'rationalization', label: 'Rationalization & Migration', icon: 'move_up' },
-    { id: 'analytics', label: 'Analytics', icon: 'monitoring' },
-    { id: 'governance', label: 'Governance', icon: 'gavel' },
+    { id: 'analytics', label: 'Analytics & Savings', icon: 'monitoring' },
+    { id: 'governance', label: 'Audit History', icon: 'gavel' },
   ];
 
   return (
     <nav className="fixed left-0 top-0 h-full w-[240px] bg-surface border-r border-outline-variant/40 flex flex-col z-50 shrink-0 transition-colors duration-200">
       {/* Brand Header */}
       <div 
-        onClick={() => setActiveScreen('dashboard')}
+        onClick={() => setActiveScreen('home')}
         className="p-4 border-b border-outline-variant/40 flex items-center gap-3 cursor-pointer hover:bg-surface-container/50 transition-colors"
       >
         <div className="w-9 h-9 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 shadow-sm">

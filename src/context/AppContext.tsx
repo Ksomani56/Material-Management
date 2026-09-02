@@ -18,6 +18,7 @@ import {
 import { ParsedMaterialRecord } from '../utils/fileParser';
 
 export type ScreenType = 
+  | 'home'
   | 'dashboard' 
   | 'datahub' 
   | 'harmonization' 
@@ -104,7 +105,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [activeScreen, setActiveScreen] = useState<ScreenType>('dashboard');
+  const [activeScreen, setActiveScreen] = useState<ScreenType>('home');
   const [selectedCnmcId, setSelectedCnmcId] = useState<string>('CNMC-00018427');
   const [catalogueMaterials, setCatalogueMaterials] = useState<CanonicalMaterial[]>(mockCatalogueMaterials);
   

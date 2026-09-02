@@ -29,6 +29,16 @@ export const TopAppBar: React.FC = () => {
       <div className="flex items-center gap-6">
         <nav className="hidden md:flex gap-4 h-full items-end">
           <button
+            onClick={() => setActiveScreen('home')}
+            className={`pb-1.5 text-sm transition-all border-b-2 font-body-bold ${
+              activeScreen === 'home'
+                ? 'text-primary border-primary'
+                : 'text-on-surface-variant hover:text-on-surface border-transparent font-body-standard'
+            }`}
+          >
+            Home
+          </button>
+          <button
             onClick={() => setActiveScreen('dashboard')}
             className={`pb-1.5 text-sm transition-all border-b-2 font-body-bold ${
               activeScreen === 'dashboard'

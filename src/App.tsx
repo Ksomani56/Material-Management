@@ -6,6 +6,7 @@ import { EvidenceDrawer } from './components/layout/EvidenceDrawer';
 import { ImpactModal } from './components/layout/ImpactModal';
 import { DataUploadModal } from './components/common/DataUploadModal';
 
+import { HomeScreen } from './components/screens/HomeScreen';
 import { OverviewScreen } from './components/screens/OverviewScreen';
 import { HarmonizationScreen } from './components/screens/HarmonizationScreen';
 import { ReviewQueueScreen } from './components/screens/ReviewQueueScreen';
@@ -22,6 +23,8 @@ const MainLayout: React.FC = () => {
 
   const renderScreen = () => {
     switch (activeScreen) {
+      case 'home':
+        return <HomeScreen />;
       case 'dashboard':
         return <OverviewScreen />;
       case 'harmonization':
