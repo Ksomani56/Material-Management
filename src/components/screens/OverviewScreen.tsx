@@ -1,79 +1,67 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import {
-  mockDashboardKPIs,
-  mockDuplicateCandidatesTable
-} from '../../data/mockData';
 
 /* -----------------------------------------------------------------------
-   Mini Sparkline Component for KPI Cards
-   ----------------------------------------------------------------------- */
-const Sparkline: React.FC<{ data: number[]; color: string }> = ({ data, color }) => {
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const W = 80;
-  const H = 28;
-  const points = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * W;
-    const y = H - ((v - min) / range) * (H - 4) - 2;
-    return `${x},${y}`;
-  }).join(' ');
-
-  return (
-    <svg width={W} height={H} className="overflow-visible shrink-0 opacity-80">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-};
-
-/* -----------------------------------------------------------------------
-   SVG Area Chart — Blue (#3b82f6) & Indigo (#4144f4)
+   Dual-Line Spline Area Chart matching template exactly
    ----------------------------------------------------------------------- */
 const AreaChart: React.FC = () => {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string; v1: string; v2: string } | null>(null);
 
-  const weeks = [
-    { label: 'W1', approved: 18, dupes: 82 },
-    { label: 'W2', approved: 22, dupes: 76 },
-    { label: 'W3', approved: 19, dupes: 78 },
-    { label: 'W4', approved: 28, dupes: 70 },
-    { label: 'W5', approved: 35, dupes: 60 },
-    { label: 'W6', approved: 40, dupes: 52 },
-    { label: 'W7', approved: 55, dupes: 44 },
-    { label: 'W8', approved: 65, dupes: 38 },
-    { label: 'W9', approved: 72, dupes: 30 },
-    { label: 'W10', approved: 80, dupes: 22 },
-    { label: 'W11', approved: 90, dupes: 14 },
-    { label: 'W12', approved: 94, dupes: 10 },
+  const months = [
+    { label: 'Jan', revenue: 160, target: 175 },
+    { label: 'Feb', revenue: 190, target: 205 },
+    { label: 'Mar', revenue: 235, target: 225 },
+    { label: 'Apr', revenue: 280, target: 245 },
+    { label: 'May', revenue: 200, target: 260 },
+    { label: 'Jun', revenue: 320, target: 280 },
+    { label: 'Jul', revenue: 350, target: 305 },
+    { label: 'Aug', revenue: 385, target: 330 },
+    { label: 'Sep', revenue: 430, target: 355 },
+    { label: 'Oct', revenue: 475, target: 380 },
+    { label: 'Nov', revenue: 520, target: 410 },
+    { label: 'Dec', revenue: 590, target: 440 },
   ];
 
-  const W = 650;
-  const H = 220;
-  const padL = 44;
-  const padR = 12;
-  const padT = 12;
-  const padB = 32;
+  const W = 680;
+  const H = 240;
+  const padL = 48;
+  const padR = 16;
+  const padT = 16;
+  const padB = 36;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
+  const maxVal = 650;
 
-  const toX = (i: number) => padL + (i / (weeks.length - 1)) * innerW;
-  const toY = (v: number) => padT + innerH - (v / 100) * innerH;
+  const toX = (i: number) => padL + (i / (months.length - 1)) * innerW;
+  const toY = (v: number) => padT + innerH - (v / maxVal) * innerH;
 
-  const polyApproved = weeks.map((w, i) => `${toX(i)},${toY(w.approved)}`).join(' ');
-  const polyDupes = weeks.map((w, i) => `${toX(i)},${toY(w.dupes)}`).join(' ');
+  // Build SVG path strings with smooth curves
+  const getSplinePath = (pts: { x: number; y: number }[]) => {
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i === 0 ? 0 : i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  };
 
-  const areaApproved = `${padL},${padT + innerH} ${polyApproved} ${toX(weeks.length - 1)},${padT + innerH}`;
-  const areaDupes = `${padL},${padT + innerH} ${polyDupes} ${toX(weeks.length - 1)},${padT + innerH}`;
+  const ptsRevenue = months.map((m, i) => ({ x: toX(i), y: toY(m.revenue) }));
+  const ptsTarget = months.map((m, i) => ({ x: toX(i), y: toY(m.target) }));
 
-  const gridLines = [0, 25, 50, 75, 100];
+  const pathRevenue = getSplinePath(ptsRevenue);
+  const pathTarget = getSplinePath(ptsTarget);
+
+  const areaRevenue = `${pathRevenue} L ${toX(months.length - 1)},${padT + innerH} L ${padL},${padT + innerH} Z`;
+
+  const yTicks = [0, 150, 300, 450, 600];
 
   return (
     <div className="relative w-full" style={{ height: `${H}px` }}>
@@ -83,135 +71,129 @@ const AreaChart: React.FC = () => {
         className="w-full h-full"
       >
         <defs>
-          {/* Primary Blue gradient */}
-          <linearGradient id="gradApproved" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
-          </linearGradient>
-          {/* Secondary Indigo gradient */}
-          <linearGradient id="gradDupes" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4144f4" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#4144f4" stopOpacity="0.02" />
+          {/* Cyan gradient matching template */}
+          <linearGradient id="v0CyanGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.32" />
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
           </linearGradient>
         </defs>
 
         {/* Horizontal grid lines */}
-        {gridLines.map(g => (
-          <g key={g}>
+        {yTicks.map(val => (
+          <g key={val}>
             <line
-              x1={padL} y1={toY(g)} x2={W - padR} y2={toY(g)}
-              stroke="rgba(255,255,255,0.07)" strokeWidth="1"
+              x1={padL}
+              y1={toY(val)}
+              x2={W - padR}
+              y2={toY(val)}
+              stroke="rgba(255, 255, 255, 0.05)"
+              strokeWidth="1"
             />
             <text
-              x={padL - 6} y={toY(g) + 4}
+              x={padL - 8}
+              y={toY(val) + 4}
               textAnchor="end"
-              fontSize="10"
-              fill="rgba(255,255,255,0.35)"
-              fontFamily="JetBrains Mono, monospace"
+              fontSize="11"
+              fill="#52525b"
+              fontFamily="Inter, sans-serif"
             >
-              {g}%
+              ${val}k
             </text>
           </g>
         ))}
 
         {/* X-axis labels */}
-        {weeks.map((w, i) => (
-          i % 2 === 0 && (
-            <text
-              key={w.label}
-              x={toX(i)}
-              y={H - 8}
-              textAnchor="middle"
-              fontSize="10"
-              fill="rgba(255,255,255,0.4)"
-              fontFamily="JetBrains Mono, monospace"
-            >
-              {w.label}
-            </text>
-          )
+        {months.map((m, i) => (
+          <text
+            key={m.label}
+            x={toX(i)}
+            y={H - 10}
+            textAnchor="middle"
+            fontSize="11"
+            fill="#52525b"
+            fontFamily="Inter, sans-serif"
+          >
+            {m.label}
+          </text>
         ))}
 
-        {/* Approved CNMC area fill (blue) */}
-        <polygon points={areaApproved} fill="url(#gradApproved)" />
+        {/* Cyan Area Gradient Fill */}
+        <path d={areaRevenue} fill="url(#v0CyanGrad)" />
 
-        {/* Dupes/backlog area fill (indigo) */}
-        <polygon points={areaDupes} fill="url(#gradDupes)" />
-
-        {/* Approved line (blue) */}
-        <polyline
-          points={polyApproved}
+        {/* Target Line (Emerald Green) */}
+        <path
+          d={pathTarget}
           fill="none"
-          stroke="#3b82f6"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
+          stroke="#10b981"
+          strokeWidth="2"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
 
-        {/* Dupes line (indigo) */}
-        <polyline
-          points={polyDupes}
+        {/* Revenue Line (Electric Cyan) */}
+        <path
+          d={pathRevenue}
           fill="none"
-          stroke="#4144f4"
+          stroke="#06b6d4"
           strokeWidth="2.5"
-          strokeLinejoin="round"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
 
-        {/* Invisible hit areas for tooltip */}
-        {weeks.map((w, i) => (
+        {/* Hover interaction points */}
+        {months.map((m, i) => (
           <rect
             key={i}
-            x={toX(i) - 20}
+            x={toX(i) - 18}
             y={padT}
-            width={40}
+            width={36}
             height={innerH}
             fill="transparent"
             onMouseEnter={() => setTooltip({
               x: toX(i),
-              y: Math.min(toY(w.approved), toY(w.dupes)) - 8,
-              label: w.label,
-              v1: `${w.approved}%`,
-              v2: `${w.dupes}%`,
+              y: Math.min(toY(m.revenue), toY(m.target)) - 10,
+              label: m.label,
+              v1: `$${m.revenue}k`,
+              v2: `$${m.target}k`,
             })}
             onMouseLeave={() => setTooltip(null)}
             style={{ cursor: 'crosshair' }}
           />
         ))}
 
-        {/* Tooltip marker dots */}
-        {tooltip && weeks.map((w, i) => {
-          if (weeks[i].label !== tooltip.label) return null;
+        {/* Marker Dots on Tooltip */}
+        {tooltip && months.map((m, i) => {
+          if (m.label !== tooltip.label) return null;
           return (
-            <g key="dot">
-              <circle cx={toX(i)} cy={toY(w.approved)} r="5" fill="#3b82f6" stroke="#fff" strokeWidth="1.5" />
-              <circle cx={toX(i)} cy={toY(w.dupes)} r="5" fill="#4144f4" stroke="#fff" strokeWidth="1.5" />
+            <g key="marker">
+              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#06b6d4" stroke="#000000" strokeWidth="2" />
+              <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#000000" strokeWidth="1.5" />
             </g>
           );
         })}
       </svg>
 
-      {/* Floating Tooltip */}
+      {/* Floating Tooltip matching template */}
       {tooltip && (
         <div
-          className="absolute pointer-events-none z-10 text-xs rounded-lg shadow-xl px-3 py-2 mono"
+          className="absolute pointer-events-none z-10 text-xs rounded-lg px-3 py-2"
           style={{
             left: `${(tooltip.x / W) * 100}%`,
             top: `${(Math.max(0, tooltip.y - 45) / H) * 100}%`,
             transform: 'translateX(-50%)',
-            background: 'rgba(17,17,23,0.96)',
-            border: '1px solid rgba(59,130,246,0.3)',
-            color: 'var(--text-primary)',
-            backdropFilter: 'blur(8px)',
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
           }}
         >
-          <div className="font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>{tooltip.label} Overview</div>
+          <div className="font-semibold text-white mb-1.5">{tooltip.label}</div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#3b82f6' }} />
-            <span>Approved: <strong style={{ color: '#3b82f6' }}>{tooltip.v1}</strong></span>
+            <span className="w-2 h-2 rounded-full" style={{ background: '#06b6d4' }} />
+            <span className="text-[#a1a1aa]">Revenue: <strong className="text-white">{tooltip.v1}</strong></span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#4144f4' }} />
-            <span>Backlog: <strong style={{ color: '#818cf8' }}>{tooltip.v2}</strong></span>
+            <span className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+            <span className="text-[#a1a1aa]">Target: <strong className="text-white">{tooltip.v2}</strong></span>
           </div>
         </div>
       )}
@@ -220,333 +202,361 @@ const AreaChart: React.FC = () => {
 };
 
 /* -----------------------------------------------------------------------
-   KPI Card Component with Sparkline
+   KPI Card matching template exactly
    ----------------------------------------------------------------------- */
 interface KpiCardProps {
   label: string;
   value: string;
-  delta?: string;
-  deltaUp?: boolean;
-  icon?: string;
-  sparklineData?: number[];
-  sparklineColor?: string;
+  delta: string;
+  deltaUp: boolean;
+  icon: string;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({ 
-  label, 
-  value, 
-  delta, 
-  deltaUp, 
-  icon,
-  sparklineData = [10, 15, 12, 18, 24, 28, 35],
-  sparklineColor = '#3b82f6'
-}) => (
+const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon }) => (
   <div
-    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
+    style={{
+      background: '#09090b',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+    }}
   >
-    <div className="flex items-start justify-between mb-3">
-      <span style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium">{label}</span>
-      {icon && (
-        <div
-          style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
-        >
-          <span className="material-symbols-outlined text-[18px]">{icon}</span>
-        </div>
-      )}
-    </div>
-    
-    <div className="flex items-end justify-between gap-2 mt-2">
-      <div>
-        <span
-          style={{ color: 'var(--text-primary)' }}
-          className="text-2xl sm:text-3xl font-bold tracking-tight leading-none block font-mono"
-        >
-          {value}
-        </span>
-        {delta && (
-          <span
-            className="text-xs font-semibold mt-2 flex items-center gap-1"
-            style={{ color: deltaUp ? 'var(--success)' : 'var(--error)' }}
-          >
-            <span className="material-symbols-outlined text-[14px]">
-              {deltaUp ? 'arrow_upward' : 'arrow_downward'}
-            </span>
-            {delta} vs last month
-          </span>
-        )}
+    {/* Top Row: Label + Icon Box */}
+    <div className="flex items-center justify-between mb-3">
+      <span className="text-sm font-medium text-[#71717a]">{label}</span>
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a1a1aa]"
+        style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
+        <span className="material-symbols-outlined text-[17px]">{icon}</span>
       </div>
+    </div>
 
-      <Sparkline data={sparklineData} color={sparklineColor} />
+    {/* Bottom Row: Big Bold Metric + Trend Pill */}
+    <div className="flex items-baseline gap-3 mt-1">
+      <span className="text-3xl font-bold tracking-tight text-white leading-none">
+        {value}
+      </span>
+      <span
+        className="text-xs font-semibold flex items-center gap-0.5"
+        style={{ color: deltaUp ? '#10b981' : '#f43f5e' }}
+      >
+        <span className="material-symbols-outlined text-[14px]">
+          {deltaUp ? 'trending_up' : 'trending_down'}
+        </span>
+        {delta}
+      </span>
     </div>
   </div>
 );
 
 /* -----------------------------------------------------------------------
-   Main Overview Screen
+   Overview Screen matching template 1:1
    ----------------------------------------------------------------------- */
 export const OverviewScreen: React.FC = () => {
-  const { setActiveScreen, reviewQueue, cpseList, rationalizationActions } = useApp();
+  const { setActiveScreen, reviewQueue, cpseList } = useApp();
+
+  const recentDeals = [
+    { initial: 'A', name: 'Acme Corp', sub: 'Sarah Chen • 2 hours ago', amount: '$125,000', status: 'Won' },
+    { initial: 'T', name: 'TechStart Inc', sub: 'Mike Johnson • 5 hours ago', amount: '$89,500', status: 'Pending' },
+    { initial: 'G', name: 'GlobalFin', sub: 'Emily Davis • 1 day ago', amount: '$245,000', status: 'Pending' },
+    { initial: 'D', name: 'DataSync Solutions', sub: 'James Wilson • 2 days ago', amount: '$67,800', status: 'Lost' },
+    { initial: 'C', name: 'CloudBase Ltd', sub: 'Sarah Chen • 3 days ago', amount: '$178,000', status: 'Won' },
+  ];
+
+  const topPerformers = [
+    { rank: 1, initial: 'SC', name: 'Sarah Chen', deals: '24 deals closed', amount: '$487,500', growth: '+15%' },
+    { rank: 2, initial: 'MJ', name: 'Mike Johnson', deals: '19 deals closed', amount: '$356,200', growth: '+8%' },
+    { rank: 3, initial: 'ED', name: 'Emily Davis', deals: '17 deals closed', amount: '$312,800', growth: '+12%' },
+    { rank: 4, initial: 'JW', name: 'James Wilson', deals: '15 deals closed', amount: '$289,400', growth: '+5%' },
+    { rank: 5, initial: 'LP', name: 'Lisa Park', deals: '14 deals closed', amount: '$267,100', growth: '+9%' },
+  ];
+
+  const pipelineStages = [
+    { name: 'Lead', count: 892, pct: 45, color: '#06b6d4' },
+    { name: 'Qualified', count: 556, pct: 28, color: '#10b981' },
+    { name: 'Proposal', count: 357, pct: 18, color: '#f59e0b' },
+    { name: 'Negotiation', count: 179, pct: 9, color: '#34d399' },
+  ];
 
   return (
     <main
-      style={{ background: 'var(--bg)' }}
       className="flex-1 overflow-y-auto p-6 space-y-6"
+      style={{ background: '#000000' }}
     >
-      {/* 4 KPI Cards */}
+      {/* 1. Top Row of 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
-          label="Total Source Records"
-          value={mockDashboardKPIs.totalSourceCodes}
-          delta="+12.4%"
+          label="Total Revenue"
+          value="$2.4M"
+          delta="+12.5%"
           deltaUp={true}
-          icon="dataset"
-          sparklineData={[12, 14, 13, 16, 18, 22, 25]}
-          sparklineColor="#3b82f6"
+          icon="attach_money"
         />
         <KpiCard
-          label="Approved Masters (CNMC)"
-          value={mockDashboardKPIs.canonicalMaterialsCount}
-          delta="+14.2k"
+          label="Conversion Rate"
+          value="24.8%"
+          delta="+3.2%"
           deltaUp={true}
-          icon="inventory_2"
-          sparklineData={[8, 11, 15, 20, 24, 29, 34]}
-          sparklineColor="#3b82f6"
+          icon="trending_up"
         />
         <KpiCard
-          label="Harmonization Coverage"
-          value={`${mockDashboardKPIs.mappingCoveragePct}%`}
-          delta="+3.1%"
-          deltaUp={true}
-          icon="pie_chart"
-          sparklineData={[50, 55, 62, 68, 71, 75, 78.4]}
-          sparklineColor="#4144f4"
-        />
-        <KpiCard
-          label="Review Backlog"
-          value={reviewQueue.length > 0 ? (12400 + reviewQueue.length).toLocaleString() : '12,405'}
+          label="Active Deals"
+          value="147"
           delta="-5"
           deltaUp={false}
-          icon="fact_check"
-          sparklineData={[40, 38, 35, 30, 26, 20, 15]}
-          sparklineColor="#f59e0b"
+          icon="track_changes"
+        />
+        <KpiCard
+          label="New Leads"
+          value="892"
+          delta="+18.3%"
+          deltaUp={true}
+          icon="group"
         />
       </div>
 
-      {/* Main Two-Column Row: Area Chart + Pipeline Stages */}
+      {/* 2. Middle Row: Revenue Trend Area Chart + Pipeline Stages */}
       <div className="grid grid-cols-12 gap-5">
-        {/* Area Chart (span 8) */}
+        {/* Revenue Trend Area Chart (2/3 width) */}
         <div
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           className="col-span-12 lg:col-span-8 rounded-xl p-6"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
         >
+          {/* Header & Legend matching template */}
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 style={{ color: 'var(--text-primary)' }} className="text-base font-bold">
-                Standardization Velocity
-              </h3>
-              <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-0.5">
-                Weekly harmonization progress vs duplicate backlog resolution
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Revenue Trend
+              </h2>
+              <p className="text-xs text-[#71717a] mt-0.5">
+                Monthly performance vs target
               </p>
             </div>
+
             {/* Legend */}
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-1 rounded-full" style={{ background: '#3b82f6', display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-secondary)' }}>Approved CNMC</span>
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#06b6d4' }} />
+                <span className="text-[#a1a1aa]">Revenue</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-1 rounded-full" style={{ background: '#4144f4', display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-secondary)' }}>Backlog</span>
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10b981' }} />
+                <span className="text-[#a1a1aa]">Target</span>
               </div>
             </div>
           </div>
 
           <AreaChart />
-
-          <div
-            className="flex justify-between text-xs pt-4 mt-2"
-            style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}
-          >
-            <span>12-Week Period View</span>
-            <span style={{ color: 'var(--success)' }} className="font-semibold flex items-center gap-1">
-              <span className="material-symbols-outlined text-[15px]">trending_up</span>
-              Steady upward standardization rate across CPSEs
-            </span>
-          </div>
         </div>
 
-        {/* Pipeline / Rationalization Stages (span 4) */}
+        {/* Pipeline Stages (1/3 width) */}
         <div
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           className="col-span-12 lg:col-span-4 rounded-xl p-6 flex flex-col justify-between"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
         >
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h3 style={{ color: 'var(--text-primary)' }} className="text-base font-bold">
-                  Rationalization Pipeline
-                </h3>
-                <p style={{ color: 'var(--text-secondary)' }} className="text-xs mt-0.5">
-                  Distribution by staged action type
-                </p>
-              </div>
-            </div>
+            <h2 className="text-base font-semibold text-white tracking-tight">
+              Pipeline Stages
+            </h2>
+            <p className="text-xs text-[#71717a] mt-0.5 mb-5">
+              Distribution by stage
+            </p>
 
-            <div className="space-y-4 mt-5">
-              {rationalizationActions.map((act, idx) => {
-                const colors = ['#3b82f6', '#4144f4', '#f59e0b', '#22c55e'];
-                const c = colors[idx % colors.length];
-                return (
-                  <div key={act.id}>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span style={{ color: 'var(--text-primary)' }} className="text-xs font-semibold">
-                        {act.title}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span style={{ color: 'var(--text-muted)' }} className="text-xs mono">
-                          {act.recordCount.split(' ')[0]}
-                        </span>
-                        <span className="text-xs font-bold font-mono" style={{ color: c }}>{act.percentage}%</span>
-                      </div>
-                    </div>
-                    <div style={{ background: 'var(--bg-hover)' }} className="w-full h-2 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${act.percentage}%`, background: c }}
-                        className="h-full rounded-full transition-all duration-500"
-                      />
+            {/* Stage Progress Bars matching template */}
+            <div className="space-y-4">
+              {pipelineStages.map((stage) => (
+                <div key={stage.name}>
+                  <div className="flex justify-between items-center mb-1.5 text-xs">
+                    <span className="font-semibold text-white">{stage.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#71717a] font-mono">{stage.count}</span>
+                      <span className="font-bold text-white font-mono">{stage.pct}%</span>
                     </div>
                   </div>
-                );
-              })}
+                  <div
+                    className="w-full h-2 rounded-full overflow-hidden"
+                    style={{ background: 'rgba(255, 255, 255, 0.06)' }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${stage.pct}%`,
+                        background: stage.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border)' }} className="pt-4 mt-6 flex justify-between items-center">
-            <div>
-              <span style={{ color: 'var(--text-muted)' }} className="text-xs block">Total Pipeline Value</span>
-              <span style={{ color: 'var(--text-secondary)' }} className="text-[11px]">Procurement pool potential</span>
-            </div>
-            <span style={{ color: 'var(--blue)' }} className="text-xl font-bold mono">₹4,820 Cr</span>
+          {/* Bottom Total Value matching template */}
+          <div
+            className="pt-4 mt-6 flex justify-between items-baseline"
+            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}
+          >
+            <span className="text-xs text-[#71717a]">Total Pipeline Value</span>
+            <span className="text-2xl font-bold text-white tracking-tight">$4.8M</span>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row: Pending Duplicates + CPSE Status */}
+      {/* 3. Bottom Row: Recent Deals + Top Performers */}
       <div className="grid grid-cols-12 gap-5">
-        {/* Pending Duplicate Candidates (span 7) */}
+        {/* Recent Deals (Left 7 cols) */}
         <div
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-          className="col-span-12 lg:col-span-7 rounded-xl overflow-hidden"
+          className="col-span-12 lg:col-span-7 rounded-xl p-6"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 style={{ color: 'var(--text-primary)' }} className="text-sm font-bold">
-                Recent Duplicate Candidates
-              </h3>
-              <p style={{ color: 'var(--text-muted)' }} className="text-xs">Latest activity requiring review</p>
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Recent Deals
+              </h2>
+              <p className="text-xs text-[#71717a] mt-0.5">Latest activity</p>
             </div>
             <button
               onClick={() => setActiveScreen('review')}
               className="text-xs font-semibold flex items-center gap-1 hover:underline"
-              style={{ color: 'var(--blue)' }}
+              style={{ color: '#10b981' }}
             >
-              View all <span className="material-symbols-outlined text-[15px]">arrow_outward</span>
+              View all <span className="material-symbols-outlined text-[14px]">arrow_outward</span>
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-hover)' }}>
-                  {['Group', 'Description', 'Candidates', 'Confidence', ''].map(h => (
-                    <th
-                      key={h}
-                      style={{ color: 'var(--text-muted)' }}
-                      className="px-5 py-3 text-xs font-semibold uppercase tracking-wide"
+          <div className="space-y-3">
+            {recentDeals.map((deal, idx) => {
+              const statusCfg = {
+                Won: { border: 'rgba(16, 185, 129, 0.25)', color: '#10b981', icon: 'check_circle' },
+                Pending: { border: 'rgba(245, 158, 11, 0.25)', color: '#f59e0b', icon: 'schedule' },
+                Lost: { border: 'rgba(244, 63, 94, 0.25)', color: '#f43f5e', icon: 'cancel' },
+              }[deal.status] || { border: 'transparent', color: '#a1a1aa', icon: 'info' };
+
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-white/[0.02] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Square Dark Initial Box */}
+                    <div
+                      className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs text-white"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
                     >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mockDuplicateCandidatesTable.slice(0, 5).map((item, idx) => (
-                  <tr
-                    key={idx}
-                    style={{ borderBottom: '1px solid var(--border-subtle)' }}
-                    className="hover:opacity-90 transition-opacity"
-                  >
-                    <td style={{ color: 'var(--blue)' }} className="px-5 py-3.5 mono text-xs font-bold">
-                      {item.groupCode}
-                    </td>
-                    <td style={{ color: 'var(--text-primary)' }} className="px-5 py-3.5 max-w-[240px] truncate font-medium" title={item.description}>
-                      {item.description}
-                    </td>
-                    <td style={{ color: 'var(--text-secondary)' }} className="px-5 py-3.5 text-center mono">
-                      {item.candidates}
-                    </td>
-                    <td className="px-5 py-3.5 text-center mono font-bold" style={{ color: item.confidence >= 90 ? 'var(--success)' : 'var(--warning)' }}>
-                      {item.confidence}%
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <button
-                        onClick={() => setActiveScreen('review')}
-                        style={{ color: 'var(--blue)' }}
-                        className="text-xs font-semibold hover:underline"
-                      >
-                        Review
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {deal.initial}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{deal.name}</p>
+                      <p className="text-xs text-[#71717a]">{deal.sub}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-bold text-white font-mono">
+                      {deal.amount}
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                      style={{
+                        border: `1px solid ${statusCfg.border}`,
+                        color: statusCfg.color,
+                        background: 'transparent',
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[12px]">
+                        {statusCfg.icon}
+                      </span>
+                      {deal.status}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Top CPSE Performers (span 5) */}
+        {/* Top Performers (Right 5 cols) */}
         <div
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-          className="col-span-12 lg:col-span-5 rounded-xl"
+          className="col-span-12 lg:col-span-5 rounded-xl p-6"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 style={{ color: 'var(--text-primary)' }} className="text-sm font-bold">Top CPSE Coverage</h3>
-              <p style={{ color: 'var(--text-muted)' }} className="text-xs">This month's leaders in harmonization</p>
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Top Performers
+              </h2>
+              <p className="text-xs text-[#71717a] mt-0.5">This month's leaders</p>
             </div>
-            <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--warning)' }}>
+            <span className="material-symbols-outlined text-[20px] text-[#f59e0b]">
               emoji_events
             </span>
           </div>
-          <div className="p-5 space-y-4">
-            {cpseList
-              .slice()
-              .sort((a, b) => b.coveragePercentage - a.coveragePercentage)
-              .slice(0, 4)
-              .map((cpse, idx) => {
-                const medals = ['🥇', '🥈', '🥉', '🏅'];
-                return (
-                  <div key={cpse.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg w-6">{medals[idx]}</span>
-                      <div>
-                        <p style={{ color: 'var(--text-primary)' }} className="text-sm font-bold leading-tight">{cpse.name}</p>
-                        <p style={{ color: 'var(--text-muted)' }} className="text-xs truncate max-w-[140px] mt-0.5">{cpse.sector}</p>
+
+          <div className="space-y-3.5">
+            {topPerformers.map((p) => {
+              const rankBg = {
+                1: '#ea580c', // Orange for 1st
+                2: '#d97706', // Yellow-orange for 2nd
+                3: '#b45309', // Darker orange for 3rd
+              }[p.rank] || '#3f3f46';
+
+              return (
+                <div key={p.rank} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Circular Teal Avatar with Rank Badge */}
+                    <div className="relative">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm"
+                        style={{ background: '#0d9488' }}
+                      >
+                        {p.initial}
                       </div>
+                      <span
+                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                        style={{ background: rankBg }}
+                      >
+                        {p.rank}
+                      </span>
                     </div>
-                    <div className="text-right">
-                      <p style={{ color: 'var(--blue)' }} className="text-base font-bold mono leading-tight">
-                        {cpse.coveragePercentage}%
+
+                    <div>
+                      <p className="text-sm font-semibold text-white leading-tight">
+                        {p.name}
                       </p>
-                      <p style={{ color: 'var(--text-muted)' }} className="text-xs mono mt-0.5">
-                        {cpse.mappedRecords.toLocaleString()} CNMC
-                      </p>
+                      <p className="text-xs text-[#71717a] mt-0.5">{p.deals}</p>
                     </div>
                   </div>
-                );
-              })}
+
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-white font-mono leading-tight">
+                      {p.amount}
+                    </p>
+                    <p className="text-xs font-semibold mt-0.5 flex items-center justify-end gap-0.5 text-[#10b981]">
+                      <span className="material-symbols-outlined text-[12px]">trending_up</span>
+                      {p.growth}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -1,68 +1,95 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================================
-   SIH26099 — National Unified Material Master
-   Design System: SalesOps Blue — Deep dark + Blue accent
-   ============================================================ */
+/* =======================================================================
+   V0 SALESOPS DASHBOARD DESIGN SYSTEM TOKENS (EXACT MATCH)
+   https://v0-sales-operations-dashboard.vercel.app/
+   ======================================================================= */
 
-/* ---------- LIGHT MODE ---------- */
-:root, html.light {
+:root, html.dark {
+  color-scheme: dark;
+  /* Pure Pitch Black Canvas & Containers */
+  --bg:              #000000;
+  --bg-surface:      #000000;
+  --bg-card:         #09090b;
+  --bg-sidebar:      #000000;
+  --bg-hover:        rgba(255, 255, 255, 0.05);
+  --bg-active:       rgba(255, 255, 255, 0.08);
+  --bg-input:        #0d0d10;
+
+  /* Subtle 1px Wireframe Borders */
+  --border:          rgba(255, 255, 255, 0.08);
+  --border-subtle:   rgba(255, 255, 255, 0.04);
+  --border-active:   rgba(255, 255, 255, 0.15);
+
+  /* High-Contrast Typography */
+  --text-primary:    #ffffff;
+  --text-secondary:  #a1a1aa;
+  --text-muted:      #71717a;
+
+  /* Template Vibrant Accents */
+  --cyan:            #06b6d4;
+  --cyan-dim:        rgba(6, 182, 212, 0.12);
+  --emerald:         #10b981;
+  --emerald-dim:     rgba(16, 185, 129, 0.12);
+  --amber:           #f59e0b;
+  --amber-dim:       rgba(245, 158, 11, 0.12);
+  --rose:            #f43f5e;
+  --rose-dim:        rgba(244, 63, 94, 0.12);
+  --teal-avatar:     #0d9488;
+
+  /* Aliases for backwards compatibility */
+  --blue:            #06b6d4;
+  --blue-dim:        rgba(6, 182, 212, 0.12);
+  --indigo:          #10b981;
+  --indigo-dim:      rgba(16, 185, 129, 0.12);
+  --success:         #10b981;
+  --success-dim:     rgba(16, 185, 129, 0.12);
+  --warning:         #f59e0b;
+  --warning-dim:     rgba(245, 158, 11, 0.12);
+  --error:           #f43f5e;
+  --error-dim:       rgba(244, 63, 94, 0.12);
+
+  --shadow-card:     0 1px 3px rgba(0,0,0,0.8);
+  --shadow-elevated: 0 10px 30px -10px rgba(0,0,0,0.9);
+}
+
+/* Light mode fallback (if user toggles) */
+html.light {
   color-scheme: light;
-  --bg:              #f1f5f9;
+  --bg:              #f8fafc;
   --bg-surface:      #ffffff;
   --bg-card:         #ffffff;
   --bg-sidebar:      #ffffff;
-  --bg-hover:        #f8fafc;
+  --bg-hover:        rgba(0, 0, 0, 0.04);
+  --bg-active:       rgba(0, 0, 0, 0.08);
   --bg-input:        #f1f5f9;
-  --border:          #e2e8f0;
-  --border-subtle:   #f1f5f9;
-  --text-primary:    #0f172a;
+  --border:          rgba(0, 0, 0, 0.08);
+  --border-subtle:   rgba(0, 0, 0, 0.04);
+  --border-active:   rgba(0, 0, 0, 0.15);
+  --text-primary:    #09090b;
   --text-secondary:  #64748b;
   --text-muted:      #94a3b8;
-  --blue:            #3b82f6;
-  --blue-dim:        rgba(59,130,246,0.10);
-  --indigo:          #4144f4;
-  --indigo-dim:      rgba(65,68,244,0.10);
-  --success:         #22c55e;
-  --success-dim:     rgba(34,197,94,0.10);
-  --warning:         #f59e0b;
-  --warning-dim:     rgba(245,158,11,0.10);
-  --error:           #ef4444;
-  --error-dim:       rgba(239,68,68,0.10);
-  --shadow-card:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-}
-
-/* ---------- DARK MODE (Primary) ---------- */
-html.dark {
-  color-scheme: dark;
-  --bg:              #09090b;
-  --bg-surface:      #0e0e11;
-  --bg-card:         #141417;
-  --bg-sidebar:      #0b0b0e;
-  --bg-hover:        #1c1c20;
-  --bg-input:        #161619;
-  --border:          #242429;
-  --border-subtle:   #1a1a1e;
-  --text-primary:    #f1f5f9;
-  --text-secondary:  #94a3b8;
-  --text-muted:      #64748b;
-  --blue:            #3b82f6;
-  --blue-dim:        rgba(59,130,246,0.10);
-  --indigo:          #4144f4;
-  --indigo-dim:      rgba(65,68,244,0.10);
-  --success:         #22c55e;
-  --success-dim:     rgba(34,197,94,0.10);
-  --warning:         #f59e0b;
-  --warning-dim:     rgba(245,158,11,0.10);
-  --error:           #ef4444;
-  --error-dim:       rgba(239,68,68,0.10);
-  --shadow-card:     0 1px 4px rgba(0,0,0,0.6);
-  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.6);
+  --cyan:            #0284c7;
+  --cyan-dim:        rgba(2, 132, 199, 0.10);
+  --emerald:         #059669;
+  --emerald-dim:     rgba(5, 150, 105, 0.10);
+  --amber:           #d97706;
+  --amber-dim:       rgba(217, 119, 6, 0.10);
+  --rose:            #e11d48;
+  --rose-dim:        rgba(225, 29, 72, 0.10);
+  --teal-avatar:     #0f766e;
+  --blue:            #0284c7;
+  --blue-dim:        rgba(2, 132, 199, 0.10);
+  --indigo:          #059669;
+  --indigo-dim:      rgba(5, 150, 105, 0.10);
+  --success:         #059669;
+  --success-dim:     rgba(5, 150, 105, 0.10);
+  --warning:         #d97706;
+  --warning-dim:     rgba(217, 119, 6, 0.10);
+  --error:           #e11d48;
+  --error-dim:       rgba(225, 29, 72, 0.10);
 }
 
 /* ---------- BASE ---------- */
@@ -76,10 +103,9 @@ html, body {
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 200ms ease, color 200ms ease;
 }
 
 #root {
@@ -87,113 +113,60 @@ html, body {
   background: var(--bg);
 }
 
-/* ---------- MATERIAL SYMBOLS ---------- */
+/* Material symbols adjustments */
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 18px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  direction: ltr;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
   vertical-align: middle;
+  line-height: 1;
 }
-.icon-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
+.material-symbols-outlined.icon-fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
 
-/* ---------- SCROLLBAR ---------- */
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* Custom scrollbar matching dark obsidian */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-/* ---------- ANIMATIONS ---------- */
+/* Monospace font */
+.mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+/* Subtle card hover */
+.card-hover {
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+.card-hover:hover {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Accordion max-height transition */
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 200ms ease, opacity 200ms ease;
+}
+.accordion-content.open {
+  max-height: 400px;
+  opacity: 1;
+}
+.accordion-content.closed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }
-@keyframes slideInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes shimmer {
-  from { background-position: -200% 0; }
-  to   { background-position: 200% 0; }
-}
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.animate-fade-in        { animation: fadeIn 200ms ease forwards; }
-.animate-slide-in-right { animation: slideInRight 200ms ease forwards; }
-.animate-slide-in-up    { animation: slideInUp 250ms ease forwards; }
-.animate-count-up       { animation: countUp 600ms ease forwards; }
-
-/* Skeleton shimmer */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--bg-hover) 25%,
-    var(--border) 37%,
-    var(--bg-hover) 63%
-  );
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-}
-
-/* Card hover lift */
-.card-hover {
-  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
-}
-.card-hover:hover {
-  border-color: var(--blue) !important;
-  box-shadow: 0 4px 20px rgba(59,130,246,0.12);
-  transform: translateY(-1px);
-}
-
-/* Accordion slide */
-.accordion-content {
-  overflow: hidden;
-  transition: max-height 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease;
-}
-.accordion-content.open   { max-height: 400px; opacity: 1; }
-.accordion-content.closed { max-height: 0; opacity: 0; }
-
-/* Sidebar collapse transition */
-.sidebar { transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1); }
-
-/* Button transitions */
-button, a {
-  transition: opacity 150ms ease, background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
-}
-button:active { transform: scale(0.98); }
-
-/* Focus ring */
-:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Toast */
-.toast-enter { animation: slideInRight 250ms ease forwards; }
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+.animate-slide-in-right {
+  animation: slideInRight 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
