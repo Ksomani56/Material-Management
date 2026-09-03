@@ -18,6 +18,7 @@ import {
 import { ParsedMaterialRecord } from '../utils/fileParser';
 
 export type ScreenType =
+  | 'landing'
   | 'home'
   | 'dashboard'
   | 'datahub'
@@ -30,6 +31,12 @@ export type ScreenType =
   | 'governance'
   | 'settings'
   | 'support';
+
+export interface Toast {
+  id: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+  message: string;
+}
 
 interface ImpactModalConfig {
   isOpen: boolean;
@@ -99,13 +106,62 @@ interface AppContextType {
   // Global search
   globalSearch: string;
   setGlobalSearch: (q: string) => void;
+
+  // Sidebar state
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (v: boolean) => void;
+  sidebarOpenGroups: string[];
+  toggleSidebarGroup: (group: string) => void;
+
+  // Search spotlight
+  searchOpen: boolean;
+  setSearchOpen: (v: boolean) => void;
+
+  // Toast
+  toasts: Toast[];
+  addToast: (type: Toast['type'], message: string) => void;
+  removeToast: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [activeScreen, setActiveScreen] = useState<ScreenType>('home');
+  const [activeScreen, setActiveScreen] = useState<ScreenType>('landing');
+
+  // Sidebar
+  const [sidebarCollapsed, setSidebarCollapsedState] = useState<boolean>(() => {
+    try { return localStorage.getItem('sidebar-collapsed') === 'true'; } catch { return false; }
+  });
+  const [sidebarOpenGroups, setSidebarOpenGroups] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-open-groups');
+      return saved ? JSON.parse(saved) : ['overview', 'catalog'];
+    } catch { return ['overview', 'catalog']; }
+  });
+  const setSidebarCollapsed = (v: boolean) => {
+    setSidebarCollapsedState(v);
+    try { localStorage.setItem('sidebar-collapsed', String(v)); } catch { /* noop */ }
+  };
+  const toggleSidebarGroup = (group: string) => {
+    setSidebarOpenGroups(prev => {
+      const next = prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group];
+      try { localStorage.setItem('sidebar-open-groups', JSON.stringify(next)); } catch { /* noop */ }
+      return next;
+    });
+  };
+
+  // Search spotlight
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
+
+  // Toasts
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const addToast = (type: Toast['type'], message: string) => {
+    const id = `toast-${Date.now()}`;
+    setToasts(prev => [...prev.slice(-2), { id, type, message }]);
+    setTimeout(() => removeToast(id), 3500);
+  };
+  const removeToast = (id: string) => setToasts(prev => prev.filter(t => t.id !== id));
   const [selectedCnmcId, setSelectedCnmcId] = useState<string>('CNMC-00018427');
   const [catalogueMaterials, setCatalogueMaterials] = useState<CanonicalMaterial[]>(mockCatalogueMaterials);
 
@@ -505,7 +561,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         closeUploadModal,
         importParsedRecords,
         globalSearch,
-        setGlobalSearch
+        setGlobalSearch,
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        sidebarOpenGroups,
+        toggleSidebarGroup,
+        searchOpen,
+        setSearchOpen,
+        toasts,
+        addToast,
+        removeToast
       }}
     >
       {children}
