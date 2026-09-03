@@ -20,6 +20,7 @@ import { DataHubScreen } from './components/screens/DataHubScreen';
 import { AnalyticsScreen } from './components/screens/AnalyticsScreen';
 import { GovernanceScreen } from './components/screens/GovernanceScreen';
 import { SettingsScreen, SupportScreen } from './components/screens/SettingsScreen';
+import { GridPattern } from './components/core/grid-pattern';
 
 const MainApp: React.FC = () => {
   const { activeScreen, sidebarCollapsed } = useApp();
@@ -52,11 +53,19 @@ const MainApp: React.FC = () => {
       <AppShell />
 
       <div
-        className="flex-1 flex flex-col h-full overflow-hidden transition-all duration-200"
+        className="flex-1 flex flex-col h-full overflow-hidden transition-all duration-200 relative"
         style={{ marginLeft: `${sideW}px`, background: 'var(--bg)' }}
       >
+        {/* Ambient Top Grid Pattern */}
+        <GridPattern
+          width={44}
+          height={44}
+          strokeDasharray="4 2"
+          className="[mask-image:radial-gradient(ellipse_at_top,white_30%,transparent_75%)] opacity-40 pointer-events-none"
+        />
+
         <TopAppBar />
-        <div className="flex-1 flex flex-col overflow-hidden relative animate-fade-in">
+        <div className="flex-1 flex flex-col overflow-hidden relative animate-fade-in z-10">
           {renderScreen()}
         </div>
       </div>

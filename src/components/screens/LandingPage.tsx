@@ -1,22 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
-
-/* ── Animated counter hook ── */
-function useCounter(target: number, duration = 1800, active = false) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let start = 0;
-    const step = target / (duration / 16);
-    const timer = setInterval(() => {
-      start = Math.min(start + step, target);
-      setValue(Math.floor(start));
-      if (start >= target) clearInterval(timer);
-    }, 16);
-    return () => clearInterval(timer);
-  }, [target, duration, active]);
-  return value;
-}
+import { AnimatedNumber } from '../core/animated-number';
+import { TextEffect } from '../core/text-effect';
+import { TextShimmer } from '../core/text-shimmer';
+import { GridPattern } from '../core/grid-pattern';
 
 /* ── Intersection observer for scroll-triggered animations ── */
 function useInView(threshold = 0.3) {
@@ -37,14 +24,17 @@ function StatCard({ prefix = '', suffix = '', target, label, sublabel }: {
   prefix?: string; suffix?: string; target: number; label: string; sublabel: string;
 }) {
   const { ref, inView } = useInView();
-  const value = useCounter(target, 2000, inView);
   return (
     <div ref={ref} className="text-center px-8 py-6">
-      <div className="text-3xl font-bold mb-1" style={{ color: 'var(--blue)' }}>
-        {prefix}{inView ? value.toLocaleString() : '0'}{suffix}
+      <div className="text-3xl font-extrabold mb-1" style={{ color: '#8b5cf6' }}>
+        {inView ? (
+          <AnimatedNumber value={target} duration={1800} prefix={prefix} suffix={suffix} />
+        ) : (
+          `${prefix}0${suffix}`
+        )}
       </div>
-      <div className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>{label}</div>
-      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{sublabel}</div>
+      <div className="text-sm font-semibold mb-0.5 text-white">{label}</div>
+      <div className="text-xs text-[#a1a1aa]">{sublabel}</div>
     </div>
   );
 }
@@ -155,36 +145,45 @@ export const LandingPage: React.FC = () => {
 
       {/* ── HERO ── */}
       <section className="relative flex flex-col items-center text-center py-28 px-6 overflow-hidden">
-        {/* Background grid */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `
-              linear-gradient(var(--border-subtle) 1px, transparent 1px),
-              linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)
-            `,
-            backgroundSize: '48px 48px',
-            opacity: 0.6,
-          }}
+        {/* Modern Vector Background Grid Pattern with Violet Highlights */}
+        <GridPattern
+          width={44}
+          height={44}
+          strokeDasharray="4 2"
+          squares={[
+            [4, 1],
+            [2, 3],
+            [8, 2],
+            [12, 3],
+            [15, 2],
+            [6, 4],
+            [10, 5],
+            [14, 4],
+          ]}
+          className="[mask-image:radial-gradient(ellipse_at_center,white_35%,transparent_85%)]"
         />
-        {/* Clean background without blue cast */}
 
         <div className="relative z-10 max-w-3xl animate-slide-in-up">
-          <span
-            className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-6"
-            style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,0.2)' }}
+          <div
+            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-medium mb-6"
+            style={{
+              background: 'rgba(139, 92, 246, 0.12)',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+            }}
           >
-            Smart India Hackathon 2024 · Problem Statement SIH26099
-          </span>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#8b5cf6' }} />
+            <TextShimmer duration={2.2} className="font-semibold text-xs">
+              Smart India Hackathon 2024 · Problem Statement SIH26099
+            </TextShimmer>
+          </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5" style={{ color: 'var(--text-primary)' }}>
-            One Platform to Unify{' '}
-            <span style={{ color: 'var(--blue)' }}>14.2 Million</span>
-            <br />
-            CPSE Material Records
+          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5 text-white tracking-tight">
+            <TextEffect per="word" preset="fade">
+              One Platform to Unify 14.2 Million CPSE Material Records
+            </TextEffect>
           </h1>
 
-          <p className="text-base leading-relaxed mb-8 max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-base leading-relaxed mb-8 max-w-2xl mx-auto text-[#a1a1aa]">
             India's public sector enterprises — ONGC, IOCL, GAIL, NTPC, SAIL, BHEL — each maintain separate, 
             incompatible material catalogs. The National Unified Material Master eliminates fragmentation, 
             standardizes procurement, and saves ₹4,820 Crore annually.
@@ -193,8 +192,8 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => setActiveScreen('dashboard')}
-              className="px-6 py-3 rounded-lg text-sm font-semibold hover:brightness-110 transition-all"
-              style={{ background: 'var(--blue)', color: '#fff' }}
+              className="px-6 py-3 rounded-lg text-sm font-semibold hover:brightness-110 transition-all text-white shadow-lg"
+              style={{ background: '#8b5cf6' }}
             >
               Start Now →
             </button>

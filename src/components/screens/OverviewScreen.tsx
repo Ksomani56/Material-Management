@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { AnimatedNumber } from '../core/animated-number';
 
 /* -----------------------------------------------------------------------
    Dual-Line Spline Area Chart matching template exactly
@@ -206,7 +207,7 @@ const AreaChart: React.FC = () => {
    ----------------------------------------------------------------------- */
 interface KpiCardProps {
   label: string;
-  value: string;
+  value: React.ReactNode;
   delta: string;
   deltaUp: boolean;
   icon: string;
@@ -222,7 +223,7 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
   >
     {/* Top Row: Label + Icon Box */}
     <div className="flex items-center justify-between mb-3">
-      <span className="text-sm font-medium text-[#71717a]">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]">{label}</span>
       <div
         className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a1a1aa]"
         style={{
@@ -236,7 +237,7 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
 
     {/* Bottom Row: Big Bold Metric + Trend Pill */}
     <div className="flex items-baseline gap-3 mt-1">
-      <span className="text-3xl font-bold tracking-tight text-white leading-none">
+      <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-none">
         {value}
       </span>
       <span
@@ -290,28 +291,28 @@ export const OverviewScreen: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           label="Total Revenue"
-          value="$2.4M"
+          value={<AnimatedNumber value={2.4} decimals={1} prefix="$" suffix="M" duration={1600} />}
           delta="+12.5%"
           deltaUp={true}
           icon="attach_money"
         />
         <KpiCard
           label="Conversion Rate"
-          value="24.8%"
+          value={<AnimatedNumber value={24.8} decimals={1} suffix="%" duration={1600} />}
           delta="+3.2%"
           deltaUp={true}
           icon="trending_up"
         />
         <KpiCard
           label="Active Deals"
-          value="147"
+          value={<AnimatedNumber value={147} duration={1500} />}
           delta="-5"
           deltaUp={false}
           icon="track_changes"
         />
         <KpiCard
           label="New Leads"
-          value="892"
+          value={<AnimatedNumber value={892} duration={1600} />}
           delta="+18.3%"
           deltaUp={true}
           icon="group"
@@ -378,8 +379,12 @@ export const OverviewScreen: React.FC = () => {
                   <div className="flex justify-between items-center mb-1.5 text-xs">
                     <span className="font-semibold text-white">{stage.name}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[#71717a] font-mono">{stage.count}</span>
-                      <span className="font-bold text-white font-mono">{stage.pct}%</span>
+                      <span className="text-[#71717a] font-mono">
+                        <AnimatedNumber value={stage.count} duration={1400} />
+                      </span>
+                      <span className="font-bold text-white font-mono">
+                        <AnimatedNumber value={stage.pct} suffix="%" duration={1400} />
+                      </span>
                     </div>
                   </div>
                   <div
@@ -405,7 +410,9 @@ export const OverviewScreen: React.FC = () => {
             style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}
           >
             <span className="text-xs text-[#71717a]">Total Pipeline Value</span>
-            <span className="text-2xl font-bold text-white tracking-tight">$4.8M</span>
+            <span className="text-2xl font-bold text-white tracking-tight">
+              <AnimatedNumber value={4.8} decimals={1} prefix="$" suffix="M" duration={1600} />
+            </span>
           </div>
         </div>
       </div>

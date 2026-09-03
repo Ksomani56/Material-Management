@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { AnimatedNumber } from '../core/animated-number';
+import { TextShimmer } from '../core/text-shimmer';
 
 /* -----------------------------------------------------------------------
    Mini Sparkline Component
@@ -35,7 +37,7 @@ const Sparkline: React.FC<{ data: number[]; color: string }> = ({ data, color })
    ----------------------------------------------------------------------- */
 interface KpiCardProps {
   label: string;
-  value: string;
+  value: React.ReactNode;
   badge: string;
   badgeType: 'success' | 'violet';
   sparklineData: number[];
@@ -335,7 +337,9 @@ const ProcurementMultiSeriesChart: React.FC = () => {
         >
           <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10">
             <span className="text-xs font-bold text-white">{activeQ.name} Procurement Detail</span>
-            <span className="text-[10px] text-[#8b5cf6] font-mono font-semibold">Pooled</span>
+            <TextShimmer duration={2.2} className="text-[10px] font-mono font-bold text-[#8b5cf6]">
+              Pooled
+            </TextShimmer>
           </div>
 
           <div className="space-y-1.5 text-xs font-mono">
@@ -461,28 +465,28 @@ export const AnalyticsScreen: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           label="Total Spend"
-          value="₹7.45B"
+          value={<AnimatedNumber value={7.45} decimals={2} prefix="₹" suffix="B" duration={1600} />}
           badge="+12.3%"
           badgeType="success"
           sparklineData={[12, 15, 14, 18, 22, 26, 32]}
         />
         <KpiCard
           label="Identified Savings"
-          value="₹892M"
+          value={<AnimatedNumber value={892} prefix="₹" suffix="M" duration={1600} />}
           badge="+18.5%"
           badgeType="violet"
           sparklineData={[8, 12, 15, 19, 25, 29, 36]}
         />
         <KpiCard
           label="Active Contracts"
-          value="1,850"
+          value={<AnimatedNumber value={1850} duration={1600} />}
           badge="+4.1%"
           badgeType="violet"
           sparklineData={[20, 22, 21, 25, 28, 30, 34]}
         />
         <KpiCard
           label="Vendor Compliance"
-          value="94.2%"
+          value={<AnimatedNumber value={94.2} decimals={1} suffix="%" duration={1600} />}
           badge="+2.9%"
           badgeType="success"
           sparklineData={[88, 89, 91, 92, 93, 94, 94.2]}
