@@ -1,292 +1,641 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
-/* ── Shared card wrapper ── */
-const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
+/* -----------------------------------------------------------------------
+   Mini Sparkline Component
+   ----------------------------------------------------------------------- */
+const Sparkline: React.FC<{ data: number[]; color: string }> = ({ data, color }) => {
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const W = 100;
+  const H = 32;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 6) - 3;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <svg width={W} height={H} className="overflow-visible shrink-0 opacity-90">
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={color}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+/* -----------------------------------------------------------------------
+   KPI Metric Card
+   ----------------------------------------------------------------------- */
+interface KpiCardProps {
+  label: string;
+  value: string;
+  badge: string;
+  badgeType: 'success' | 'violet';
+  sparklineData: number[];
+}
+
+const KpiCard: React.FC<KpiCardProps> = ({ label, value, badge, badgeType, sparklineData }) => (
   <div
-    className={`rounded-xl card-hover ${className}`}
-    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
+    style={{
+      background: '#09090b',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+    }}
   >
-    {children}
-  </div>
-);
-
-/* ── Simple SVG horizontal bar chart ── */
-const HBarChart: React.FC<{ data: { label: string; value: number; max: number; color: string }[] }> = ({ data }) => (
-  <div className="space-y-3 w-full">
-    {data.map(d => (
-      <div key={d.label}>
-        <div className="flex justify-between items-center mb-1.5">
-          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{d.label}</span>
-          <span className="text-sm font-bold font-mono" style={{ color: d.color }}>{d.value.toLocaleString()}</span>
-        </div>
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${(d.value / d.max) * 100}%`, background: d.color }}
-          />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-/* ── SVG Donut chart ── */
-const DonutChart: React.FC<{ pct: number; color: string; label: string; sublabel: string }> = ({ pct, color, label, sublabel }) => {
-  const r = 52, cx = 64, cy = 64;
-  const circ = 2 * Math.PI * r;
-  const dash = (pct / 100) * circ;
-  return (
-    <div className="flex items-center gap-6">
-      <svg width="128" height="128" viewBox="0 0 128 128">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-hover)" strokeWidth="12" />
-        <circle
-          cx={cx} cy={cy} r={r} fill="none"
-          stroke={color} strokeWidth="12"
-          strokeDasharray={`${dash} ${circ - dash}`}
-          strokeDashoffset={circ / 4}
-          strokeLinecap="round"
-          style={{ transition: 'stroke-dasharray 1s ease' }}
-        />
-        <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="var(--text-primary)" fontFamily="JetBrains Mono, monospace">
-          {pct}%
-        </text>
-        <text x={cx} y={cy + 12} textAnchor="middle" fontSize="10" fill="var(--text-muted)" fontFamily="Inter, sans-serif">
-          of target
-        </text>
-      </svg>
-      <div>
-        <p className="text-xl font-bold" style={{ color }}>{label}</p>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{sublabel}</p>
-      </div>
+    <div className="flex items-center justify-between mb-2">
+      <span className="text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]">{label}</span>
+      <span
+        className="text-xs font-bold px-2.5 py-0.5 rounded-full font-mono flex items-center gap-0.5"
+        style={{
+          background: badgeType === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(139, 92, 246, 0.15)',
+          color: badgeType === 'success' ? '#10b981' : '#8b5cf6',
+          border: `1px solid ${badgeType === 'success' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`,
+        }}
+      >
+        <span className="material-symbols-outlined text-[12px]">trending_up</span>
+        {badge}
+      </span>
     </div>
-  );
-};
 
-/* ── Savings trend sparkline ── */
-const SavingsTrend: React.FC = () => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-  const savings = [120, 240, 380, 520, 720, 980, 1240, 1680, 2100]; // cumulative Cr
-  const W = 500, H = 120, padL = 40, padR = 10, padT = 10, padB = 28;
-  const iW = W - padL - padR, iH = H - padT - padB;
-  const maxV = Math.max(...savings);
-  const toX = (i: number) => padL + (i / (savings.length - 1)) * iW;
-  const toY = (v: number) => padT + iH - (v / maxV) * iH;
-  const poly = savings.map((v, i) => `${toX(i)},${toY(v)}`).join(' ');
-  const area = `${padL},${padT + iH} ${poly} ${toX(savings.length - 1)},${padT + iH}`;
+    <div className="flex items-baseline justify-between gap-3 mt-2">
+      <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-none">
+        {value}
+      </span>
+      <Sparkline data={sparklineData} color="#8b5cf6" />
+    </div>
+  </div>
+);
+
+/* -----------------------------------------------------------------------
+   Multi-Series Procurement Spend & Savings Chart
+   ----------------------------------------------------------------------- */
+const ProcurementMultiSeriesChart: React.FC = () => {
+  const [hoveredQuarter, setHoveredQuarter] = useState<number | null>(2); // Default show Q3
+
+  const quarters = [
+    {
+      name: 'Q1',
+      ongc: 32,
+      iocl: 22,
+      gail: 12,
+      totalSpend: 66,
+      totalSavings: 18,
+      spendLabel: '$660M',
+      ongcLabel: '$320M',
+      ioclLabel: '$220M',
+      gailLabel: '$120M',
+      savingsLabel: '$180M',
+    },
+    {
+      name: 'Q2',
+      ongc: 38,
+      iocl: 28,
+      gail: 15,
+      totalSpend: 81,
+      totalSavings: 24,
+      spendLabel: '$810M',
+      ongcLabel: '$380M',
+      ioclLabel: '$280M',
+      gailLabel: '$150M',
+      savingsLabel: '$240M',
+    },
+    {
+      name: 'Q3',
+      ongc: 58,
+      iocl: 40,
+      gail: 24,
+      totalSpend: 122,
+      totalSavings: 42,
+      spendLabel: '$1,220M',
+      ongcLabel: '$580M',
+      ioclLabel: '$400M',
+      gailLabel: '$240M',
+      savingsLabel: '$420M',
+    },
+    {
+      name: 'Q4',
+      ongc: 44,
+      iocl: 33,
+      gail: 20,
+      totalSpend: 97,
+      totalSavings: 31,
+      spendLabel: '$970M',
+      ongcLabel: '$440M',
+      ioclLabel: '$330M',
+      gailLabel: '$200M',
+      savingsLabel: '$310M',
+    },
+  ];
+
+  const W = 780;
+  const H = 280;
+  const padL = 48;
+  const padR = 20;
+  const padT = 20;
+  const padB = 40;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const maxSpend = 70; // Max per bar
+
+  const quarterWidth = innerW / quarters.length;
+  const barW = 26;
+  const barGap = 6;
+
+  // Trendline coordinates
+  const spendPts = quarters.map((q, i) => {
+    const cx = padL + i * quarterWidth + quarterWidth / 2;
+    const cy = padT + innerH - (q.totalSpend / 140) * innerH;
+    return { x: cx, y: cy };
+  });
+
+  const savingsPts = quarters.map((q, i) => {
+    const cx = padL + i * quarterWidth + quarterWidth / 2;
+    const cy = padT + innerH - (q.totalSavings / 60) * innerH;
+    return { x: cx, y: cy };
+  });
+
+  const getSpline = (pts: { x: number; y: number }[]) => {
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i === 0 ? 0 : i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  };
+
+  const spendPath = getSpline(spendPts);
+  const savingsPath = getSpline(savingsPts);
+
+  const activeQ = hoveredQuarter !== null ? quarters[hoveredQuarter] : quarters[2];
+  const activePt = spendPts[hoveredQuarter !== null ? hoveredQuarter : 2];
 
   return (
-    <div className="w-full" style={{ height: `${H}px` }}>
+    <div className="relative w-full" style={{ height: `${H}px` }}>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full h-full">
-        <defs>
-          <linearGradient id="savGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--blue)" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="var(--blue)" stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
-        {[0, 25, 50, 75, 100].map(g => (
-          <line key={g} x1={padL} y1={toY(maxV * g / 100)} x2={W - padR} y2={toY(maxV * g / 100)}
-            stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-        ))}
-        {months.map((m, i) => (
-          <text key={m} x={toX(i)} y={H - 6} textAnchor="middle" fontSize="9"
-            fill="rgba(255,255,255,0.3)" fontFamily="JetBrains Mono, monospace">{m}</text>
-        ))}
-        <polygon points={area} fill="url(#savGrad)" />
-        <polyline points={poly} fill="none" stroke="var(--blue)" strokeWidth="2"
-          strokeLinejoin="round" strokeLinecap="round" />
+        {/* Horizontal grid lines */}
+        {[0, 15, 30, 45, 60].map((val) => {
+          const y = padT + innerH - (val / maxSpend) * innerH;
+          return (
+            <g key={val}>
+              <line
+                x1={padL}
+                y1={y}
+                x2={W - padR}
+                y2={y}
+                stroke="rgba(255, 255, 255, 0.05)"
+                strokeWidth="1"
+              />
+              <text
+                x={padL - 8}
+                y={y + 4}
+                textAnchor="end"
+                fontSize="11"
+                fill="#71717a"
+                fontFamily="Inter, sans-serif"
+              >
+                ${val}M
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Grouped Bars per Quarter */}
+        {quarters.map((q, i) => {
+          const groupCenter = padL + i * quarterWidth + quarterWidth / 2;
+          const startX = groupCenter - (barW * 3 + barGap * 2) / 2;
+
+          const ongcH = (q.ongc / maxSpend) * innerH;
+          const ioclH = (q.iocl / maxSpend) * innerH;
+          const gailH = (q.gail / maxSpend) * innerH;
+
+          return (
+            <g key={q.name} onMouseEnter={() => setHoveredQuarter(i)} className="cursor-pointer">
+              {/* Highlight background column on hover */}
+              {hoveredQuarter === i && (
+                <rect
+                  x={padL + i * quarterWidth + 6}
+                  y={padT}
+                  width={quarterWidth - 12}
+                  height={innerH}
+                  fill="rgba(139, 92, 246, 0.06)"
+                  rx="6"
+                />
+              )}
+
+              {/* Bar 1: ONGC (Electric Violet #8b5cf6) */}
+              <rect
+                x={startX}
+                y={padT + innerH - ongcH}
+                width={barW}
+                height={ongcH}
+                fill="#8b5cf6"
+                rx="4"
+              />
+
+              {/* Bar 2: IOCL (Purple #a855f7) */}
+              <rect
+                x={startX + barW + barGap}
+                y={padT + innerH - ioclH}
+                width={barW}
+                height={ioclH}
+                fill="#a855f7"
+                rx="4"
+              />
+
+              {/* Bar 3: GAIL (Soft Lavender #c4b5fd) */}
+              <rect
+                x={startX + (barW + barGap) * 2}
+                y={padT + innerH - gailH}
+                width={barW}
+                height={gailH}
+                fill="#c4b5fd"
+                rx="4"
+              />
+
+              {/* X-axis Quarter Label */}
+              <text
+                x={groupCenter}
+                y={H - 12}
+                textAnchor="middle"
+                fontSize="12"
+                fontWeight="600"
+                fill={hoveredQuarter === i ? '#ffffff' : '#a1a1aa'}
+                fontFamily="Inter, sans-serif"
+              >
+                {q.name}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Trendline 1: White Curve (Total Spend) */}
+        <path
+          d={spendPath}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Trendline 2: Violet Curve (Realized Savings) */}
+        <path
+          d={savingsPath}
+          fill="none"
+          stroke="#8b5cf6"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Indicator marker dots on selected quarter */}
+        {activePt && (
+          <g>
+            <circle cx={activePt.x} cy={activePt.y} r="5" fill="#ffffff" stroke="#000000" strokeWidth="2" />
+            <circle
+              cx={savingsPts[hoveredQuarter !== null ? hoveredQuarter : 2].x}
+              cy={savingsPts[hoveredQuarter !== null ? hoveredQuarter : 2].y}
+              r="5"
+              fill="#8b5cf6"
+              stroke="#000000"
+              strokeWidth="2"
+            />
+          </g>
+        )}
       </svg>
+
+      {/* Floating Detailed Popover Card matching Purple Mockup */}
+      {activeQ && (
+        <div
+          className="absolute z-20 rounded-xl p-3 shadow-2xl transition-all duration-150 pointer-events-none"
+          style={{
+            left: `${((padL + (hoveredQuarter !== null ? hoveredQuarter : 2) * quarterWidth + quarterWidth / 2) / W) * 100}%`,
+            top: '8%',
+            transform: 'translateX(-50%)',
+            background: '#0e0e13',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 16px rgba(139, 92, 246, 0.15)',
+            minWidth: '170px',
+          }}
+        >
+          <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10">
+            <span className="text-xs font-bold text-white">{activeQ.name} Procurement Detail</span>
+            <span className="text-[10px] text-[#8b5cf6] font-mono font-semibold">Pooled</span>
+          </div>
+
+          <div className="space-y-1.5 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[#a1a1aa]">
+                <span className="w-2 h-2 rounded-sm" style={{ background: '#8b5cf6' }} /> ONGC:
+              </span>
+              <span className="font-bold text-white">{activeQ.ongcLabel}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[#a1a1aa]">
+                <span className="w-2 h-2 rounded-sm" style={{ background: '#a855f7' }} /> IOCL:
+              </span>
+              <span className="font-bold text-white">{activeQ.ioclLabel}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[#a1a1aa]">
+                <span className="w-2 h-2 rounded-sm" style={{ background: '#c4b5fd' }} /> GAIL:
+              </span>
+              <span className="font-bold text-white">{activeQ.gailLabel}</span>
+            </div>
+          </div>
+
+          <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-between text-xs">
+            <span className="text-[#a1a1aa]">Total Savings:</span>
+            <span className="font-bold text-[#8b5cf6] font-mono">{activeQ.savingsLabel}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
+/* -----------------------------------------------------------------------
+   Main Analytics Screen
+   ----------------------------------------------------------------------- */
 export const AnalyticsScreen: React.FC = () => {
-  const { cpseList } = useApp();
-  const [activeTab, setActiveTab] = useState<'overview' | 'cpse'>('overview');
-  const maxRecords = Math.max(...cpseList.map(c => c.totalRecords));
+  const [activeFilter, setActiveFilter] = useState<'all' | 'quarters'>('all');
+
+  const catalogItems = [
+    {
+      name: 'Pipe, Seamless Carbon Steel 6 IN SCH 40',
+      category: 'Pipes & Tubulars',
+      status: 'ACTIVE',
+      vendor: 'ONGC (Western)',
+      lastPrice: '₹18,400 / M',
+      variance: '+3.2%',
+      varianceUp: true,
+    },
+    {
+      name: 'Valve, Floating Ball 2 IN Class 150 RF A216 WCB',
+      category: 'Valves & Actuators',
+      status: 'ACTIVE',
+      vendor: 'BHEL Haridwar',
+      lastPrice: '₹14,200 / EA',
+      variance: '-1.1%',
+      varianceUp: false,
+    },
+    {
+      name: 'Flange, Weld Neck 4 IN Class 300 RF A105',
+      category: 'Fasteners & Flanges',
+      status: 'PENDING',
+      vendor: 'IOCL Panipat',
+      lastPrice: '₹4,850 / EA',
+      variance: '-1.9%',
+      varianceUp: false,
+    },
+    {
+      name: 'Gasket, Spiral Wound 316SS with Graphite Filler',
+      category: 'Seals & Packing',
+      status: 'ACTIVE',
+      vendor: 'GAIL Vijaipur',
+      lastPrice: '₹1,250 / EA',
+      variance: '-0.3%',
+      varianceUp: false,
+    },
+    {
+      name: 'Cable, Armored Power 4-Core 16 SQMM XLPE',
+      category: 'Electrical & Cables',
+      status: 'ON HOLD',
+      vendor: 'NTPC Singrauli',
+      lastPrice: '₹920 / M',
+      variance: '+2.2%',
+      varianceUp: true,
+    },
+  ];
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-5" style={{ background: 'var(--bg)' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between">
+    <main className="flex-1 overflow-y-auto p-6 space-y-6" style={{ background: '#000000' }}>
+      {/* 1. Header with Breadcrumb & Quick Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-            Analytics &amp; Savings
-          </h2>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-            Measurable procurement impact, catalog reduction metrics, and CPSE harmonization performance.
+          <h1 className="text-xl font-bold tracking-tight text-white">
+            National Unified Material Master - Analytics &amp; Savings
+          </h1>
+          <p className="text-xs text-[#a1a1aa] mt-0.5">
+            Inter-enterprise procurement pooling, volume discounts, and price harmonization
           </p>
         </div>
-        <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-          {(['overview', 'cpse'] as const).map(t => (
-            <button
-              key={t}
-              onClick={() => setActiveTab(t)}
-              className="px-3 py-1.5 rounded text-sm font-medium capitalize transition-all"
-              style={{
-                background: activeTab === t ? 'var(--blue)' : 'transparent',
-                color: activeTab === t ? '#fff' : 'var(--text-secondary)',
-              }}
-            >
-              {t === 'overview' ? 'Overview' : 'CPSE Breakdown'}
-            </button>
-          ))}
+
+        <div className="flex items-center gap-2">
+          <button
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:bg-white/10"
+            style={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <span className="material-symbols-outlined text-[16px]">filter_list</span>
+            Filters
+          </button>
+          <button
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:brightness-110 shadow-sm"
+            style={{ background: '#8b5cf6' }}
+          >
+            <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+            Quarters (2024)
+          </button>
         </div>
       </div>
 
-      {activeTab === 'overview' && (
-        <>
-          {/* 3 KPI cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { label: 'Annual Savings Potential', value: '₹4,820 Cr', sub: 'Via cross-CPSE procurement pooling', color: 'var(--blue)', icon: 'savings' },
-              { label: 'Catalog Redundancy Reduced', value: '68.2%', sub: '14.2M → 3.1M canonical masters', color: 'var(--indigo)', icon: 'compress' },
-              { label: 'Cross-CPSE Interoperability', value: '91.4%', sub: 'Standard taxonomy alignment score', color: 'var(--success)', icon: 'hub' },
-            ].map(k => (
-              <Card key={k.label} className="p-5">
-                <div className="flex justify-between items-start mb-3">
-                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{k.label}</p>
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: 'var(--bg-hover)' }}>
-                    <span className="material-symbols-outlined text-[20px]" style={{ color: k.color }}>{k.icon}</span>
-                  </div>
-                </div>
-                <p className="text-3xl font-bold font-mono" style={{ color: k.color }}>{k.value}</p>
-                <p className="text-sm mt-1.5" style={{ color: 'var(--text-muted)' }}>{k.sub}</p>
-              </Card>
-            ))}
+      {/* 2. Top Row of 4 KPI Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          label="Total Spend"
+          value="₹7.45B"
+          badge="+12.3%"
+          badgeType="success"
+          sparklineData={[12, 15, 14, 18, 22, 26, 32]}
+        />
+        <KpiCard
+          label="Identified Savings"
+          value="₹892M"
+          badge="+18.5%"
+          badgeType="violet"
+          sparklineData={[8, 12, 15, 19, 25, 29, 36]}
+        />
+        <KpiCard
+          label="Active Contracts"
+          value="1,850"
+          badge="+4.1%"
+          badgeType="violet"
+          sparklineData={[20, 22, 21, 25, 28, 30, 34]}
+        />
+        <KpiCard
+          label="Vendor Compliance"
+          value="94.2%"
+          badge="+2.9%"
+          badgeType="success"
+          sparklineData={[88, 89, 91, 92, 93, 94, 94.2]}
+        />
+      </div>
+
+      {/* 3. Center Multi-Series Spend & Savings Chart Card */}
+      <div
+        className="rounded-xl p-6 space-y-4"
+        style={{
+          background: '#09090b',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Multi-Series Procurement Analytics
+            </h2>
+            <p className="text-xs text-[#71717a] mt-0.5">
+              Quarterly spend pooling breakdown across public sector energy enterprises
+            </p>
           </div>
 
-          {/* Savings trend chart */}
-          <Card className="p-5">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  Cumulative Savings Trajectory
-                </h3>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  Realized procurement savings across 2024 (₹ Crore)
-                </p>
-              </div>
-              <span className="text-sm font-bold font-mono" style={{ color: 'var(--blue)' }}>₹2,100 Cr YTD</span>
+          {/* Legend Items matching Purple Concept */}
+          <div className="flex flex-wrap items-center gap-4 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#8b5cf6' }} />
+              <span className="text-[#a1a1aa]">ONGC</span>
             </div>
-            <SavingsTrend />
-          </Card>
-
-          {/* Two-col: donut + bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-5">
-              <h3 className="text-base font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Catalog Reduction Progress
-              </h3>
-              <DonutChart pct={68} color="var(--indigo)" label="68.2% Reduced" sublabel="11.1M codes eliminated" />
-              <div className="mt-4 pt-4 space-y-2 text-sm" style={{ borderTop: '1px solid var(--border)' }}>
-                <div className="flex justify-between">
-                  <span style={{ color: 'var(--text-secondary)' }}>Source records</span>
-                  <span className="font-mono font-semibold" style={{ color: 'var(--text-primary)' }}>14,285,902</span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: 'var(--text-secondary)' }}>Approved CNMCs</span>
-                  <span className="font-mono font-semibold" style={{ color: 'var(--indigo)' }}>3,102,445</span>
-                </div>
-                <div className="flex justify-between">
-                  <span style={{ color: 'var(--text-secondary)' }}>Pending review</span>
-                  <span className="font-mono font-semibold" style={{ color: 'var(--warning)' }}>12,405</span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-5">
-              <h3 className="text-base font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                CPSE Coverage Index
-              </h3>
-              <HBarChart
-                data={cpseList.map((c, i) => ({
-                  label: c.name,
-                  value: c.coveragePercentage,
-                  max: 100,
-                  color: ['var(--blue)', 'var(--indigo)', 'var(--success)', 'var(--warning)', '#a78bfa', '#f87171'][i % 6],
-                }))}
-              />
-            </Card>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'cpse' && (
-        <Card>
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-            <div>
-              <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                CPSE Harmonization &amp; Interoperability Index
-              </h3>
-              <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                Breakdown per enterprise — live pipeline status
-              </p>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#a855f7' }} />
+              <span className="text-[#a1a1aa]">IOCL</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#c4b5fd' }} />
+              <span className="text-[#a1a1aa]">GAIL</span>
+            </div>
+            <div className="flex items-center gap-1.5 pl-2 border-l border-white/10">
+              <span className="w-4 h-0.5" style={{ background: '#ffffff' }} />
+              <span className="text-white font-medium">Total Spend</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-4 h-0.5" style={{ background: '#8b5cf6' }} />
+              <span className="text-[#8b5cf6] font-medium">Total Savings</span>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  {['CPSE Entity', 'Sector', 'Source Records', 'Harmonized CNMC', 'Pending', 'Coverage', 'Status'].map(h => (
-                    <th key={h} className="px-5 py-3 text-xs font-semibold uppercase tracking-wide"
-                      style={{ color: 'var(--text-muted)' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {cpseList.map(cpse => (
-                  <tr key={cpse.id} className="transition-colors hover:opacity-90"
-                    style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold font-mono shrink-0"
-                          style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,0.2)' }}>
-                          {cpse.name[0]}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{cpse.name}</p>
-                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{cpse.fullName}</p>
-                        </div>
-                      </div>
+        </div>
+
+        {/* Render Chart */}
+        <ProcurementMultiSeriesChart />
+      </div>
+
+      {/* 4. Bottom Data Table: Material Catalog & Price Variance */}
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{
+          background: '#09090b',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10">
+          <div>
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Material Catalog &amp; Price Variance
+            </h2>
+            <p className="text-xs text-[#71717a] mt-0.5">
+              Consolidated items with inter-enterprise price differences and active status
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:bg-white/10 transition-colors"
+              style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+            >
+              Export CSV
+            </button>
+            <button
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:brightness-110 transition-all shadow-sm"
+              style={{ background: '#8b5cf6' }}
+            >
+              Add Material
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead style={{ background: '#0e0e12', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <tr>
+                {['Material Name', 'Category', 'Status', 'Lead CPSE Vendor', 'Last Unit Price', 'Variance'].map((h) => (
+                  <th key={h} className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#71717a]">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {catalogItems.map((item, idx) => {
+                const statusColor = {
+                  ACTIVE: { text: '#10b981', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.25)' },
+                  PENDING: { text: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.25)' },
+                  'ON HOLD': { text: '#a855f7', bg: 'rgba(168, 85, 247, 0.12)', border: 'rgba(168, 85, 247, 0.25)' },
+                }[item.status] || { text: '#a1a1aa', bg: 'rgba(255, 255, 255, 0.05)', border: 'transparent' };
+
+                return (
+                  <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-4 font-semibold text-white max-w-sm truncate">
+                      {item.name}
                     </td>
-                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>{cpse.sector}</td>
-                    <td className="px-5 py-3.5 text-sm text-right font-mono" style={{ color: 'var(--text-primary)' }}>
-                      {cpse.totalRecords.toLocaleString()}
+                    <td className="px-5 py-4 text-xs font-medium text-[#a1a1aa]">
+                      {item.category}
                     </td>
-                    <td className="px-5 py-3.5 text-sm text-right font-mono font-semibold" style={{ color: 'var(--blue)' }}>
-                      {cpse.mappedRecords.toLocaleString()}
+                    <td className="px-5 py-4">
+                      <span
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                        style={{
+                          background: statusColor.bg,
+                          color: statusColor.text,
+                          border: `1px solid ${statusColor.border}`,
+                        }}
+                      >
+                        {item.status === 'ACTIVE' && <span className="material-symbols-outlined text-[12px]">check</span>}
+                        {item.status === 'PENDING' && <span className="material-symbols-outlined text-[12px]">schedule</span>}
+                        {item.status === 'ON HOLD' && <span className="material-symbols-outlined text-[12px]">pause</span>}
+                        {item.status}
+                      </span>
                     </td>
-                    <td className="px-5 py-3.5 text-sm text-right font-mono" style={{ color: 'var(--warning)' }}>
-                      {cpse.pendingRecords.toLocaleString()}
+                    <td className="px-5 py-4 text-sm font-medium text-[#e4e4e7]">
+                      {item.vendor}
                     </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5 justify-end">
-                        <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
-                          <div className="h-full rounded-full" style={{ width: `${cpse.coveragePercentage}%`, background: 'var(--blue)' }} />
-                        </div>
-                        <span className="text-sm font-bold font-mono w-10 text-right" style={{ color: 'var(--text-primary)' }}>
-                          {cpse.coveragePercentage}%
+                    <td className="px-5 py-4 font-mono font-bold text-sm text-white">
+                      {item.lastPrice}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span
+                        className="inline-flex items-center gap-0.5 font-mono text-xs font-bold"
+                        style={{ color: item.varianceUp ? '#10b981' : '#f43f5e' }}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {item.varianceUp ? 'trending_up' : 'trending_down'}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 text-center">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium"
-                        style={{ background: 'var(--success-dim)', color: 'var(--success)' }}>
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }} />
-                        Active
+                        {item.variance}
                       </span>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
   );
 };

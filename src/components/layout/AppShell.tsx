@@ -177,16 +177,16 @@ export const AppShell: React.FC = () => {
                         }}
                       >
                         <span
-                          className="material-symbols-outlined text-[18px] shrink-0"
+                          className="material-symbols-outlined text-[19px] shrink-0"
                           style={{
-                            color: active ? '#10b981' : '#71717a',
+                            color: active ? '#8b5cf6' : '#71717a',
                           }}
                         >
                           {item.icon}
                         </span>
 
                         {!sidebarCollapsed && (
-                          <span className="text-xs truncate flex-1 text-left">
+                          <span className="text-sm truncate flex-1 text-left">
                             {item.label}
                           </span>
                         )}

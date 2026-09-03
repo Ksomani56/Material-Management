@@ -67,14 +67,14 @@ export const TopAppBar: React.FC = () => {
             onFocus={() => setSearchOpen(true)}
             onClick={() => setSearchOpen(true)}
             placeholder="Search..."
-            className="text-xs pl-8 pr-12 py-2 rounded-lg w-56 cursor-pointer text-white placeholder-[#71717a] outline-none transition-all"
+            className="text-sm pl-9 pr-12 py-2 rounded-lg w-60 cursor-pointer text-white placeholder-[#71717a] outline-none transition-all"
             style={{
               background: '#0d0d10',
               border: '1px solid rgba(255, 255, 255, 0.1)',
             }}
           />
           <kbd
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none rounded px-1.5 py-0.5 text-[#71717a] font-mono"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none rounded px-1.5 py-0.5 text-[#71717a] font-mono"
             style={{
               background: 'rgba(255, 255, 255, 0.06)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -87,7 +87,7 @@ export const TopAppBar: React.FC = () => {
         {/* Upload Dataset Button */}
         <button
           onClick={() => openUploadModal('ONGC')}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold hover:brightness-110 transition-all text-white shadow-sm"
+          className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold hover:brightness-110 transition-all text-white shadow-sm"
           style={{
             background: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -127,7 +127,7 @@ export const TopAppBar: React.FC = () => {
         <div
           onClick={() => setActiveScreen('settings')}
           className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
-          style={{ background: '#0d9488', color: '#ffffff' }}
+          style={{ background: '#8b5cf6', color: '#ffffff' }}
           title="Admin Steward"
         >
           JD

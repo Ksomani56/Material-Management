@@ -71,10 +71,10 @@ const AreaChart: React.FC = () => {
         className="w-full h-full"
       >
         <defs>
-          {/* Cyan gradient matching template */}
-          <linearGradient id="v0CyanGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.32" />
-            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
+          {/* Electric Violet gradient */}
+          <linearGradient id="v0VioletGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
           </linearGradient>
         </defs>
 
@@ -117,8 +117,8 @@ const AreaChart: React.FC = () => {
           </text>
         ))}
 
-        {/* Cyan Area Gradient Fill */}
-        <path d={areaRevenue} fill="url(#v0CyanGrad)" />
+        {/* Violet Area Gradient Fill */}
+        <path d={areaRevenue} fill="url(#v0VioletGrad)" />
 
         {/* Target Line (Emerald Green) */}
         <path
@@ -130,11 +130,11 @@ const AreaChart: React.FC = () => {
           strokeLinejoin="round"
         />
 
-        {/* Revenue Line (Electric Cyan) */}
+        {/* Revenue Line (Electric Violet) */}
         <path
           d={pathRevenue}
           fill="none"
-          stroke="#06b6d4"
+          stroke="#8b5cf6"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -166,7 +166,7 @@ const AreaChart: React.FC = () => {
           if (m.label !== tooltip.label) return null;
           return (
             <g key="marker">
-              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#06b6d4" stroke="#000000" strokeWidth="2" />
+              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#8b5cf6" stroke="#000000" strokeWidth="2" />
               <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#000000" strokeWidth="1.5" />
             </g>
           );
@@ -188,7 +188,7 @@ const AreaChart: React.FC = () => {
         >
           <div className="font-semibold text-white mb-1.5">{tooltip.label}</div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#06b6d4' }} />
+            <span className="w-2 h-2 rounded-full" style={{ background: '#8b5cf6' }} />
             <span className="text-[#a1a1aa]">Revenue: <strong className="text-white">{tooltip.v1}</strong></span>
           </div>
           <div className="flex items-center gap-2">
@@ -275,7 +275,7 @@ export const OverviewScreen: React.FC = () => {
   ];
 
   const pipelineStages = [
-    { name: 'Lead', count: 892, pct: 45, color: '#06b6d4' },
+    { name: 'Lead', count: 892, pct: 45, color: '#8b5cf6' },
     { name: 'Qualified', count: 556, pct: 28, color: '#10b981' },
     { name: 'Proposal', count: 357, pct: 18, color: '#f59e0b' },
     { name: 'Negotiation', count: 179, pct: 9, color: '#34d399' },
@@ -342,7 +342,7 @@ export const OverviewScreen: React.FC = () => {
             {/* Legend */}
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#06b6d4' }} />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#8b5cf6' }} />
                 <span className="text-[#a1a1aa]">Revenue</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -525,7 +525,7 @@ export const OverviewScreen: React.FC = () => {
                     <div className="relative">
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm"
-                        style={{ background: '#0d9488' }}
+                        style={{ background: '#7c3aed' }}
                       >
                         {p.initial}
                       </div>
