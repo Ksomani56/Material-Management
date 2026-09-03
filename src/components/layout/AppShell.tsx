@@ -192,8 +192,8 @@ export const AppShell: React.FC = () => {
                         padding: sidebarCollapsed ? '8px 0' : '6px 12px 6px 14px',
                         justifyContent: sidebarCollapsed ? 'center' : 'space-between',
                         borderLeft: active ? '2px solid var(--blue)' : '2px solid transparent',
-                        background: active ? 'var(--blue-dim)' : 'transparent',
-                        color: active ? 'var(--blue)' : 'var(--text-secondary)',
+                        background: active ? 'var(--bg-hover)' : 'transparent',
+                        color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                       }}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">

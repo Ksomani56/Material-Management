@@ -167,13 +167,7 @@ export const LandingPage: React.FC = () => {
             opacity: 0.6,
           }}
         />
-        {/* Glow blob */}
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)',
-          }}
-        />
+        {/* Clean background without blue cast */}
 
         <div className="relative z-10 max-w-3xl animate-slide-in-up">
           <span

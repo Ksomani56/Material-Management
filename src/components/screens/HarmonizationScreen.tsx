@@ -207,11 +207,11 @@ export const HarmonizationScreen: React.FC = () => {
         {/* Pane 2: Proposed Canonical Master (Center - 44%) */}
         <div 
           className="flex-1 rounded-xl flex flex-col overflow-hidden relative"
-          style={{ background: 'var(--bg-card)', border: '1px solid rgba(59,130,246,0.4)', boxShadow: '0 4px 20px rgba(59,130,246,0.06)' }}
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
           <div 
             className="p-4 flex justify-between items-center"
-            style={{ borderBottom: '1px solid var(--border)', background: 'var(--blue-dim)' }}
+            style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-hover)' }}
           >
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--blue)' }}>
