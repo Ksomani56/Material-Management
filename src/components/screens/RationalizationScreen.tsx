@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
+const ACTION_META = {
+  MAP:    { icon: 'link',        label: 'Link to Master',       desc: 'Creates a bi-directional alias between legacy CPSE items and the national master CNMC with full provenance.' },
+  MERGE:  { icon: 'call_merge',  label: 'Combine Duplicates',   desc: 'Safely merges identical source records into a single CNMC with full traceability and alias forwarding.' },
+  RETIRE: { icon: 'archive',     label: 'Deactivate Obsolete',  desc: 'Marks obsolete, deprecated, or superseded materials as retired with automatic replacement forwarding.' },
+  REVIEW: { icon: 'tune',        label: 'Manual Check',         desc: 'Routes ambiguous attribute conflicts to the technical committee for physical inspection.' },
+  SPLIT:  { icon: 'call_split',  label: 'Divergent Specs',      desc: 'Partitions overloaded legacy descriptions into discrete standardized materials.' },
+  RETAIN: { icon: 'lock',        label: 'Keep As-Is',           desc: 'Protects specialized local inventory codes that do not require national standardization.' },
+};
+
+type ActionType = keyof typeof ACTION_META;
+
 export const RationalizationScreen: React.FC = () => {
-  const { openImpactModal, addAuditLog } = useApp();
-  const [selectedAction, setSelectedAction] = useState<'MAP' | 'MERGE' | 'RETIRE' | 'REVIEW' | 'SPLIT' | 'RETAIN'>('MERGE');
-  const [successNotice, setSuccessNotice] = useState<string | null>(null);
+  const { openImpactModal, addAuditLog, addToast } = useApp();
+  const [selectedAction, setSelectedAction] = useState<ActionType>('MERGE');
 
   const sampleTargets = [
     { sourceCode: 'ONGC-VLV-009', targetCnmc: 'CNMC-00018427', description: '6 IN BALL VALVE CLASS 300 A105', cpse: 'ONGC', potentialDuplicates: 3 },
-    { sourceCode: 'IOCL-PMP-104', targetCnmc: 'CNMC-883210', description: 'CENTRIFUGAL PUMP 50M3/HR 120M HEAD CS', cpse: 'IOCL', potentialDuplicates: 2 },
-    { sourceCode: 'NTPC-FST-881', targetCnmc: 'CNMC-110482', description: 'HEX BOLT M16 X 75 GR 8.8 GALV', cpse: 'NTPC', potentialDuplicates: 4 },
+    { sourceCode: 'IOCL-PMP-104', targetCnmc: 'CNMC-883210',   description: 'CENTRIFUGAL PUMP 50M3/HR 120M HEAD CS', cpse: 'IOCL', potentialDuplicates: 2 },
+    { sourceCode: 'NTPC-FST-881', targetCnmc: 'CNMC-110482',   description: 'HEX BOLT M16 X 75 GR 8.8 GALV', cpse: 'NTPC', potentialDuplicates: 4 },
   ];
 
   const handleExecuteAction = (sourceCode: string, targetCnmc: string) => {
@@ -22,146 +32,140 @@ export const RationalizationScreen: React.FC = () => {
       onConfirm: () => {
         addAuditLog({
           action: `Catalog Consolidation: ${selectedAction}`,
-          description: `Applied ${selectedAction} operation to source item ${sourceCode} targeting canonical ${targetCnmc}. Aliases and cross-links generated.`,
-          user: {
-            name: 'A. Kumar',
-            role: 'Catalog Committee Steward',
-            initials: 'AK'
-          },
-          targetEntity: sourceCode
+          description: `Applied ${selectedAction} to ${sourceCode} → ${targetCnmc}. Aliases and cross-links generated.`,
+          user: { name: 'A. Kumar', role: 'Catalog Committee Steward', initials: 'AK' },
+          targetEntity: sourceCode,
         });
-        setSuccessNotice(`Action ${selectedAction} successfully executed on ${sourceCode}. Forward cross-references updated.`);
-        setTimeout(() => setSuccessNotice(null), 4000);
-      }
+        addToast('success', `${selectedAction} executed on ${sourceCode}. Cross-references updated.`);
+      },
     });
   };
 
-  return (
-    <main className="flex-1 overflow-y-auto p-6 bg-background space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h1 className="text-base font-bold text-on-surface tracking-tight">
-            Catalog Rationalization & Migration
-          </h1>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            Safe, staged workflow: Review items → Confirm impacts → Consolidate duplicate catalog entries.
-          </p>
-        </div>
+  const meta = ACTION_META[selectedAction];
 
-        {successNotice && (
-          <div className="px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary text-xs rounded-lg font-mono flex items-center">
-            <span className="material-symbols-outlined text-[15px] mr-1.5">check_circle</span>
-            {successNotice}
-          </div>
-        )}
+  return (
+    <main className="flex-1 overflow-y-auto p-6 space-y-5" style={{ background: 'var(--bg)' }}>
+      {/* Header */}
+      <div>
+        <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+          Catalog Rationalization &amp; Migration
+        </h2>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+          Safe, staged workflow: Select action → Review candidates → Confirm impacts → Execute.
+        </p>
       </div>
 
-      {/* 6 Rationalization Actions Grid */}
+      {/* 6 Action type cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {(['MAP', 'MERGE', 'RETIRE', 'REVIEW', 'SPLIT', 'RETAIN'] as const).map((action) => {
+        {(Object.keys(ACTION_META) as ActionType[]).map(action => {
           const isSelected = selectedAction === action;
+          const m = ACTION_META[action];
           return (
             <button
               key={action}
               onClick={() => setSelectedAction(action)}
-              className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between h-22 ${
-                isSelected
-                  ? 'bg-primary/10 border-primary'
-                  : 'bg-surface-container border-outline-variant/60 hover:border-outline'
-              }`}
+              className="p-4 rounded-xl text-left flex flex-col gap-2 transition-all hover:brightness-105"
+              style={{
+                background: isSelected ? 'var(--blue-dim)' : 'var(--bg-card)',
+                border: `1px solid ${isSelected ? 'var(--blue)' : 'var(--border)'}`,
+              }}
             >
-              <div className="flex justify-between items-center w-full">
-                <span className={`font-mono text-xs font-bold ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
+              <div className="flex justify-between items-center">
+                <span className="font-mono text-sm font-bold" style={{ color: isSelected ? 'var(--blue)' : 'var(--text-primary)' }}>
                   {action}
                 </span>
-                <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-                  {action === 'MAP' ? 'link' : action === 'MERGE' ? 'call_merge' : action === 'RETIRE' ? 'archive' : 'tune'}
+                <span className="material-symbols-outlined text-[18px]" style={{ color: isSelected ? 'var(--blue)' : 'var(--text-muted)' }}>
+                  {m.icon}
                 </span>
               </div>
-              <span className="text-[11px] text-on-surface-variant">
-                {action === 'MAP' && 'Link to Master'}
-                {action === 'MERGE' && 'Combine Duplicates'}
-                {action === 'RETIRE' && 'Deactivate Obsolete'}
-                {action === 'REVIEW' && 'Manual Check'}
-                {action === 'SPLIT' && 'Divergent Specs'}
-                {action === 'RETAIN' && 'Keep As-Is'}
+              <span className="text-xs" style={{ color: isSelected ? 'var(--blue)' : 'var(--text-secondary)' }}>
+                {m.label}
               </span>
             </button>
           );
         })}
       </div>
 
-      {/* Action Description Banner */}
-      <div className="p-4 bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h3 className="text-xs font-semibold text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[17px]">verified</span>
-            Operation: {selectedAction}
-          </h3>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            {selectedAction === 'MERGE' && 'Safely merges identical source records into a single Common National Material Code (CNMC) with full traceability.'}
-            {selectedAction === 'MAP' && 'Creates a bi-directional cross-reference alias between legacy CPSE items and the national master.'}
-            {selectedAction === 'RETIRE' && 'Marks obsolete, deprecated, or superseded materials as retired with automatic replacement forwarding.'}
-            {selectedAction === 'REVIEW' && 'Routes ambiguous attribute conflicts to the technical committee for physical inspection.'}
-            {selectedAction === 'SPLIT' && 'Partitions overloaded legacy item descriptions into discrete standardized materials.'}
-            {selectedAction === 'RETAIN' && 'Protects specialized local inventory codes that do not require national standardization.'}
-          </p>
+      {/* Selected action description */}
+      <div
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
+        <div className="flex items-start gap-3">
+          <span className="material-symbols-outlined icon-fill text-[22px] mt-0.5" style={{ color: 'var(--blue)' }}>
+            {meta.icon}
+          </span>
+          <div>
+            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Operation: {selectedAction} — {meta.label}
+            </p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>{meta.desc}</p>
+          </div>
         </div>
-        <span className="text-xs font-mono text-on-surface-variant bg-surface-container-low px-2.5 py-1 rounded-md border border-outline-variant/50 shrink-0">
-          Staged Workflow: Review → Confirm → Execute
+        <span
+          className="text-xs font-mono px-3 py-1.5 rounded shrink-0"
+          style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+        >
+          Review → Confirm → Execute
         </span>
       </div>
 
-      {/* Migration Workbench Candidates Table */}
-      <div className="bg-surface-container rounded-xl border border-outline-variant/60 overflow-hidden">
-        <div className="p-4 border-b border-outline-variant/50 bg-surface-container flex justify-between items-center">
+      {/* Candidates table */}
+      <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
           <div>
-            <h3 className="text-xs font-semibold text-on-surface">
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               Candidates Ready for {selectedAction}
             </h3>
-            <p className="text-[11px] text-on-surface-variant">Review each item before applying changes to the live master</p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              Review each item before applying changes to the live master
+            </p>
           </div>
-          <span className="font-mono text-xs text-on-surface-variant">
-            {sampleTargets.length} Items Queued
+          <span className="text-sm font-mono" style={{ color: 'var(--text-muted)' }}>
+            {sampleTargets.length} items queued
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse font-mono">
-            <thead className="bg-surface-container-high border-b border-outline-variant/50 text-on-surface-variant text-[11px] font-medium">
-              <tr>
-                <th className="p-3">Source Code & CPSE</th>
-                <th className="p-3">Target National Master (CNMC)</th>
-                <th className="p-3">Material Description</th>
-                <th className="p-3 text-center">Duplicates Detected</th>
-                <th className="p-3 text-right">Action Workflow</th>
+          <table className="w-full text-left">
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                {['Source Code & CPSE', 'Target CNMC', 'Description', 'Duplicates', ''].map(h => (
+                  <th key={h} className="px-5 py-3 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: 'var(--text-muted)' }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/30">
-              {sampleTargets.map((row) => (
-                <tr key={row.sourceCode} className="hover:bg-surface-container-high/40 transition-colors">
-                  <td className="p-3">
-                    <span className="font-bold text-primary block">{row.sourceCode}</span>
-                    <span className="text-[10px] text-on-surface-variant font-sans">{row.cpse}</span>
+            <tbody>
+              {sampleTargets.map(row => (
+                <tr key={row.sourceCode} className="transition-colors hover:opacity-90"
+                  style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                  <td className="px-5 py-4">
+                    <span className="text-sm font-bold font-mono block" style={{ color: 'var(--blue)' }}>{row.sourceCode}</span>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{row.cpse}</span>
                   </td>
-                  <td className="p-3 text-on-surface font-semibold">
+                  <td className="px-5 py-4 text-sm font-mono font-semibold" style={{ color: 'var(--text-primary)' }}>
                     {row.targetCnmc}
                   </td>
-                  <td className="p-3 font-sans text-on-surface-variant max-w-sm truncate" title={row.description}>
+                  <td className="px-5 py-4 text-sm max-w-xs truncate" style={{ color: 'var(--text-secondary)' }}
+                    title={row.description}>
                     {row.description}
                   </td>
-                  <td className="p-3 text-center">
-                    <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-mono text-[11px]">
+                  <td className="px-5 py-4 text-center">
+                    <span className="px-2.5 py-1 rounded text-xs font-mono font-semibold"
+                      style={{ background: 'var(--bg-hover)', color: 'var(--warning)' }}>
                       {row.potentialDuplicates} items
                     </span>
                   </td>
-                  <td className="p-3 text-right font-sans">
+                  <td className="px-5 py-4 text-right">
                     <button
                       onClick={() => handleExecuteAction(row.sourceCode, row.targetCnmc)}
-                      className="px-3 py-1.5 bg-primary text-on-primary font-semibold text-xs rounded-lg hover:brightness-110 transition-all"
+                      className="px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-110 transition-all"
+                      style={{ background: 'var(--blue)', color: '#fff' }}
                     >
-                      Review & Confirm
+                      Review &amp; Confirm
                     </button>
                   </td>
                 </tr>

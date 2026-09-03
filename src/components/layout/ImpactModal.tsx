@@ -9,71 +9,97 @@ export const ImpactModal: React.FC = () => {
   const isDestructive = impactModal.action === 'MERGE' || impactModal.action === 'RETIRE' || impactModal.action === 'SPLIT';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px] transition-opacity duration-150">
-      <div className="bg-surface border border-outline-variant/60 rounded-xl max-w-lg w-full overflow-hidden shadow-xl transition-all">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 transition-opacity duration-150"
+      style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+      onClick={closeImpactModal}
+    >
+      <div 
+        className="rounded-xl max-w-lg w-full overflow-hidden shadow-elevated transition-all animate-fade-in"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className={`p-4 border-b border-outline-variant/50 flex items-center justify-between ${
-          isDestructive ? 'bg-status-error/10 text-status-error' : 'bg-surface-container text-on-surface'
-        }`}>
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px]">
+        <div 
+          className="p-5 flex items-center justify-between"
+          style={{ 
+            borderBottom: '1px solid var(--border)',
+            background: isDestructive ? 'var(--warn-dim)' : 'var(--bg-hover)' 
+          }}
+        >
+          <div className="flex items-center gap-2.5">
+            <span 
+              className="material-symbols-outlined text-[22px]"
+              style={{ color: isDestructive ? 'var(--warning)' : 'var(--blue)' }}
+            >
               {isDestructive ? 'warning' : 'info'}
             </span>
-            <h3 className="text-xs font-semibold text-on-surface">
+            <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
               {impactModal.title}
             </h3>
           </div>
           <button
             onClick={closeImpactModal}
-            className="w-7 h-7 rounded-md flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            className="p-1 rounded-lg transition-colors hover:opacity-80"
+            style={{ color: 'var(--text-muted)' }}
           >
-            <span className="material-symbols-outlined text-[17px]">close</span>
+            <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-4">
-          <p className="text-xs text-on-surface leading-relaxed">
-            You are about to execute action <strong className="text-primary font-mono">{impactModal.action}</strong> on source material record:
+        <div className="p-6 space-y-4">
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            You are about to execute action <strong className="font-mono text-sm font-bold" style={{ color: 'var(--blue)' }}>{impactModal.action}</strong> on source material record:
           </p>
 
-          <div className="p-3 bg-surface-container rounded-lg border border-outline-variant/60 font-mono text-xs text-on-surface">
-            <div>{impactModal.sourceCode}</div>
+          <div 
+            className="p-3.5 rounded-lg font-mono text-xs"
+            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+          >
+            <div className="font-bold">{impactModal.sourceCode}</div>
             {impactModal.targetCnmc && (
-              <div className="text-primary mt-1 font-semibold flex items-center gap-1">
+              <div className="mt-1 font-semibold flex items-center gap-1.5" style={{ color: 'var(--blue)' }}>
                 <span>➔</span> Target Canonical: {impactModal.targetCnmc}
               </div>
             )}
           </div>
 
           {/* Staged Impact Preview */}
-          <div className="bg-surface-container p-4 rounded-lg border border-outline-variant/60 space-y-2.5">
-            <h4 className="text-[11px] text-on-surface uppercase font-semibold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-status-warning">hub</span>
+          <div 
+            className="p-4 rounded-xl space-y-3"
+            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+          >
+            <h4 className="text-xs uppercase font-bold flex items-center gap-2" style={{ color: 'var(--warning)' }}>
+              <span className="material-symbols-outlined text-sm">hub</span>
               Downstream Operational Impact Preview
             </h4>
-            <ul className="space-y-1.5 text-xs text-on-surface-variant">
+            <ul className="space-y-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
               <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-status-success shrink-0" />
-                <span>Impacts <strong className="text-on-surface font-mono">{impactModal.impactedCount || 4} CPSE ERP systems</strong> (SAP, Oracle, Maximo).</span>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--success)' }} />
+                <span>Impacts <strong className="font-mono font-semibold" style={{ color: 'var(--text-primary)' }}>{impactModal.impactedCount || 4} CPSE ERP systems</strong> (SAP, Oracle, Maximo).</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-relationship-duplicate shrink-0" />
-                <span>Creates forward-traceable alias pointers to prevent procurement interruption.</span>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--success)' }} />
+                <span>Automatic forward-alias cross-references created without breaking internal POs.</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-status-warning shrink-0" />
-                <span>Generates signed immutable audit trail record under MoPNG National Governance.</span>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--success)' }} />
+                <span>Transaction cryptographically signed &amp; committed to immutable governance trail.</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Footer actions */}
-        <div className="p-4 border-t border-outline-variant/50 bg-surface-container flex justify-end gap-2.5">
+        {/* Modal Footer */}
+        <div 
+          className="p-4 flex justify-end gap-2.5"
+          style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-hover)' }}
+        >
           <button
             onClick={closeImpactModal}
-            className="px-3.5 py-1.5 border border-outline-variant/60 rounded-lg text-xs font-medium text-on-surface hover:bg-surface-container-high transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-80 transition-all"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
           >
             Cancel
           </button>
@@ -82,14 +108,13 @@ export const ImpactModal: React.FC = () => {
               impactModal.onConfirm();
               closeImpactModal();
             }}
-            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-              isDestructive
-                ? 'bg-status-error text-white hover:brightness-110'
-                : 'bg-primary text-on-primary hover:brightness-110'
-            }`}
+            className="px-5 py-2 rounded-lg text-xs font-semibold transition-all hover:brightness-110"
+            style={{ 
+              background: isDestructive ? 'var(--blue)' : 'var(--blue)', 
+              color: '#fff' 
+            }}
           >
-            <span className="material-symbols-outlined text-[15px]">check</span>
-            Confirm & Execute {impactModal.action}
+            Confirm &amp; Commit Operation
           </button>
         </div>
       </div>

@@ -17,12 +17,12 @@ export const HomeScreen: React.FC = () => {
       ],
       extractedAttributes: [
         { name: 'Item Type', value: 'Hex Head Bolt' },
-        { name: 'Thread Size', value: 'M10 (Coarse Pitch 1.5mm)' },
+        { name: 'Thread Size', value: 'M10 (Pitch 1.5mm)' },
         { name: 'Length', value: '50 mm' },
-        { name: 'Material Grade', value: 'Stainless Steel AISI 304' },
+        { name: 'Material Grade', value: 'SS 304' },
         { name: 'Standard', value: 'DIN 933 / ISO 4017' }
       ],
-      procurementImpact: 'Identical fastener currently procured under 3 distinct purchase orders. Consolidation enables 14% bulk purchase discount across participating units.'
+      procurementImpact: 'Identical fastener currently procured under 3 distinct purchase orders. Consolidation enables 14% bulk purchase discount across participating CPSEs.'
     },
     valve: {
       category: 'Valves & Flow Control',
@@ -37,7 +37,7 @@ export const HomeScreen: React.FC = () => {
         { name: 'Valve Type', value: 'Floating Ball Valve' },
         { name: 'Nominal Size', value: '2 Inch (DN 50)' },
         { name: 'Pressure Class', value: 'ASME Class 150' },
-        { name: 'Body Material', value: 'Carbon Steel (ASTM A216 WCB)' },
+        { name: 'Body Material', value: 'ASTM A216 WCB' },
         { name: 'Seat Material', value: 'Virgin PTFE' }
       ],
       procurementImpact: 'Emergency shutdown spare part interchangeable between GAIL pipeline station and IOCL refinery, cutting downtime procurement lead-time from 8 weeks to 24 hours.'
@@ -52,11 +52,11 @@ export const HomeScreen: React.FC = () => {
         { cpse: 'GAIL (Pata)', localCode: 'GAIL-PMP-009', rawDesc: 'IMPELLER ENCLOSED PHOS BRONZE 210MM', price: '₹39,200 / EA' }
       ],
       extractedAttributes: [
-        { name: 'Component', value: 'Centrifugal Impeller (Enclosed)' },
+        { name: 'Component', value: 'Centrifugal Impeller' },
         { name: 'Outer Diameter', value: '210 mm' },
-        { name: 'Bore Diameter', value: '32 mm with Standard Keyway' },
-        { name: 'Alloy', value: 'Phosphor Bronze C90500' },
-        { name: 'Design Standard', value: 'API 610 11th Edition' }
+        { name: 'Bore Diameter', value: '32 mm Standard' },
+        { name: 'Alloy', value: 'Bronze C90500' },
+        { name: 'Design Standard', value: 'API 610 11th Ed' }
       ],
       procurementImpact: 'Standardized spare code allows pooled inventory maintenance across 3 regional depots, reducing total spare holding costs by 32%.'
     }
@@ -65,177 +65,199 @@ export const HomeScreen: React.FC = () => {
   const activeDemo = examples[selectedExampleTab];
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-background space-y-6 max-w-6xl mx-auto">
+    <main className="flex-1 overflow-y-auto p-6 space-y-6 max-w-6xl mx-auto" style={{ background: 'var(--bg)' }}>
       {/* 1. Header & Problem Context */}
-      <section className="bg-surface-container rounded-xl border border-outline-variant/60 p-6 space-y-4">
+      <section 
+        className="rounded-xl p-6 space-y-4"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <span className="text-[11px] text-primary uppercase font-semibold tracking-wider">
-              National Unified Material Master | SIH-26099
+            <span 
+              className="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded"
+              style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
+            >
+              National Unified Material Master · SIH26099
             </span>
-            <h1 className="text-xl font-bold text-on-surface tracking-tight mt-0.5">
+            <h1 className="text-xl font-bold tracking-tight mt-2.5" style={{ color: 'var(--text-primary)' }}>
               Cross-Enterprise Catalog Harmonization Platform
             </h1>
           </div>
           <button
             onClick={() => setActiveScreen('dashboard')}
-            className="px-4 py-2 bg-primary text-on-primary font-semibold text-xs rounded-lg hover:brightness-110 transition-all flex items-center gap-2 shrink-0"
+            className="px-4 py-2 font-semibold text-xs rounded-lg transition-all flex items-center gap-2 shrink-0 hover:brightness-110"
+            style={{ background: 'var(--blue)', color: '#fff' }}
           >
             Enter Dashboard
-            <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </button>
         </div>
 
-        <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-1.5">
-          <h2 className="text-xs font-semibold text-on-surface uppercase">
+        <div 
+          className="p-4 rounded-xl space-y-2 text-xs leading-relaxed"
+          style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
+        >
+          <h2 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
             The Public Sector Challenge
           </h2>
-          <p className="text-xs text-on-surface-variant leading-relaxed">
+          <p style={{ color: 'var(--text-secondary)' }}>
             Central Public Sector Enterprises (CPSEs) such as ONGC, IOCL, GAIL, and NTPC manage millions of inventory items in disconnected legacy ERP systems. Because each organization records descriptions using different internal conventions, identical physical materials are cataloged under disparate item codes. This leads to duplicate inventory holding, procurement fragmentation, and lack of inter-enterprise spare sharing.
           </p>
-          <p className="text-xs text-on-surface leading-relaxed font-medium">
+          <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
             This platform ingests raw ERP records, extracts normalized technical attributes via domain-trained semantic analysis, and unifies duplicate items under an authoritative Common National Material Code (CNMC).
           </p>
         </div>
       </section>
 
-      {/* 2. Interactive Live Example (The Resolution Mechanism) */}
-      <section className="bg-surface-container rounded-xl border border-outline-variant/60 p-6 space-y-5">
+      {/* 2. Interactive Live Example */}
+      <section 
+        className="rounded-xl p-6 space-y-5"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h2 className="text-sm font-bold text-on-surface">
+            <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
               Live Harmonization Demonstration
             </h2>
-            <p className="text-xs text-on-surface-variant mt-0.5">
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
               Select an item category to observe how divergent ERP descriptions converge into a single national standard.
             </p>
           </div>
 
           {/* Example Selector Tabs */}
-          <div className="flex gap-1 p-1 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs font-medium">
-            <button
-              onClick={() => setSelectedExampleTab('fastener')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                selectedExampleTab === 'fastener'
-                  ? 'bg-surface-container text-primary font-semibold border border-outline-variant/50'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Fasteners
-            </button>
-            <button
-              onClick={() => setSelectedExampleTab('valve')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                selectedExampleTab === 'valve'
-                  ? 'bg-surface-container text-primary font-semibold border border-outline-variant/50'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Valves
-            </button>
-            <button
-              onClick={() => setSelectedExampleTab('pump')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                selectedExampleTab === 'pump'
-                  ? 'bg-surface-container text-primary font-semibold border border-outline-variant/50'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Pumps & Impellers
-            </button>
+          <div 
+            className="flex gap-1 p-1 rounded-lg text-xs font-medium"
+            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+          >
+            {(['fastener', 'valve', 'pump'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setSelectedExampleTab(tab)}
+                className="px-3.5 py-1.5 rounded-md transition-all font-semibold capitalize"
+                style={{
+                  background: selectedExampleTab === tab ? 'var(--blue)' : 'transparent',
+                  color: selectedExampleTab === tab ? '#fff' : 'var(--text-secondary)',
+                }}
+              >
+                {tab === 'fastener' ? 'Fasteners' : tab === 'valve' ? 'Valves' : 'Pumps & Impellers'}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* The 3-Step Convergence Visualizer */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-          {/* Step 1: Disparate CPSE Inputs (5 Columns) */}
-          <div className="lg:col-span-5 bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 flex flex-col justify-between space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          {/* Step 1: Disparate Inputs */}
+          <div 
+            className="lg:col-span-5 p-4 rounded-xl flex flex-col justify-between space-y-3"
+            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+          >
             <div>
-              <div className="flex justify-between items-center mb-2.5">
-                <span className="text-[10px] text-on-surface-variant uppercase font-semibold">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-xs uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
                   Step 1: Input Records (3 Isolated ERPs)
                 </span>
-                <span className="text-[10px] font-mono text-status-warning font-medium">
+                <span className="text-xs font-mono font-bold" style={{ color: 'var(--warning)' }}>
                   Fragmented Codes
                 </span>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {activeDemo.sources.map((src, idx) => (
-                  <div key={idx} className="p-2.5 bg-surface-container rounded-md border border-outline-variant/40 space-y-1">
+                  <div 
+                    key={idx} 
+                    className="p-3 rounded-lg space-y-1.5"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
+                  >
                     <div className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-on-surface">{src.cpse}</span>
-                      <span className="font-mono text-primary text-[11px] font-medium">{src.localCode}</span>
+                      <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{src.cpse}</span>
+                      <span className="font-mono text-xs font-bold" style={{ color: 'var(--blue)' }}>{src.localCode}</span>
                     </div>
-                    <p className="font-mono text-xs text-on-surface-variant">
+                    <p className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
                       "{src.rawDesc}"
                     </p>
-                    <div className="text-[10px] text-on-surface-variant pt-1 border-t border-outline-variant/30 flex justify-between">
+                    <div 
+                      className="text-xs pt-1.5 flex justify-between"
+                      style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}
+                    >
                       <span>ERP Purchase Unit Cost:</span>
-                      <span className="font-mono font-medium text-on-surface">{src.price}</span>
+                      <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{src.price}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-[11px] text-on-surface-variant font-mono">
+            <p className="text-xs font-mono pt-2" style={{ color: 'var(--text-muted)' }}>
               Result of uncoordinated cataloging: 3 separate RFQs, differing pricing, zero visibility.
             </p>
           </div>
 
-          {/* Convergence Arrow Indicator (Center Column) */}
-          <div className="hidden lg:flex lg:col-span-2 flex-col items-center justify-center gap-1.5 text-primary text-center px-2">
-            <span className="material-symbols-outlined text-2xl">compare_arrows</span>
-            <span className="text-[10px] uppercase font-semibold leading-tight">
-              Standardization & Parity Engine
+          {/* Convergence Arrow Indicator */}
+          <div className="hidden lg:flex lg:col-span-2 flex-col items-center justify-center gap-2 text-center px-2">
+            <span className="material-symbols-outlined text-3xl" style={{ color: 'var(--blue)' }}>compare_arrows</span>
+            <span className="text-xs uppercase font-bold leading-tight" style={{ color: 'var(--blue)' }}>
+              Standardization Engine
             </span>
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            <span className="material-symbols-outlined text-xl" style={{ color: 'var(--blue)' }}>arrow_forward</span>
           </div>
 
-          {/* Step 2: Harmonized National Output (5 Columns) */}
-          <div className="lg:col-span-5 bg-surface-container-low p-4 rounded-lg border border-primary/40 flex flex-col justify-between space-y-3 relative">
+          {/* Step 2: Harmonized Output */}
+          <div 
+            className="lg:col-span-5 p-4 rounded-xl flex flex-col justify-between space-y-3 relative"
+            style={{ background: 'var(--bg-hover)', border: '1px solid rgba(59,130,246,0.3)' }}
+          >
             <div>
-              <div className="flex justify-between items-center mb-2.5">
-                <span className="text-[10px] text-primary uppercase font-semibold">
-                  Step 2: Unified National Specification
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-xs uppercase font-bold tracking-wider" style={{ color: 'var(--blue)' }}>
+                  Step 2: Unified Specification
                 </span>
-                <span className="text-[10px] font-mono text-status-success font-medium flex items-center gap-0.5">
-                  <span className="material-symbols-outlined text-xs">verified</span>
+                <span className="text-xs font-mono font-bold flex items-center gap-1" style={{ color: 'var(--success)' }}>
+                  <span className="material-symbols-outlined text-sm">verified</span>
                   100% Normalized
                 </span>
               </div>
 
-              <div className="p-3 bg-surface-container rounded-md border border-primary/30 space-y-1.5">
-                <span className="text-[10px] text-on-surface-variant uppercase font-medium">
+              <div 
+                className="p-3.5 rounded-lg space-y-1.5"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                <span className="text-xs uppercase font-semibold" style={{ color: 'var(--text-muted)' }}>
                   Assigned National Code (CNMC)
                 </span>
-                <div className="font-mono text-base font-bold text-primary">
+                <div className="font-mono text-lg font-bold" style={{ color: 'var(--blue)' }}>
                   {activeDemo.unifiedCnmc}
                 </div>
-                <p className="text-xs text-on-surface font-medium leading-relaxed">
+                <p className="text-xs font-medium leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                   {activeDemo.canonicalTitle}
                 </p>
               </div>
 
-              <div className="mt-2.5 space-y-1">
-                <span className="text-[10px] text-on-surface-variant uppercase font-medium block">
+              <div className="mt-3 space-y-1.5">
+                <span className="text-xs uppercase font-semibold block" style={{ color: 'var(--text-muted)' }}>
                   Extracted Technical Parameters:
                 </span>
-                <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
+                <div className="grid grid-cols-2 gap-2 font-mono text-xs">
                   {activeDemo.extractedAttributes.map((attr, idx) => (
-                    <div key={idx} className="p-1.5 bg-surface-container rounded border border-outline-variant/30">
-                      <span className="text-on-surface-variant block text-[10px] font-sans">{attr.name}</span>
-                      <span className="text-on-surface font-medium">{attr.value}</span>
+                    <div 
+                      key={idx} 
+                      className="p-2 rounded"
+                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
+                    >
+                      <span className="block text-[10px] font-sans" style={{ color: 'var(--text-muted)' }}>{attr.name}</span>
+                      <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{attr.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="p-2.5 bg-primary/10 rounded-md border border-primary/20 text-xs text-on-surface space-y-1">
-              <span className="font-semibold text-primary block text-[10px] uppercase">Direct Financial Impact:</span>
-              <p className="text-on-surface-variant leading-relaxed text-[11px]">
+            <div 
+              className="p-3 rounded-lg text-xs space-y-1"
+              style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.2)' }}
+            >
+              <span className="font-bold block uppercase text-xs" style={{ color: 'var(--blue)' }}>Direct Financial Impact:</span>
+              <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 {activeDemo.procurementImpact}
               </p>
             </div>
@@ -244,102 +266,99 @@ export const HomeScreen: React.FC = () => {
       </section>
 
       {/* 3. Three-Phase Enterprise Workflow */}
-      <section className="bg-surface-container rounded-xl border border-outline-variant/60 p-6 space-y-4">
+      <section 
+        className="rounded-xl p-6 space-y-4"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
         <div>
-          <h2 className="text-sm font-bold text-on-surface">
+          <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
             System Workflow Architecture
           </h2>
-          <p className="text-xs text-on-surface-variant mt-0.5">
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             The core lifecycle converting unstandardized records into approved national master records.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Workflow 1 */}
-          <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-2.5 flex flex-col justify-between">
-            <div>
-              <div className="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center font-mono font-bold text-xs text-primary mb-2 border border-outline-variant/50">
-                01
-              </div>
-              <h3 className="text-xs font-semibold text-on-surface">
-                Catalog Ingestion
-              </h3>
-              <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
-                Legacy items are onboarded via direct database connectors (SAP S/4HANA, Oracle ERP Cloud, IBM Maximo) or uploaded using Excel and CSV spreadsheets.
-              </p>
-            </div>
-            <button
-              onClick={() => openUploadModal('ONGC')}
-              className="text-xs text-primary font-medium hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/30"
+          {[
+            {
+              step: '01',
+              title: 'Catalog Ingestion',
+              desc: 'Legacy items are onboarded via direct database connectors (SAP S/4HANA, Oracle ERP Cloud, IBM Maximo) or uploaded using Excel and CSV spreadsheets.',
+              action: 'Upload Spreadsheet',
+              onClick: () => openUploadModal('ONGC'),
+            },
+            {
+              step: '02',
+              title: 'Semantic Deduplication',
+              desc: 'The NLP engine parses raw description strings, decomposes noun-modifier syntax, resolves unit variances, and scores attribute parity against existing national codes.',
+              action: 'Inspect Workbench',
+              onClick: () => setActiveScreen('harmonization'),
+            },
+            {
+              step: '03',
+              title: 'Governance & Aliasing',
+              desc: 'Approved matches create immutable cross-references. CPSE ERPs receive forward aliases without altering internal warehouse configurations.',
+              action: 'View Audit Ledger',
+              onClick: () => setActiveScreen('governance'),
+            },
+          ].map(wf => (
+            <div 
+              key={wf.step}
+              className="p-5 rounded-xl flex flex-col justify-between space-y-3 card-hover"
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
             >
-              Upload Spreadsheet <span className="material-symbols-outlined text-xs">arrow_forward</span>
-            </button>
-          </div>
-
-          {/* Workflow 2 */}
-          <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-2.5 flex flex-col justify-between">
-            <div>
-              <div className="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center font-mono font-bold text-xs text-primary mb-2 border border-outline-variant/50">
-                02
+              <div>
+                <div 
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs mb-3"
+                  style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,0.3)' }}
+                >
+                  {wf.step}
+                </div>
+                <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                  {wf.title}
+                </h3>
+                <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  {wf.desc}
+                </p>
               </div>
-              <h3 className="text-xs font-semibold text-on-surface">
-                Semantic Deduplication
-              </h3>
-              <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
-                The NLP engine parses raw description strings, decomposes noun-modifier syntax, resolves unit variances, and scores attribute parity against existing national codes.
-              </p>
+              <button
+                onClick={wf.onClick}
+                className="text-xs font-semibold hover:underline flex items-center gap-1 pt-3"
+                style={{ color: 'var(--blue)', borderTop: '1px solid var(--border-subtle)' }}
+              >
+                {wf.action} <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </button>
             </div>
-            <button
-              onClick={() => setActiveScreen('harmonization')}
-              className="text-xs text-primary font-medium hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/30"
-            >
-              Inspect Workbench <span className="material-symbols-outlined text-xs">arrow_forward</span>
-            </button>
-          </div>
-
-          {/* Workflow 3 */}
-          <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-2.5 flex flex-col justify-between">
-            <div>
-              <div className="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center font-mono font-bold text-xs text-primary mb-2 border border-outline-variant/50">
-                03
-              </div>
-              <h3 className="text-xs font-semibold text-on-surface">
-                Governance & Aliasing
-              </h3>
-              <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
-                Approved matches create immutable cross-references. CPSE ERPs receive forward aliases without altering internal warehouse configurations.
-              </p>
-            </div>
-            <button
-              onClick={() => setActiveScreen('governance')}
-              className="text-xs text-primary font-medium hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/30"
-            >
-              View Audit Ledger <span className="material-symbols-outlined text-xs">arrow_forward</span>
-            </button>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* 4. Bottom Gateway to Modules */}
-      <section className="p-5 bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col sm:flex-row justify-between items-center gap-4">
+      {/* 4. Bottom Gateway */}
+      <section 
+        className="p-6 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
         <div>
-          <h3 className="text-xs font-semibold text-on-surface">
+          <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
             Ready to explore operational records?
           </h3>
-          <p className="text-xs text-on-surface-variant mt-0.5">
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             Proceed to the Executive Dashboard for nationwide metrics, or open the Central Catalog to inspect 3.1 million master records.
           </p>
         </div>
-        <div className="flex gap-2.5">
+        <div className="flex gap-3">
           <button
             onClick={() => setActiveScreen('master')}
-            className="px-3.5 py-1.5 border border-outline-variant/60 hover:bg-surface-container-high text-on-surface text-xs font-medium rounded-lg transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
+            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
           >
             Central Catalog
           </button>
           <button
             onClick={() => setActiveScreen('dashboard')}
-            className="px-3.5 py-1.5 bg-primary text-on-primary text-xs font-semibold rounded-lg hover:brightness-110 transition-all"
+            className="px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:brightness-110"
+            style={{ background: 'var(--blue)', color: '#fff' }}
           >
             Executive Dashboard
           </button>

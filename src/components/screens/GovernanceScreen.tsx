@@ -2,219 +2,233 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AuditLog } from '../../types/material';
 
+const STATUS_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
+  approved:    { icon: 'check_circle', color: 'var(--success)', bg: 'var(--success-dim)' },
+  harmonized:  { icon: 'check_circle', color: 'var(--success)', bg: 'var(--success-dim)' },
+  flagged:     { icon: 'warning',      color: 'var(--warning)', bg: 'var(--warn-dim)' },
+  conflict:    { icon: 'warning',      color: 'var(--warning)', bg: 'var(--warn-dim)' },
+  created:     { icon: 'add_circle',   color: 'var(--blue)',    bg: 'var(--blue-dim)' },
+  ingestion:   { icon: 'upload',       color: 'var(--indigo)',  bg: 'var(--indigo-dim)' },
+  updated:     { icon: 'edit',         color: 'var(--info, var(--blue))', bg: 'var(--blue-dim)' },
+  default:     { icon: 'history',      color: 'var(--text-muted)', bg: 'var(--bg-hover)' },
+};
+
+function getStatusCfg(action: string) {
+  const key = action.toLowerCase();
+  for (const [k, v] of Object.entries(STATUS_CONFIG)) {
+    if (key.includes(k)) return v;
+  }
+  return STATUS_CONFIG.default;
+}
+
 export const GovernanceScreen: React.FC = () => {
   const { auditLogs } = useApp();
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedActionFilter, setSelectedActionFilter] = useState('ALL');
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
-  const filteredLogs = useMemo(() => {
-    return auditLogs.filter(log => {
-      const matchSearch = !filterQuery.trim() ||
-        log.action.toLowerCase().includes(filterQuery.toLowerCase()) ||
-        log.description.toLowerCase().includes(filterQuery.toLowerCase()) ||
-        log.targetEntity.toLowerCase().includes(filterQuery.toLowerCase()) ||
-        log.user.name.toLowerCase().includes(filterQuery.toLowerCase()) ||
-        log.id.toLowerCase().includes(filterQuery.toLowerCase());
-
-      const matchAction = selectedActionFilter === 'ALL' || log.action.toLowerCase().includes(selectedActionFilter.toLowerCase());
-
-      return matchSearch && matchAction;
-    });
-  }, [auditLogs, filterQuery, selectedActionFilter]);
+  const filteredLogs = useMemo(() => auditLogs.filter(log => {
+    const q = filterQuery.toLowerCase();
+    const matchSearch = !q || log.action.toLowerCase().includes(q) ||
+      log.description.toLowerCase().includes(q) ||
+      log.targetEntity.toLowerCase().includes(q) ||
+      log.user.name.toLowerCase().includes(q) || log.id.toLowerCase().includes(q);
+    const matchAction = selectedActionFilter === 'ALL' ||
+      log.action.toLowerCase().includes(selectedActionFilter.toLowerCase());
+    return matchSearch && matchAction;
+  }), [auditLogs, filterQuery, selectedActionFilter]);
 
   const stats = {
-    totalEvents: auditLogs.length,
-    aiDecisions: auditLogs.filter(l => l.user.isAi).length,
+    totalEvents:    auditLogs.length,
+    aiDecisions:    auditLogs.filter(l => l.user.isAi).length,
     humanApprovals: auditLogs.filter(l => !l.user.isAi).length,
-    uniqueEntities: new Set(auditLogs.map(l => l.targetEntity)).size
+    uniqueEntities: new Set(auditLogs.map(l => l.targetEntity)).size,
   };
 
   return (
-    <main className="flex-1 flex flex-col overflow-hidden p-6 gap-4 bg-background">
+    <main className="flex-1 flex flex-col overflow-hidden p-6 gap-4" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
         <div>
-          <h1 className="text-base font-bold text-on-surface tracking-tight">
-            Governance & Audit Trail
-          </h1>
-          <p className="text-xs text-on-surface-variant mt-0.5">
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+            Governance &amp; Audit Trail
+          </h2>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             Complete history of changes, approvals, and AI decisions across the national catalog.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-status-success bg-status-success/10 border border-status-success/30 px-3 py-1 rounded-lg flex items-center gap-1.5 font-medium">
-            <span className="material-symbols-outlined text-[15px]">verified</span>
-            Audit Trail Verified & Immutable
-          </span>
-        </div>
+        <span
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium shrink-0"
+          style={{ background: 'var(--success-dim)', color: 'var(--success)', border: '1px solid rgba(34,197,94,0.2)' }}
+        >
+          <span className="material-symbols-outlined icon-fill text-[16px]">verified</span>
+          Audit Trail Verified &amp; Immutable
+        </span>
       </div>
 
-      {/* Summary Stat Strip */}
+      {/* Stats strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
-        <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/60 flex justify-between items-center">
-          <span className="text-xs text-on-surface-variant font-medium">Total Audit Events</span>
-          <span className="font-mono text-base font-bold text-on-surface">{stats.totalEvents}</span>
-        </div>
-        <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/60 flex justify-between items-center">
-          <span className="text-xs text-on-surface-variant font-medium">AI Recommendations</span>
-          <span className="font-mono text-base font-bold text-primary">{stats.aiDecisions}</span>
-        </div>
-        <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/60 flex justify-between items-center">
-          <span className="text-xs text-on-surface-variant font-medium">Cataloger Actions</span>
-          <span className="font-mono text-base font-bold text-relationship-duplicate">{stats.humanApprovals}</span>
-        </div>
-        <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/60 flex justify-between items-center">
-          <span className="text-xs text-on-surface-variant font-medium">Entities Impacted</span>
-          <span className="font-mono text-base font-bold text-status-success">{stats.uniqueEntities}</span>
-        </div>
+        {[
+          { label: 'Total Audit Events', value: stats.totalEvents, color: 'var(--text-primary)', icon: 'history' },
+          { label: 'AI Recommendations', value: stats.aiDecisions, color: 'var(--blue)', icon: 'smart_toy' },
+          { label: 'Cataloger Actions', value: stats.humanApprovals, color: 'var(--indigo)', icon: 'person' },
+          { label: 'Entities Impacted', value: stats.uniqueEntities, color: 'var(--success)', icon: 'category' },
+        ].map(s => (
+          <div key={s.label} className="p-4 rounded-xl flex items-center justify-between"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{s.label}</p>
+              <p className="text-2xl font-bold font-mono mt-0.5" style={{ color: s.color }}>{s.value}</p>
+            </div>
+            <span className="material-symbols-outlined text-[24px]" style={{ color: s.color, opacity: 0.5 }}>{s.icon}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="flex flex-wrap gap-2.5 items-center bg-surface-container p-3 rounded-xl border border-outline-variant/60 shrink-0">
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-lg border border-outline-variant/60 flex-1 min-w-[240px] max-w-sm focus-within:ring-1 focus-within:ring-primary">
-          <span className="material-symbols-outlined text-on-surface-variant text-[16px]">search</span>
-          <input 
-            type="text" 
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2.5 items-center p-3 rounded-xl shrink-0"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg flex-1 min-w-[200px] max-w-sm"
+          style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
+          <span className="material-symbols-outlined text-[16px]" style={{ color: 'var(--text-muted)' }}>search</span>
+          <input
+            type="text"
             value={filterQuery}
-            onChange={(e) => setFilterQuery(e.target.value)}
+            onChange={e => setFilterQuery(e.target.value)}
             placeholder="Search action, material code, or user..."
-            className="bg-transparent border-none p-0 text-xs focus:ring-0 w-full text-on-surface placeholder-on-surface-variant font-mono outline-none"
+            className="bg-transparent border-none text-sm focus:ring-0 w-full outline-none"
+            style={{ color: 'var(--text-primary)' }}
           />
           {filterQuery && (
-            <button onClick={() => setFilterQuery('')} className="text-xs text-on-surface-variant hover:text-on-surface">✕</button>
+            <button onClick={() => setFilterQuery('')} style={{ color: 'var(--text-muted)' }} className="hover:opacity-80">
+              <span className="material-symbols-outlined text-[14px]">close</span>
+            </button>
           )}
         </div>
-
-        <select 
+        <select
           value={selectedActionFilter}
-          onChange={(e) => setSelectedActionFilter(e.target.value)}
-          className="bg-surface-container-low border border-outline-variant/60 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:ring-1 focus:ring-primary font-mono outline-none"
+          onChange={e => setSelectedActionFilter(e.target.value)}
+          className="px-3 py-2 rounded-lg text-sm outline-none"
+          style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
         >
           <option value="ALL">All Actions</option>
           <option value="approved">Approvals</option>
           <option value="flagged">Flagged / Conflicts</option>
           <option value="ingestion">File Ingestions</option>
-          <option value="updated">Updates & Edits</option>
+          <option value="updated">Updates &amp; Edits</option>
         </select>
       </div>
 
-      {/* Scannable Audit Table */}
-      <div className="flex-1 overflow-hidden bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col relative">
+      {/* Audit table */}
+      <div className="flex-1 overflow-hidden rounded-xl flex flex-col"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <div className="overflow-auto flex-1">
-          <table className="w-full text-left whitespace-nowrap border-collapse">
-            <thead className="sticky top-0 bg-surface-container-high z-10 border-b border-outline-variant/60">
+          <table className="w-full text-left">
+            <thead className="sticky top-0 z-10" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
               <tr>
-                <th className="px-4 py-2.5 text-[11px] text-on-surface-variant font-medium uppercase">Time / Date</th>
-                <th className="px-4 py-2.5 text-[11px] text-on-surface-variant font-medium uppercase">Action Performed</th>
-                <th className="px-4 py-2.5 text-[11px] text-on-surface-variant font-medium uppercase">Target Material</th>
-                <th className="px-4 py-2.5 text-[11px] text-on-surface-variant font-medium uppercase">Performed By</th>
-                <th className="px-4 py-2.5 text-[11px] text-on-surface-variant font-medium uppercase">Summary</th>
-                <th className="px-4 py-2.5 text-[11px] text-on-surface-variant font-medium uppercase text-right">Audit ID</th>
+                {['Time / Date', 'Action Performed', 'Target Material', 'Performed By', 'Summary', 'Audit ID'].map(h => (
+                  <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide whitespace-nowrap"
+                    style={{ color: 'var(--text-muted)' }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/30 font-mono text-xs">
-              {filteredLogs.map((log) => (
-                <tr 
-                  key={log.id}
-                  onClick={() => setSelectedLog(log)}
-                  className="hover:bg-surface-container-high/40 transition-colors duration-140 cursor-pointer"
-                >
-                  <td className="px-4 py-3 text-on-surface-variant text-[11px]">
-                    {log.timestamp}
-                  </td>
-
-                  <td className="px-4 py-3 font-sans">
-                    <span className="font-semibold text-on-surface text-xs">
-                      {log.action}
-                    </span>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded bg-surface-container-high text-primary font-medium border border-outline-variant/40">
-                      {log.targetEntity}
-                    </span>
-                  </td>
-
-                  <td className="px-4 py-3 font-sans">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full ${log.user.isAi ? 'bg-primary' : 'bg-relationship-duplicate'}`} />
-                      <span className="text-on-surface text-xs font-medium">{log.user.name}</span>
-                      <span className="text-[10px] text-on-surface-variant">({log.user.role})</span>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-3 font-sans text-on-surface-variant max-w-sm truncate" title={log.description}>
-                    {log.description}
-                  </td>
-
-                  <td className="px-4 py-3 text-right text-primary font-medium text-[11px]">
-                    {log.id}
-                  </td>
-                </tr>
-              ))}
+            <tbody>
+              {filteredLogs.map(log => {
+                const cfg = getStatusCfg(log.action);
+                return (
+                  <tr key={log.id} onClick={() => setSelectedLog(log)}
+                    className="cursor-pointer transition-colors hover:opacity-90 whitespace-nowrap"
+                    style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                    <td className="px-4 py-3.5 text-sm font-mono" style={{ color: 'var(--text-muted)' }}>
+                      {log.timestamp}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined icon-fill text-[15px]" style={{ color: cfg.color }}>{cfg.icon}</span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{log.action}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="px-2 py-1 rounded text-xs font-mono font-semibold"
+                        style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}>
+                        {log.targetEntity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0"
+                          style={{ background: log.user.isAi ? 'var(--blue)' : 'var(--indigo)' }} />
+                        <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{log.user.name}</span>
+                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>({log.user.role})</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 text-sm max-w-xs truncate" style={{ color: 'var(--text-secondary)' }}
+                      title={log.description}>
+                      {log.description}
+                    </td>
+                    <td className="px-4 py-3.5 text-right text-sm font-mono font-semibold" style={{ color: 'var(--blue)' }}>
+                      {log.id}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-
-        {/* Footer */}
-        <div className="h-10 border-t border-outline-variant/50 bg-surface-container-high flex items-center justify-between px-4 shrink-0 text-on-surface-variant font-mono text-xs">
-          <span>Showing <strong>{filteredLogs.length}</strong> audit transactions</span>
-          <span className="text-on-surface-variant text-[11px] font-sans">Click any event row to view complete state change details</span>
+        <div className="h-10 shrink-0 flex items-center justify-between px-4 text-sm"
+          style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+          <span>Showing <strong style={{ color: 'var(--text-primary)' }}>{filteredLogs.length}</strong> audit events</span>
+          <span>Click any row to view full details</span>
         </div>
       </div>
 
-      {/* Clean Detail Modal for Selected Audit Event */}
+      {/* Detail modal */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px] transition-opacity">
-          <div className="bg-surface w-full max-w-lg rounded-xl border border-outline-variant/60 shadow-xl p-5 space-y-4">
-            <div className="flex justify-between items-start border-b border-outline-variant/50 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setSelectedLog(null)}>
+          <div className="w-full max-w-lg rounded-xl shadow-elevated p-6 space-y-4 animate-fade-in"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <div>
-                <span className="font-mono text-xs text-primary font-bold">{selectedLog.id}</span>
-                <h3 className="text-sm font-semibold text-on-surface mt-0.5">{selectedLog.action}</h3>
+                <span className="text-xs font-mono font-bold" style={{ color: 'var(--blue)' }}>{selectedLog.id}</span>
+                <h3 className="text-base font-semibold mt-0.5" style={{ color: 'var(--text-primary)' }}>{selectedLog.action}</h3>
               </div>
-              <button 
-                onClick={() => setSelectedLog(null)}
-                className="w-7 h-7 rounded-md flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[17px]">close</span>
+              <button onClick={() => setSelectedLog(null)}
+                className="p-1 rounded hover:opacity-80 transition-opacity"
+                style={{ color: 'var(--text-muted)' }}>
+                <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
-
-            <div className="space-y-3 font-mono text-xs">
-              <div className="grid grid-cols-2 gap-2.5 p-3 bg-surface-container rounded-lg border border-outline-variant/50">
-                <div>
-                  <span className="text-on-surface-variant text-[10px] uppercase block font-sans">Material Code</span>
-                  <span className="font-semibold text-primary mt-0.5 block">{selectedLog.targetEntity}</span>
+            <div className="grid grid-cols-2 gap-3 p-4 rounded-lg text-sm font-mono"
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}>
+              {[
+                { label: 'Material Code', val: selectedLog.targetEntity, color: 'var(--blue)' },
+                { label: 'Timestamp', val: selectedLog.timestamp, color: 'var(--text-primary)' },
+                { label: 'Actor', val: selectedLog.user.name, color: 'var(--text-primary)' },
+                { label: 'Verification', val: 'Immutable Ledger', color: 'var(--success)' },
+              ].map(r => (
+                <div key={r.label}>
+                  <span className="text-xs uppercase block mb-0.5" style={{ color: 'var(--text-muted)' }}>{r.label}</span>
+                  <span className="font-semibold" style={{ color: r.color }}>{r.val}</span>
                 </div>
-                <div>
-                  <span className="text-on-surface-variant text-[10px] uppercase block font-sans">Timestamp</span>
-                  <span className="text-on-surface mt-0.5 block">{selectedLog.timestamp}</span>
-                </div>
-                <div>
-                  <span className="text-on-surface-variant text-[10px] uppercase block font-sans">Actor</span>
-                  <span className="text-on-surface mt-0.5 block font-sans font-medium">{selectedLog.user.name} ({selectedLog.user.role})</span>
-                </div>
-                <div>
-                  <span className="text-on-surface-variant text-[10px] uppercase block font-sans">Verification</span>
-                  <span className="text-status-success font-medium mt-0.5 block font-sans">Immutable Ledger</span>
-                </div>
-              </div>
-
-              <div>
-                <span className="text-on-surface-variant text-[10px] uppercase block mb-1 font-sans">Action Description & Rationale</span>
-                <p className="font-sans text-xs text-on-surface p-3 bg-surface-container rounded-lg border border-outline-variant/50 leading-relaxed">
-                  {selectedLog.description}
-                </p>
-              </div>
+              ))}
             </div>
-
-            <div className="pt-3 border-t border-outline-variant/50 flex justify-end">
-              <button
-                onClick={() => setSelectedLog(null)}
-                className="px-3.5 py-1.5 bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 rounded-lg text-xs font-medium text-on-surface transition-colors"
-              >
+            <div>
+              <p className="text-xs uppercase mb-2" style={{ color: 'var(--text-muted)' }}>Action Description</p>
+              <p className="text-sm leading-relaxed p-4 rounded-lg" style={{
+                background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)'
+              }}>
+                {selectedLog.description}
+              </p>
+            </div>
+            <div className="flex justify-end pt-1">
+              <button onClick={() => setSelectedLog(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all"
+                style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
                 Close Audit Record
               </button>
             </div>

@@ -7,29 +7,24 @@ interface Props {
 
 export const ConfidenceBar: React.FC<Props> = ({ confidence, showBar = true }) => {
   const getBarColor = (score: number) => {
-    if (score >= 90) return 'bg-status-success';
-    if (score >= 80) return 'bg-relationship-duplicate';
-    if (score >= 70) return 'bg-status-warning';
-    return 'bg-status-error';
+    if (score >= 90) return 'var(--success)';
+    if (score >= 80) return 'var(--blue)';
+    if (score >= 70) return 'var(--warning)';
+    return 'var(--error)';
   };
 
-  const getTextColor = (score: number) => {
-    if (score >= 90) return 'text-status-success';
-    if (score >= 80) return 'text-relationship-duplicate';
-    if (score >= 70) return 'text-status-warning';
-    return 'text-status-error';
-  };
+  const color = getBarColor(confidence);
 
   return (
     <div className="flex items-center gap-2">
-      <span className={`font-data-mono text-data-mono font-medium ${getTextColor(confidence)}`}>
+      <span className="font-mono text-xs font-bold" style={{ color }}>
         {confidence}%
       </span>
       {showBar && (
-        <div className="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+        <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
           <div 
-            className={`h-full ${getBarColor(confidence)} transition-all duration-300`} 
-            style={{ width: `${Math.min(100, Math.max(0, confidence))}%` }}
+            className="h-full rounded-full transition-all duration-300" 
+            style={{ width: `${Math.min(100, Math.max(0, confidence))}%`, background: color }}
           />
         </div>
       )}

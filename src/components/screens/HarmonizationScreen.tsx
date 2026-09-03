@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../../context/AppContext';
 
 export const HarmonizationScreen: React.FC = () => {
@@ -9,27 +9,23 @@ export const HarmonizationScreen: React.FC = () => {
     commitHarmonization, 
     skipHarmonization, 
     flagHarmonization, 
-    openEvidence 
+    openEvidence,
+    addToast 
   } = useApp();
-
-  const [notification, setNotification] = useState<string | null>(null);
 
   const handleCommit = () => {
     commitHarmonization();
-    setNotification('Approved match and linked to National Material Master.');
-    setTimeout(() => setNotification(null), 3000);
+    addToast('success', `Approved match for ${currentTask.source.localCode} linked to ${currentTask.candidate.proposedCnmc}`);
   };
 
   const handleSkip = () => {
     skipHarmonization();
-    setNotification('Skipped to next item.');
-    setTimeout(() => setNotification(null), 2000);
+    addToast('info', 'Skipped to next harmonization item.');
   };
 
   const handleFlag = () => {
     flagHarmonization();
-    setNotification('Flagged for technical review committee.');
-    setTimeout(() => setNotification(null), 3000);
+    addToast('warning', `Item ${currentTask.source.localCode} flagged for technical committee.`);
   };
 
   // Safe attribute extraction
@@ -76,183 +72,229 @@ export const HarmonizationScreen: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+    <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: 'var(--bg)' }}>
       {/* Workspace Controls Header */}
-      <div className="px-6 py-3 bg-surface border-b border-outline-variant/60 flex items-center justify-between shrink-0">
+      <div 
+        className="px-6 py-4 flex items-center justify-between shrink-0"
+        style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}
+      >
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-sm font-bold text-on-surface">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
               Material Harmonization Workbench
-            </h1>
-            <span className="font-mono text-xs text-primary bg-primary/10 px-2 py-0.5 rounded font-medium">
+            </h2>
+            <span 
+              className="font-mono text-xs px-2.5 py-0.5 rounded font-semibold"
+              style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,0.3)' }}
+            >
               Task {currentTask.taskId}
             </span>
           </div>
-          <p className="text-[11px] text-on-surface-variant mt-0.5">
-            Review the source item and approve or adjust the recommended National Material Code (CNMC).
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            Review source material attributes and confirm recommendation for Common National Material Code (CNMC).
           </p>
         </div>
         
-        <div className="flex space-x-2 items-center">
-          {notification && (
-            <span className="px-3 py-1 bg-primary/10 border border-primary/30 text-primary text-xs rounded-md font-mono flex items-center">
-              <span className="material-symbols-outlined text-sm mr-1">check</span> {notification}
-            </span>
-          )}
+        <div className="flex items-center gap-2.5">
           <button 
             onClick={handleSkip}
-            className="px-3 py-1.5 border border-outline-variant/60 text-on-surface font-medium rounded-lg hover:bg-surface-container transition-colors flex items-center text-xs"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all hover:opacity-80"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
           >
-            <span className="material-symbols-outlined mr-1 text-[15px]">redo</span>
+            <span className="material-symbols-outlined text-[16px]">redo</span>
             Skip
           </button>
           <button 
             onClick={handleFlag}
-            className="px-3 py-1.5 border border-outline-variant/60 text-status-warning font-medium rounded-lg hover:bg-surface-container transition-colors flex items-center text-xs"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all hover:opacity-80"
+            style={{ background: 'var(--warn-dim)', border: '1px solid rgba(245,158,11,0.3)', color: 'var(--warning)' }}
           >
-            <span className="material-symbols-outlined mr-1 text-[15px]">flag</span>
-            Reject / Flag
+            <span className="material-symbols-outlined text-[16px]">flag</span>
+            Flag for Review
           </button>
           <button 
             onClick={handleCommit}
-            className="px-4 py-1.5 bg-primary text-on-primary font-semibold rounded-lg hover:brightness-110 transition-all flex items-center text-xs shadow-xs"
+            className="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all hover:brightness-110 shadow-sm"
+            style={{ background: 'var(--blue)', color: '#fff' }}
           >
-            <span className="material-symbols-outlined mr-1 text-[15px]">check</span>
+            <span className="material-symbols-outlined text-[16px]">check</span>
             Approve Match
           </button>
         </div>
       </div>
 
       {/* 3-Column Tri-Pane Workspace */}
-      <div className="flex-1 flex overflow-hidden p-6 gap-4">
-        {/* Pane 1: Source CPSE Material (28% Width) */}
-        <div className="w-[28%] bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col overflow-hidden shrink-0">
-          <div className="p-3.5 border-b border-outline-variant/50 bg-surface-container flex justify-between items-center">
+      <div className="flex-1 flex overflow-hidden p-6 gap-5">
+        {/* Pane 1: Source Record (28%) */}
+        <div 
+          className="w-[28%] rounded-xl flex flex-col overflow-hidden shrink-0"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <div 
+            className="p-4 flex justify-between items-center"
+            style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-hover)' }}
+          >
             <div>
-              <h3 className="text-xs font-semibold text-on-surface uppercase">
+              <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                 1. Source Record
               </h3>
-              <p className="text-[10px] text-on-surface-variant">Incoming legacy ERP catalog data</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Incoming legacy ERP data</p>
             </div>
-            <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-mono text-[10px] font-medium">
+            <span 
+              className="px-2 py-0.5 rounded text-xs font-mono font-bold"
+              style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
+            >
               {currentTask.source.cpse}
             </span>
           </div>
 
           <div className="p-4 flex-1 overflow-y-auto space-y-4">
             <div>
-              <label className="text-[10px] text-on-surface-variant uppercase font-medium block mb-1">
-                Local ERP Code
+              <label className="text-xs uppercase font-semibold block mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                Local ERP Item Code
               </label>
-              <div className="font-mono text-xs text-on-surface font-semibold p-2.5 bg-surface-container-low rounded-lg border border-outline-variant/50">
+              <div 
+                className="font-mono text-sm font-bold p-3 rounded-lg"
+                style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--blue)' }}
+              >
                 {currentTask.source.localCode}
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-on-surface-variant uppercase font-medium block mb-1">
-                Original Description
+              <label className="text-xs uppercase font-semibold block mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                Raw Description
               </label>
-              <div className="text-xs text-on-surface p-3 bg-surface-container-low rounded-lg border border-outline-variant/50 leading-relaxed font-normal">
+              <div 
+                className="text-sm p-3 rounded-lg leading-relaxed font-normal"
+                style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+              >
                 {currentTask.source.rawDescription}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-outline-variant/40">
-              <label className="text-[10px] text-on-surface-variant uppercase font-medium block mb-2">
+            <div className="pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+              <label className="text-xs uppercase font-semibold block mb-2" style={{ color: 'var(--text-muted)' }}>
                 Extracted Parameters
               </label>
-              <div className="space-y-1 font-mono text-xs">
+              <div className="space-y-1.5 font-mono text-xs">
                 {Object.entries(sourceSpecs).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-1 px-2 rounded bg-surface-container-low">
-                    <span className="text-on-surface-variant capitalize font-sans">{key}:</span>
-                    <span className="text-on-surface font-medium">{String(value)}</span>
+                  <div 
+                    key={key} 
+                    className="flex justify-between py-1.5 px-2.5 rounded"
+                    style={{ background: 'var(--bg-hover)' }}
+                  >
+                    <span className="capitalize font-sans" style={{ color: 'var(--text-secondary)' }}>{key}:</span>
+                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{String(value)}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-outline-variant/40 text-[11px] font-mono text-on-surface-variant space-y-1">
+            <div className="pt-2 text-xs font-mono space-y-1.5" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
               <div className="flex justify-between">
                 <span>Unit of Measure:</span>
-                <span className="text-on-surface font-medium">{currentTask.source.uom}</span>
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{currentTask.source.uom}</span>
               </div>
               <div className="flex justify-between">
                 <span>Originating CPSE:</span>
-                <span className="text-on-surface font-medium">{currentTask.source.cpse}</span>
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{currentTask.source.cpse}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Pane 2: Proposed Canonical Master (Center - 44% Width) */}
-        <div className="flex-1 bg-surface-container rounded-xl border border-primary/50 flex flex-col overflow-hidden relative">
-          <div className="p-3.5 border-b border-outline-variant/50 bg-primary/5 flex justify-between items-center">
+        {/* Pane 2: Proposed Canonical Master (Center - 44%) */}
+        <div 
+          className="flex-1 rounded-xl flex flex-col overflow-hidden relative"
+          style={{ background: 'var(--bg-card)', border: '1px solid rgba(59,130,246,0.4)', boxShadow: '0 4px 20px rgba(59,130,246,0.06)' }}
+        >
+          <div 
+            className="p-4 flex justify-between items-center"
+            style={{ borderBottom: '1px solid var(--border)', background: 'var(--blue-dim)' }}
+          >
             <div>
-              <h3 className="text-xs font-semibold text-primary uppercase flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px]">verified</span>
+              <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--blue)' }}>
+                <span className="material-symbols-outlined text-[16px]">verified</span>
                 2. Recommended National Match
               </h3>
-              <p className="text-[10px] text-on-surface-variant">Common National Material Code (CNMC) Recommendation</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                Common National Material Code (CNMC) recommendation
+              </p>
             </div>
-            <span className="px-2 py-0.5 rounded bg-primary text-on-primary font-mono text-xs font-bold">
+            <span 
+              className="px-2.5 py-1 rounded text-xs font-mono font-bold"
+              style={{ background: 'var(--blue)', color: '#fff' }}
+            >
               {currentTask.aiAnalysis.confidence}% Match
             </span>
           </div>
 
-          <div className="p-4 flex-1 overflow-y-auto space-y-4">
-            {/* Recommended Code & Title */}
-            <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant/50 space-y-1.5">
+          <div className="p-5 flex-1 overflow-y-auto space-y-4">
+            {/* Recommended Code Box */}
+            <div 
+              className="p-4 rounded-xl space-y-2"
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+            >
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-on-surface-variant uppercase font-medium">
-                  National Material Code (CNMC)
+                <span className="text-xs uppercase font-semibold" style={{ color: 'var(--text-muted)' }}>
+                  National Master CNMC
                 </span>
-                <span className="px-1.5 py-0.5 rounded bg-primary/15 text-primary text-[10px] font-semibold font-mono">
+                <span 
+                  className="px-2 py-0.5 rounded text-xs font-semibold font-mono"
+                  style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
+                >
                   {currentTask.candidate.matchType}
                 </span>
               </div>
-              <div className="font-mono text-lg text-primary font-bold">
+              <div className="font-mono text-xl font-bold" style={{ color: 'var(--blue)' }}>
                 {currentTask.candidate.proposedCnmc}
               </div>
-              <p className="text-xs text-on-surface leading-relaxed font-medium">
+              <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                 {currentTask.candidate.canonicalDescription}
               </p>
             </div>
 
-            {/* Why this match? Clear Specification Comparison */}
+            {/* Attribute Alignment Comparison */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <h4 className="text-[11px] text-on-surface-variant uppercase font-semibold">
+                <h4 className="text-xs uppercase font-bold tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                   Specification Comparison
                 </h4>
-                <span className="text-[10px] text-on-surface-variant font-mono">Source vs CNMC Standard</span>
+                <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>Source vs CNMC Standard</span>
               </div>
 
-              <div className="border border-outline-variant/50 rounded-lg overflow-hidden">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-surface-container-high text-on-surface-variant font-medium text-[11px] border-b border-outline-variant/40">
+              <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                <table className="w-full text-left text-xs">
+                  <thead style={{ background: 'var(--bg-hover)', borderBottom: '1px solid var(--border)' }}>
                     <tr>
-                      <th className="p-2.5">Attribute</th>
-                      <th className="p-2.5">Source Record</th>
-                      <th className="p-2.5">CNMC Standard</th>
-                      <th className="p-2.5 text-center">Result</th>
+                      <th className="p-3 font-semibold" style={{ color: 'var(--text-muted)' }}>Attribute</th>
+                      <th className="p-3 font-semibold" style={{ color: 'var(--text-muted)' }}>Source Record</th>
+                      <th className="p-3 font-semibold" style={{ color: 'var(--text-muted)' }}>CNMC Standard</th>
+                      <th className="p-3 text-center font-semibold" style={{ color: 'var(--text-muted)' }}>Result</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/30 font-mono text-[11px]">
+                  <tbody className="divide-y font-mono text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
                     {comparisonRows.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-surface-container-high/40 transition-colors">
-                        <td className="p-2.5 text-on-surface-variant font-sans font-medium">{row.attribute}</td>
-                        <td className="p-2.5 text-on-surface">{row.sourceVal}</td>
-                        <td className="p-2.5 text-primary font-medium">{row.cnmcVal}</td>
-                        <td className="p-2.5 text-center">
+                      <tr key={idx} className="hover:opacity-90 transition-opacity">
+                        <td className="p-3 font-sans font-medium" style={{ color: 'var(--text-secondary)' }}>{row.attribute}</td>
+                        <td className="p-3" style={{ color: 'var(--text-primary)' }}>{row.sourceVal}</td>
+                        <td className="p-3 font-semibold" style={{ color: 'var(--blue)' }}>{row.cnmcVal}</td>
+                        <td className="p-3 text-center">
                           {row.parity === 'match' ? (
-                            <span className="text-status-success font-medium flex items-center justify-center gap-1 font-sans">
-                              <span className="material-symbols-outlined text-[13px]">check</span>
+                            <span 
+                              className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded"
+                              style={{ background: 'var(--success-dim)', color: 'var(--success)' }}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">check</span>
                               Match
                             </span>
                           ) : (
-                            <span className="text-status-warning font-medium flex items-center justify-center gap-1 font-sans">
-                              <span className="material-symbols-outlined text-[13px]">info</span>
+                            <span 
+                              className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded"
+                              style={{ background: 'var(--warn-dim)', color: 'var(--warning)' }}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">info</span>
                               Review
                             </span>
                           )}
@@ -264,26 +306,35 @@ export const HarmonizationScreen: React.FC = () => {
               </div>
             </div>
 
-            {/* AI Decision Rationale in Plain Language */}
-            <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-1.5">
-              <span className="text-[10px] text-primary uppercase flex items-center gap-1 font-semibold">
-                <span className="material-symbols-outlined text-[13px]">insights</span>
+            {/* Standardization Evidence */}
+            <div 
+              className="p-4 rounded-xl space-y-2"
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+            >
+              <span className="text-xs uppercase flex items-center gap-1.5 font-bold" style={{ color: 'var(--blue)' }}>
+                <span className="material-symbols-outlined text-[16px]">insights</span>
                 Standardization Evidence
               </span>
-              <ul className="text-xs text-on-surface-variant space-y-1 list-disc pl-4">
+              <ul className="text-xs space-y-1 list-disc pl-4" style={{ color: 'var(--text-secondary)' }}>
                 {currentTask.aiAnalysis.evidenceNotes.map((note, idx) => (
                   <li key={idx}>{note}</li>
                 ))}
               </ul>
               {currentTask.aiAnalysis.conflict && (
-                <div className="mt-2 p-2 rounded bg-status-warning/10 border border-status-warning/30 text-xs text-status-warning">
-                  <strong>Notice:</strong> {currentTask.aiAnalysis.conflict.description}
+                <div 
+                  className="mt-2 p-2.5 rounded-lg text-xs"
+                  style={{ background: 'var(--warn-dim)', border: '1px solid rgba(245,158,11,0.3)', color: 'var(--warning)' }}
+                >
+                  <strong>Conflict Note:</strong> {currentTask.aiAnalysis.conflict.description}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="p-3 border-t border-outline-variant/50 bg-surface-container flex justify-between items-center">
+          <div 
+            className="p-4 flex justify-between items-center"
+            style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-hover)' }}
+          >
             <button 
               onClick={() => openEvidence({
                 id: currentTask.taskId,
@@ -302,55 +353,69 @@ export const HarmonizationScreen: React.FC = () => {
                 candidateAttributes: {},
                 explanation: currentTask.aiAnalysis.evidenceNotes.join(' ')
               })}
-              className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
+              className="text-xs font-semibold hover:underline flex items-center gap-1"
+              style={{ color: 'var(--blue)' }}
             >
-              <span className="material-symbols-outlined text-[14px]">visibility</span>
+              <span className="material-symbols-outlined text-[16px]">visibility</span>
               View Full Evidence Dossier
             </button>
-            <span className="text-[11px] font-mono text-on-surface-variant">
+            <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
               Queue: {currentTaskIndex + 1} of {tasksQueue.length}
             </span>
           </div>
         </div>
 
-        {/* Pane 3: Other CPSEs Using This Material (28% Width) */}
-        <div className="w-[28%] bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col overflow-hidden shrink-0">
-          <div className="p-3.5 border-b border-outline-variant/50 bg-surface-container flex justify-between items-center">
+        {/* Pane 3: Other CPSEs Using This Material (28%) */}
+        <div 
+          className="w-[28%] rounded-xl flex flex-col overflow-hidden shrink-0"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <div 
+            className="p-4 flex justify-between items-center"
+            style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-hover)' }}
+          >
             <div>
-              <h3 className="text-xs font-semibold text-on-surface uppercase">
-                3. Related CPSE Materials
+              <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
+                3. Related CPSE Codes
               </h3>
-              <p className="text-[10px] text-on-surface-variant">Existing mapped enterprise records</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Cross-enterprise links</p>
             </div>
-            <span className="font-mono text-[10px] text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded font-medium">
+            <span 
+              className="font-mono text-xs px-2 py-0.5 rounded font-bold"
+              style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
+            >
               {currentTask.candidate.mappingImpact.linkedCpseCodesCount} Linked
             </span>
           </div>
 
-          <div className="p-4 flex-1 overflow-y-auto space-y-3">
-            <p className="text-xs text-on-surface-variant">
+          <div className="p-4 flex-1 overflow-y-auto space-y-3.5">
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
               Approving this match links your record to these enterprise materials:
             </p>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {currentTask.candidate.mappingImpact.sampleCodes.map((code, idx) => (
                 <div 
                   key={idx}
-                  className="p-2.5 bg-surface-container-low rounded-lg border border-outline-variant/50 hover:border-outline transition-colors"
+                  className="p-3 rounded-lg card-hover transition-colors"
+                  style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-mono text-xs text-primary font-semibold">{code}</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface font-mono">
-                      Standardized
+                    <span className="font-mono text-xs font-bold" style={{ color: 'var(--blue)' }}>{code}</span>
+                    <span 
+                      className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase"
+                      style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+                    >
+                      Mapped
                     </span>
                   </div>
-                  <p className="text-xs text-on-surface-variant truncate">
+                  <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
                     {currentTask.candidate.canonicalDescription}
                   </p>
-                  <div className="flex justify-between items-center mt-2 text-[10px] font-mono text-on-surface-variant">
+                  <div className="flex justify-between items-center mt-2.5 text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
                     <span>UOM: {currentTask.source.uom}</span>
-                    <span className="text-status-success flex items-center gap-0.5 font-medium">
-                      <span className="material-symbols-outlined text-[12px]">link</span>
+                    <span className="flex items-center gap-1 font-semibold" style={{ color: 'var(--success)' }}>
+                      <span className="material-symbols-outlined text-[13px]">link</span>
                       IDENTICAL
                     </span>
                   </div>
@@ -358,17 +423,17 @@ export const HarmonizationScreen: React.FC = () => {
               ))}
             </div>
 
-            <div className="pt-3 border-t border-outline-variant/40">
-              <h4 className="text-[10px] text-on-surface-variant uppercase font-medium mb-1.5">
-                Expected System Impact
+            <div className="pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+              <h4 className="text-xs uppercase font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>
+                System Impact
               </h4>
-              <ul className="space-y-1 text-xs text-on-surface-variant font-mono">
+              <ul className="space-y-1.5 text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--success)' }} />
                   <span className="font-sans">Cross-company spare parts sharing enabled</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--success)' }} />
                   <span className="font-sans">Immediate joint procurement pooling</span>
                 </li>
               </ul>
