@@ -65,29 +65,29 @@ export const HomeScreen: React.FC = () => {
   const activeDemo = examples[selectedExampleTab];
 
   return (
-    <main className="flex-1 overflow-y-auto p-margin-page bg-background transition-colors duration-200 space-y-8 max-w-6xl mx-auto">
+    <main className="flex-1 overflow-y-auto p-6 bg-background space-y-6 max-w-6xl mx-auto">
       {/* 1. Header & Problem Context */}
-      <section className="bg-surface-container rounded-2xl border border-outline-variant/40 p-8 shadow-sm space-y-4">
+      <section className="bg-surface-container rounded-xl border border-outline-variant/60 p-6 space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <span className="font-label-caps text-label-caps text-primary uppercase font-bold tracking-wider">
+            <span className="text-[11px] text-primary uppercase font-semibold tracking-wider">
               National Unified Material Master | SIH-26099
             </span>
-            <h1 className="font-headline-section text-2xl font-bold text-on-surface mt-1">
+            <h1 className="text-xl font-bold text-on-surface tracking-tight mt-0.5">
               Cross-Enterprise Catalog Harmonization Platform
             </h1>
           </div>
           <button
             onClick={() => setActiveScreen('dashboard')}
-            className="px-5 py-2.5 bg-primary text-on-primary font-bold text-xs rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-sm shrink-0"
+            className="px-4 py-2 bg-primary text-on-primary font-semibold text-xs rounded-lg hover:brightness-110 transition-all flex items-center gap-2 shrink-0"
           >
-            Enter Executive Dashboard
-            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            Enter Dashboard
+            <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
           </button>
         </div>
 
-        <div className="p-5 bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-2">
-          <h2 className="font-headline-section text-sm font-bold text-on-surface uppercase">
+        <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-1.5">
+          <h2 className="text-xs font-semibold text-on-surface uppercase">
             The Public Sector Challenge
           </h2>
           <p className="text-xs text-on-surface-variant leading-relaxed">
@@ -100,10 +100,10 @@ export const HomeScreen: React.FC = () => {
       </section>
 
       {/* 2. Interactive Live Example (The Resolution Mechanism) */}
-      <section className="bg-surface-container rounded-2xl border border-outline-variant/40 p-8 shadow-sm space-y-6">
+      <section className="bg-surface-container rounded-xl border border-outline-variant/60 p-6 space-y-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h2 className="font-headline-section text-base font-bold text-on-surface">
+            <h2 className="text-sm font-bold text-on-surface">
               Live Harmonization Demonstration
             </h2>
             <p className="text-xs text-on-surface-variant mt-0.5">
@@ -112,12 +112,12 @@ export const HomeScreen: React.FC = () => {
           </div>
 
           {/* Example Selector Tabs */}
-          <div className="flex gap-1.5 p-1 bg-surface-container-low rounded-xl border border-outline-variant/40 text-xs font-semibold">
+          <div className="flex gap-1 p-1 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs font-medium">
             <button
               onClick={() => setSelectedExampleTab('fastener')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-1.5 rounded-md transition-colors ${
                 selectedExampleTab === 'fastener'
-                  ? 'bg-surface-container text-primary font-bold border border-outline-variant/40 shadow-xs'
+                  ? 'bg-surface-container text-primary font-semibold border border-outline-variant/50'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -125,9 +125,9 @@ export const HomeScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedExampleTab('valve')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-1.5 rounded-md transition-colors ${
                 selectedExampleTab === 'valve'
-                  ? 'bg-surface-container text-primary font-bold border border-outline-variant/40 shadow-xs'
+                  ? 'bg-surface-container text-primary font-semibold border border-outline-variant/50'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -135,9 +135,9 @@ export const HomeScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedExampleTab('pump')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-1.5 rounded-md transition-colors ${
                 selectedExampleTab === 'pump'
-                  ? 'bg-surface-container text-primary font-bold border border-outline-variant/40 shadow-xs'
+                  ? 'bg-surface-container text-primary font-semibold border border-outline-variant/50'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -147,94 +147,94 @@ export const HomeScreen: React.FC = () => {
         </div>
 
         {/* The 3-Step Convergence Visualizer */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
           {/* Step 1: Disparate CPSE Inputs (5 Columns) */}
-          <div className="lg:col-span-5 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30 flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-5 bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 flex flex-col justify-between space-y-3">
             <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="font-label-caps text-[11px] text-on-surface-variant uppercase font-bold">
+              <div className="flex justify-between items-center mb-2.5">
+                <span className="text-[10px] text-on-surface-variant uppercase font-semibold">
                   Step 1: Input Records (3 Isolated ERPs)
                 </span>
-                <span className="text-[10px] font-data-mono text-status-warning font-semibold">
+                <span className="text-[10px] font-mono text-status-warning font-medium">
                   Fragmented Codes
                 </span>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {activeDemo.sources.map((src, idx) => (
-                  <div key={idx} className="p-3 bg-surface-container rounded-lg border border-outline-variant/40 space-y-1">
+                  <div key={idx} className="p-2.5 bg-surface-container rounded-md border border-outline-variant/40 space-y-1">
                     <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-on-surface font-sans">{src.cpse}</span>
-                      <span className="font-data-mono text-primary text-[11px] font-semibold">{src.localCode}</span>
+                      <span className="font-semibold text-on-surface">{src.cpse}</span>
+                      <span className="font-mono text-primary text-[11px] font-medium">{src.localCode}</span>
                     </div>
-                    <p className="font-data-mono text-xs text-on-surface-variant">
+                    <p className="font-mono text-xs text-on-surface-variant">
                       "{src.rawDesc}"
                     </p>
-                    <div className="text-[10px] text-on-surface-variant pt-1 border-t border-outline-variant/20 flex justify-between">
+                    <div className="text-[10px] text-on-surface-variant pt-1 border-t border-outline-variant/30 flex justify-between">
                       <span>ERP Purchase Unit Cost:</span>
-                      <span className="font-data-mono font-semibold text-on-surface">{src.price}</span>
+                      <span className="font-mono font-medium text-on-surface">{src.price}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-[11px] text-on-surface-variant font-data-mono">
+            <p className="text-[11px] text-on-surface-variant font-mono">
               Result of uncoordinated cataloging: 3 separate RFQs, differing pricing, zero visibility.
             </p>
           </div>
 
           {/* Convergence Arrow Indicator (Center Column) */}
-          <div className="hidden lg:flex lg:col-span-2 flex-col items-center justify-center gap-2 text-primary">
-            <span className="material-symbols-outlined text-3xl">rebase_edit</span>
-            <span className="font-label-caps text-[10px] uppercase font-bold text-center">
-              AI Technical Extraction & Parity Scoring
+          <div className="hidden lg:flex lg:col-span-2 flex-col items-center justify-center gap-1.5 text-primary text-center px-2">
+            <span className="material-symbols-outlined text-2xl">compare_arrows</span>
+            <span className="text-[10px] uppercase font-semibold leading-tight">
+              Standardization & Parity Engine
             </span>
-            <span className="material-symbols-outlined text-2xl">arrow_forward</span>
+            <span className="material-symbols-outlined text-lg">arrow_forward</span>
           </div>
 
           {/* Step 2: Harmonized National Output (5 Columns) */}
-          <div className="lg:col-span-5 bg-surface-container-low p-5 rounded-xl border border-primary/40 flex flex-col justify-between space-y-4 relative">
+          <div className="lg:col-span-5 bg-surface-container-low p-4 rounded-lg border border-primary/40 flex flex-col justify-between space-y-3 relative">
             <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="font-label-caps text-[11px] text-primary uppercase font-bold">
+              <div className="flex justify-between items-center mb-2.5">
+                <span className="text-[10px] text-primary uppercase font-semibold">
                   Step 2: Unified National Specification
                 </span>
-                <span className="text-[10px] font-data-mono text-status-success font-semibold flex items-center gap-0.5">
+                <span className="text-[10px] font-mono text-status-success font-medium flex items-center gap-0.5">
                   <span className="material-symbols-outlined text-xs">verified</span>
                   100% Normalized
                 </span>
               </div>
 
-              <div className="p-3.5 bg-surface-container rounded-lg border border-primary/30 space-y-2">
-                <span className="font-label-caps text-[10px] text-on-surface-variant uppercase">
+              <div className="p-3 bg-surface-container rounded-md border border-primary/30 space-y-1.5">
+                <span className="text-[10px] text-on-surface-variant uppercase font-medium">
                   Assigned National Code (CNMC)
                 </span>
-                <div className="font-display-cnmc text-lg font-bold text-primary">
+                <div className="font-mono text-base font-bold text-primary">
                   {activeDemo.unifiedCnmc}
                 </div>
-                <p className="font-body-standard text-xs text-on-surface font-semibold leading-relaxed">
+                <p className="text-xs text-on-surface font-medium leading-relaxed">
                   {activeDemo.canonicalTitle}
                 </p>
               </div>
 
-              <div className="mt-3 space-y-1.5">
-                <span className="font-label-caps text-[10px] text-on-surface-variant uppercase block">
+              <div className="mt-2.5 space-y-1">
+                <span className="text-[10px] text-on-surface-variant uppercase font-medium block">
                   Extracted Technical Parameters:
                 </span>
-                <div className="grid grid-cols-2 gap-1.5 font-data-mono text-[11px]">
+                <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
                   {activeDemo.extractedAttributes.map((attr, idx) => (
-                    <div key={idx} className="p-1.5 bg-surface-container rounded border border-outline-variant/20">
-                      <span className="text-on-surface-variant block text-[10px]">{attr.name}</span>
-                      <span className="text-on-surface font-semibold">{attr.value}</span>
+                    <div key={idx} className="p-1.5 bg-surface-container rounded border border-outline-variant/30">
+                      <span className="text-on-surface-variant block text-[10px] font-sans">{attr.name}</span>
+                      <span className="text-on-surface font-medium">{attr.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="p-3 bg-primary/10 rounded-lg border border-primary/20 text-xs text-on-surface space-y-1">
-              <span className="font-semibold text-primary block text-[11px] uppercase">Direct Financial Impact:</span>
+            <div className="p-2.5 bg-primary/10 rounded-md border border-primary/20 text-xs text-on-surface space-y-1">
+              <span className="font-semibold text-primary block text-[10px] uppercase">Direct Financial Impact:</span>
               <p className="text-on-surface-variant leading-relaxed text-[11px]">
                 {activeDemo.procurementImpact}
               </p>
@@ -244,9 +244,9 @@ export const HomeScreen: React.FC = () => {
       </section>
 
       {/* 3. Three-Phase Enterprise Workflow */}
-      <section className="bg-surface-container rounded-2xl border border-outline-variant/40 p-8 shadow-sm space-y-5">
+      <section className="bg-surface-container rounded-xl border border-outline-variant/60 p-6 space-y-4">
         <div>
-          <h2 className="font-headline-section text-base font-bold text-on-surface">
+          <h2 className="text-sm font-bold text-on-surface">
             System Workflow Architecture
           </h2>
           <p className="text-xs text-on-surface-variant mt-0.5">
@@ -254,14 +254,14 @@ export const HomeScreen: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Workflow 1 */}
-          <div className="p-5 bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-3 flex flex-col justify-between">
+          <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-2.5 flex flex-col justify-between">
             <div>
-              <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-data-mono font-bold text-sm text-primary mb-2 border border-outline-variant/40">
+              <div className="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center font-mono font-bold text-xs text-primary mb-2 border border-outline-variant/50">
                 01
               </div>
-              <h3 className="font-headline-section text-sm font-bold text-on-surface">
+              <h3 className="text-xs font-semibold text-on-surface">
                 Catalog Ingestion
               </h3>
               <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
@@ -270,19 +270,19 @@ export const HomeScreen: React.FC = () => {
             </div>
             <button
               onClick={() => openUploadModal('ONGC')}
-              className="text-xs text-primary font-semibold hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/20"
+              className="text-xs text-primary font-medium hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/30"
             >
-              Upload Sample Spreadsheet <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              Upload Spreadsheet <span className="material-symbols-outlined text-xs">arrow_forward</span>
             </button>
           </div>
 
           {/* Workflow 2 */}
-          <div className="p-5 bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-3 flex flex-col justify-between">
+          <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-2.5 flex flex-col justify-between">
             <div>
-              <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-data-mono font-bold text-sm text-primary mb-2 border border-outline-variant/40">
+              <div className="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center font-mono font-bold text-xs text-primary mb-2 border border-outline-variant/50">
                 02
               </div>
-              <h3 className="font-headline-section text-sm font-bold text-on-surface">
+              <h3 className="text-xs font-semibold text-on-surface">
                 Semantic Deduplication
               </h3>
               <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
@@ -291,19 +291,19 @@ export const HomeScreen: React.FC = () => {
             </div>
             <button
               onClick={() => setActiveScreen('harmonization')}
-              className="text-xs text-primary font-semibold hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/20"
+              className="text-xs text-primary font-medium hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/30"
             >
-              Inspect Matching Workbench <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              Inspect Workbench <span className="material-symbols-outlined text-xs">arrow_forward</span>
             </button>
           </div>
 
           {/* Workflow 3 */}
-          <div className="p-5 bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-3 flex flex-col justify-between">
+          <div className="p-4 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-2.5 flex flex-col justify-between">
             <div>
-              <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-data-mono font-bold text-sm text-primary mb-2 border border-outline-variant/40">
+              <div className="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center font-mono font-bold text-xs text-primary mb-2 border border-outline-variant/50">
                 03
               </div>
-              <h3 className="font-headline-section text-sm font-bold text-on-surface">
+              <h3 className="text-xs font-semibold text-on-surface">
                 Governance & Aliasing
               </h3>
               <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
@@ -312,34 +312,34 @@ export const HomeScreen: React.FC = () => {
             </div>
             <button
               onClick={() => setActiveScreen('governance')}
-              className="text-xs text-primary font-semibold hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/20"
+              className="text-xs text-primary font-medium hover:underline flex items-center gap-1 pt-2 border-t border-outline-variant/30"
             >
-              View Audit Ledger <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              View Audit Ledger <span className="material-symbols-outlined text-xs">arrow_forward</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* 4. Bottom Gateway to Modules */}
-      <section className="p-6 bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <section className="p-5 bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
-          <h3 className="font-headline-section text-sm font-bold text-on-surface">
+          <h3 className="text-xs font-semibold text-on-surface">
             Ready to explore operational records?
           </h3>
           <p className="text-xs text-on-surface-variant mt-0.5">
             Proceed to the Executive Dashboard for nationwide metrics, or open the Central Catalog to inspect 3.1 million master records.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           <button
             onClick={() => setActiveScreen('master')}
-            className="px-4 py-2 border border-outline-variant/50 hover:bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl transition"
+            className="px-3.5 py-1.5 border border-outline-variant/60 hover:bg-surface-container-high text-on-surface text-xs font-medium rounded-lg transition-colors"
           >
             Central Catalog
           </button>
           <button
             onClick={() => setActiveScreen('dashboard')}
-            className="px-4 py-2 bg-primary text-on-primary text-xs font-bold rounded-xl hover:brightness-110 transition shadow-sm"
+            className="px-3.5 py-1.5 bg-primary text-on-primary text-xs font-semibold rounded-lg hover:brightness-110 transition-all"
           >
             Executive Dashboard
           </button>

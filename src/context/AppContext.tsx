@@ -1,32 +1,32 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  MatchCandidate, 
-  CanonicalMaterial, 
-  HarmonizationTask, 
-  AuditLog, 
-  CPSE, 
-  RationalizationAction 
+import {
+  MatchCandidate,
+  CanonicalMaterial,
+  HarmonizationTask,
+  AuditLog,
+  CPSE,
+  RationalizationAction
 } from '../types/material';
-import { 
-  mockCPSEs, 
-  mockReviewQueueItems, 
-  mockHarmonizationTasks, 
-  mockCanonicalDetail, 
-  mockCatalogueMaterials, 
-  mockRationalizationActions 
+import {
+  mockCPSEs,
+  mockReviewQueueItems,
+  mockHarmonizationTasks,
+  mockCanonicalDetail,
+  mockCatalogueMaterials,
+  mockRationalizationActions
 } from '../data/mockData';
 import { ParsedMaterialRecord } from '../utils/fileParser';
 
-export type ScreenType = 
+export type ScreenType =
   | 'home'
-  | 'dashboard' 
-  | 'datahub' 
-  | 'harmonization' 
-  | 'master' 
-  | 'detail' 
-  | 'review' 
-  | 'rationalization' 
-  | 'analytics' 
+  | 'dashboard'
+  | 'datahub'
+  | 'harmonization'
+  | 'master'
+  | 'detail'
+  | 'review'
+  | 'rationalization'
+  | 'analytics'
   | 'governance'
   | 'settings'
   | 'support';
@@ -46,13 +46,13 @@ interface AppContextType {
   toggleTheme: () => void;
   activeScreen: ScreenType;
   setActiveScreen: (screen: ScreenType) => void;
-  
+
   // Material Details
   selectedCnmcId: string;
   currentMaterial: CanonicalMaterial;
   catalogueMaterials: CanonicalMaterial[];
   navigateToMaterial: (cnmc: string) => void;
-  
+
   // Review Queue
   reviewQueue: MatchCandidate[];
   selectedReviewIds: string[];
@@ -61,7 +61,7 @@ interface AppContextType {
   approveReviewItem: (id: string) => void;
   bulkApproveReviewItems: (ids: string[]) => void;
   flagReviewItem: (id: string, reason?: string) => void;
-  
+
   // Harmonization
   currentTaskIndex: number;
   currentTask: HarmonizationTask;
@@ -69,26 +69,26 @@ interface AppContextType {
   commitHarmonization: () => void;
   skipHarmonization: () => void;
   flagHarmonization: () => void;
-  
+
   // Rationalization & Entities
   rationalizationActions: RationalizationAction[];
   cpseList: CPSE[];
-  
+
   // Governance & Audit
   auditLogs: AuditLog[];
   addAuditLog: (entry: Omit<AuditLog, 'id' | 'timestamp'>) => void;
-  
+
   // Evidence Drawer
   evidenceDrawerOpen: boolean;
   evidenceTarget: MatchCandidate | CanonicalMaterial | null;
   openEvidence: (target: MatchCandidate | CanonicalMaterial) => void;
   closeEvidence: () => void;
-  
+
   // Impact Modal
   impactModal: ImpactModalConfig;
   openImpactModal: (config: Omit<ImpactModalConfig, 'isOpen'>) => void;
   closeImpactModal: () => void;
-  
+
   // File Upload & Data Import
   uploadModalOpen: boolean;
   uploadTargetCpse: string;
@@ -108,19 +108,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeScreen, setActiveScreen] = useState<ScreenType>('home');
   const [selectedCnmcId, setSelectedCnmcId] = useState<string>('CNMC-00018427');
   const [catalogueMaterials, setCatalogueMaterials] = useState<CanonicalMaterial[]>(mockCatalogueMaterials);
-  
+
   // Review items state
   const [reviewQueue, setReviewQueue] = useState<MatchCandidate[]>(mockReviewQueueItems);
   const [selectedReviewIds, setSelectedReviewIds] = useState<string[]>([]);
-  
+
   // Harmonization queue state
   const [tasksQueue] = useState<HarmonizationTask[]>(mockHarmonizationTasks);
   const [currentTaskIndex, setCurrentTaskIndex] = useState<number>(0);
-  
+
   // Entities & actions
   const [cpseList, setCpseList] = useState<CPSE[]>(mockCPSEs);
   const [rationalizationActions, setRationalizationActions] = useState<RationalizationAction[]>(mockRationalizationActions);
-  
+
   // Audit trail
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([
     ...mockCanonicalDetail.governanceTrail,
@@ -137,11 +137,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       targetEntity: 'ONGC-SAP-01'
     }
   ]);
-  
+
   // Evidence Drawer
   const [evidenceDrawerOpen, setEvidenceDrawerOpen] = useState<boolean>(false);
   const [evidenceTarget, setEvidenceTarget] = useState<MatchCandidate | CanonicalMaterial | null>(null);
-  
+
   // Impact Modal
   const [impactModal, setImpactModal] = useState<ImpactModalConfig>({
     isOpen: false,
@@ -149,13 +149,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     title: 'Confirm Operation',
     sourceCode: '',
     impactedCount: 0,
-    onConfirm: () => {}
+    onConfirm: () => { }
   });
 
   // Data Upload Modal
   const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false);
   const [uploadTargetCpse, setUploadTargetCpse] = useState<string>('ONGC');
-  
+
   const [globalSearch, setGlobalSearch] = useState<string>('');
 
   // Sync theme to DOM
@@ -323,7 +323,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Selection handlers
   const toggleSelectReviewItem = (id: string) => {
-    setSelectedReviewIds(prev => 
+    setSelectedReviewIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -373,7 +373,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const bulkApproveReviewItems = (ids: string[]) => {
     if (ids.length === 0) return;
-    
+
     setReviewQueue(prev => prev.filter(i => !ids.includes(i.id)));
     setSelectedReviewIds([]);
 
@@ -410,7 +410,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Harmonization actions
   const commitHarmonization = () => {
     const task = currentTask;
-    
+
     addAuditLog({
       action: 'Harmonization Committed',
       description: `${task.source.cpse} code ${task.source.localCode} approved and committed to CNMC ${task.candidate.proposedCnmc} (${task.candidate.matchType}).`,

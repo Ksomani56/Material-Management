@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export const RationalizationScreen: React.FC = () => {
-  const { rationalizationActions, openImpactModal, addAuditLog } = useApp();
+  const { openImpactModal, addAuditLog } = useApp();
   const [selectedAction, setSelectedAction] = useState<'MAP' | 'MERGE' | 'RETIRE' | 'REVIEW' | 'SPLIT' | 'RETAIN'>('MERGE');
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
@@ -37,11 +37,11 @@ export const RationalizationScreen: React.FC = () => {
   };
 
   return (
-    <main className="flex-1 overflow-y-auto p-margin-page bg-background transition-colors duration-200 space-y-6">
+    <main className="flex-1 overflow-y-auto p-6 bg-background space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="font-headline-section text-headline-section text-on-surface font-bold">
+          <h1 className="text-base font-bold text-on-surface tracking-tight">
             Catalog Rationalization & Migration
           </h1>
           <p className="text-xs text-on-surface-variant mt-0.5">
@@ -50,8 +50,8 @@ export const RationalizationScreen: React.FC = () => {
         </div>
 
         {successNotice && (
-          <div className="px-3.5 py-1.5 bg-primary/10 border border-primary/30 text-primary text-xs rounded-xl font-data-mono flex items-center animate-in fade-in">
-            <span className="material-symbols-outlined text-sm mr-1.5">check_circle</span>
+          <div className="px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary text-xs rounded-lg font-mono flex items-center">
+            <span className="material-symbols-outlined text-[15px] mr-1.5">check_circle</span>
             {successNotice}
           </div>
         )}
@@ -65,21 +65,21 @@ export const RationalizationScreen: React.FC = () => {
             <button
               key={action}
               onClick={() => setSelectedAction(action)}
-              className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between h-24 ${
+              className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between h-22 ${
                 isSelected
-                  ? 'bg-primary/15 border-primary shadow-sm'
-                  : 'bg-surface-container border-outline-variant/40 hover:border-outline-variant/80'
+                  ? 'bg-primary/10 border-primary'
+                  : 'bg-surface-container border-outline-variant/60 hover:border-outline'
               }`}
             >
               <div className="flex justify-between items-center w-full">
-                <span className={`font-data-mono text-xs font-bold ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
+                <span className={`font-mono text-xs font-bold ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
                   {action}
                 </span>
-                <span className="material-symbols-outlined text-sm text-on-surface-variant">
+                <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
                   {action === 'MAP' ? 'link' : action === 'MERGE' ? 'call_merge' : action === 'RETIRE' ? 'archive' : 'tune'}
                 </span>
               </div>
-              <span className="text-[10px] text-on-surface-variant font-medium">
+              <span className="text-[11px] text-on-surface-variant">
                 {action === 'MAP' && 'Link to Master'}
                 {action === 'MERGE' && 'Combine Duplicates'}
                 {action === 'RETIRE' && 'Deactivate Obsolete'}
@@ -93,10 +93,10 @@ export const RationalizationScreen: React.FC = () => {
       </div>
 
       {/* Action Description Banner */}
-      <div className="p-4 bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
+      <div className="p-4 bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h3 className="font-headline-section text-sm font-bold text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+          <h3 className="text-xs font-semibold text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[17px]">verified</span>
             Operation: {selectedAction}
           </h3>
           <p className="text-xs text-on-surface-variant mt-0.5">
@@ -108,28 +108,28 @@ export const RationalizationScreen: React.FC = () => {
             {selectedAction === 'RETAIN' && 'Protects specialized local inventory codes that do not require national standardization.'}
           </p>
         </div>
-        <span className="text-xs font-data-mono text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-xl border border-outline-variant/40 shrink-0">
-          3-Step Verification Enforced
+        <span className="text-xs font-mono text-on-surface-variant bg-surface-container-low px-2.5 py-1 rounded-md border border-outline-variant/50 shrink-0">
+          Staged Workflow: Review → Confirm → Execute
         </span>
       </div>
 
       {/* Migration Workbench Candidates Table */}
-      <div className="bg-surface-container rounded-2xl border border-outline-variant/40 overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-outline-variant/30 bg-surface-container-high/50 flex justify-between items-center">
+      <div className="bg-surface-container rounded-xl border border-outline-variant/60 overflow-hidden">
+        <div className="p-4 border-b border-outline-variant/50 bg-surface-container flex justify-between items-center">
           <div>
-            <h3 className="font-headline-section text-sm font-bold text-on-surface">
+            <h3 className="text-xs font-semibold text-on-surface">
               Candidates Ready for {selectedAction}
             </h3>
             <p className="text-[11px] text-on-surface-variant">Review each item before applying changes to the live master</p>
           </div>
-          <span className="font-data-mono text-xs text-on-surface-variant">
+          <span className="font-mono text-xs text-on-surface-variant">
             {sampleTargets.length} Items Queued
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse font-data-mono">
-            <thead className="bg-surface-container-high border-b border-outline-variant/30 text-on-surface-variant text-[11px] font-table-header">
+          <table className="w-full text-left text-xs border-collapse font-mono">
+            <thead className="bg-surface-container-high border-b border-outline-variant/50 text-on-surface-variant text-[11px] font-medium">
               <tr>
                 <th className="p-3">Source Code & CPSE</th>
                 <th className="p-3">Target National Master (CNMC)</th>
@@ -138,12 +138,12 @@ export const RationalizationScreen: React.FC = () => {
                 <th className="p-3 text-right">Action Workflow</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/20">
+            <tbody className="divide-y divide-outline-variant/30">
               {sampleTargets.map((row) => (
-                <tr key={row.sourceCode} className="hover:bg-surface-container-high/60 transition-colors">
+                <tr key={row.sourceCode} className="hover:bg-surface-container-high/40 transition-colors">
                   <td className="p-3">
                     <span className="font-bold text-primary block">{row.sourceCode}</span>
-                    <span className="text-[10px] text-on-surface-variant">{row.cpse}</span>
+                    <span className="text-[10px] text-on-surface-variant font-sans">{row.cpse}</span>
                   </td>
                   <td className="p-3 text-on-surface font-semibold">
                     {row.targetCnmc}
@@ -152,14 +152,14 @@ export const RationalizationScreen: React.FC = () => {
                     {row.description}
                   </td>
                   <td className="p-3 text-center">
-                    <span className="px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface font-bold border border-outline-variant/30">
+                    <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-mono text-[11px]">
                       {row.potentialDuplicates} items
                     </span>
                   </td>
-                  <td className="p-3 text-right">
+                  <td className="p-3 text-right font-sans">
                     <button
                       onClick={() => handleExecuteAction(row.sourceCode, row.targetCnmc)}
-                      className="px-3.5 py-1.5 bg-primary text-on-primary font-body-bold text-xs rounded-xl hover:brightness-110 transition shadow-sm"
+                      className="px-3 py-1.5 bg-primary text-on-primary font-semibold text-xs rounded-lg hover:brightness-110 transition-all"
                     >
                       Review & Confirm
                     </button>

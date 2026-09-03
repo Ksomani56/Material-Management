@@ -44,9 +44,9 @@ export const HarmonizationScreen: React.FC = () => {
   // Build Attribute comparison table rows
   const comparisonRows = [
     { 
-      attribute: 'Item Type / Noun', 
+      attribute: 'Material Type', 
       sourceVal: sourceSpecs.type || 'Hex Bolt', 
-      cnmcVal: normalizedSpecs.noun || 'Bolt', 
+      cnmcVal: normalizedSpecs.noun || 'Bolt, Hexagon', 
       parity: 'match' 
     },
     { 
@@ -62,7 +62,7 @@ export const HarmonizationScreen: React.FC = () => {
       parity: 'match' 
     },
     { 
-      attribute: 'Standard / Profile', 
+      attribute: 'Standard / Spec', 
       sourceVal: sourceSpecs.standard || 'DIN 933', 
       cnmcVal: 'ISO 4017 / DIN 933 Equivalent', 
       parity: currentTask.aiAnalysis.conflict ? 'review' : 'match' 
@@ -76,15 +76,15 @@ export const HarmonizationScreen: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-background transition-colors duration-200">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       {/* Workspace Controls Header */}
-      <div className="px-margin-page py-3 bg-surface-container border-b border-outline-variant/40 flex items-center justify-between shrink-0 shadow-sm">
+      <div className="px-6 py-3 bg-surface border-b border-outline-variant/60 flex items-center justify-between shrink-0">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="font-headline-section text-sm font-bold text-on-surface">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-sm font-bold text-on-surface">
               Material Harmonization Workbench
             </h1>
-            <span className="font-data-mono text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-lg border border-primary/30 font-semibold">
+            <span className="font-mono text-xs text-primary bg-primary/10 px-2 py-0.5 rounded font-medium">
               Task {currentTask.taskId}
             </span>
           </div>
@@ -95,126 +95,126 @@ export const HarmonizationScreen: React.FC = () => {
         
         <div className="flex space-x-2 items-center">
           {notification && (
-            <span className="px-3 py-1 bg-primary/10 border border-primary/30 text-primary text-xs rounded-lg font-data-mono flex items-center animate-in fade-in">
+            <span className="px-3 py-1 bg-primary/10 border border-primary/30 text-primary text-xs rounded-md font-mono flex items-center">
               <span className="material-symbols-outlined text-sm mr-1">check</span> {notification}
             </span>
           )}
           <button 
             onClick={handleSkip}
-            className="px-3 py-1.5 border border-outline-variant/50 text-on-surface font-semibold rounded-xl hover:bg-surface-container-high transition flex items-center text-xs"
+            className="px-3 py-1.5 border border-outline-variant/60 text-on-surface font-medium rounded-lg hover:bg-surface-container transition-colors flex items-center text-xs"
           >
-            <span className="material-symbols-outlined mr-1 text-[16px]">redo</span>
+            <span className="material-symbols-outlined mr-1 text-[15px]">redo</span>
             Skip
           </button>
           <button 
             onClick={handleFlag}
-            className="px-3 py-1.5 border border-outline-variant/50 text-status-warning font-semibold rounded-xl hover:bg-surface-container-high transition flex items-center text-xs"
+            className="px-3 py-1.5 border border-outline-variant/60 text-status-warning font-medium rounded-lg hover:bg-surface-container transition-colors flex items-center text-xs"
           >
-            <span className="material-symbols-outlined mr-1 text-[16px]">flag</span>
+            <span className="material-symbols-outlined mr-1 text-[15px]">flag</span>
             Reject / Flag
           </button>
           <button 
             onClick={handleCommit}
-            className="px-4 py-1.5 bg-primary text-on-primary font-bold rounded-xl hover:brightness-110 transition flex items-center text-xs shadow-sm"
+            className="px-4 py-1.5 bg-primary text-on-primary font-semibold rounded-lg hover:brightness-110 transition-all flex items-center text-xs shadow-xs"
           >
-            <span className="material-symbols-outlined mr-1 text-[16px]">check</span>
+            <span className="material-symbols-outlined mr-1 text-[15px]">check</span>
             Approve Match
           </button>
         </div>
       </div>
 
       {/* 3-Column Tri-Pane Workspace */}
-      <div className="flex-1 flex overflow-hidden p-margin-page gap-4">
+      <div className="flex-1 flex overflow-hidden p-6 gap-4">
         {/* Pane 1: Source CPSE Material (28% Width) */}
-        <div className="w-[28%] bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col overflow-hidden shrink-0 shadow-sm">
-          <div className="p-3.5 border-b border-outline-variant/30 bg-surface-container-high/50 flex justify-between items-center">
+        <div className="w-[28%] bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col overflow-hidden shrink-0">
+          <div className="p-3.5 border-b border-outline-variant/50 bg-surface-container flex justify-between items-center">
             <div>
-              <h3 className="font-table-header text-table-header text-on-surface uppercase font-bold">
+              <h3 className="text-xs font-semibold text-on-surface uppercase">
                 1. Source Record
               </h3>
               <p className="text-[10px] text-on-surface-variant">Incoming legacy ERP catalog data</p>
             </div>
-            <span className="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-data-mono text-[10px] border border-outline-variant/40 font-semibold">
+            <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-mono text-[10px] font-medium">
               {currentTask.source.cpse}
             </span>
           </div>
 
           <div className="p-4 flex-1 overflow-y-auto space-y-4">
             <div>
-              <label className="font-label-caps text-label-caps text-on-surface-variant uppercase block mb-1">
+              <label className="text-[10px] text-on-surface-variant uppercase font-medium block mb-1">
                 Local ERP Code
               </label>
-              <div className="font-data-mono text-sm text-primary font-semibold p-2.5 bg-surface-container-low rounded-xl border border-outline-variant/40">
+              <div className="font-mono text-xs text-on-surface font-semibold p-2.5 bg-surface-container-low rounded-lg border border-outline-variant/50">
                 {currentTask.source.localCode}
               </div>
             </div>
 
             <div>
-              <label className="font-label-caps text-label-caps text-on-surface-variant uppercase block mb-1">
+              <label className="text-[10px] text-on-surface-variant uppercase font-medium block mb-1">
                 Original Description
               </label>
-              <div className="font-body-standard text-xs text-on-surface p-3 bg-surface-container-low rounded-xl border border-outline-variant/40 leading-relaxed font-medium">
+              <div className="text-xs text-on-surface p-3 bg-surface-container-low rounded-lg border border-outline-variant/50 leading-relaxed font-normal">
                 {currentTask.source.rawDescription}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-outline-variant/30">
-              <label className="font-label-caps text-label-caps text-on-surface-variant uppercase block mb-2">
+            <div className="pt-2 border-t border-outline-variant/40">
+              <label className="text-[10px] text-on-surface-variant uppercase font-medium block mb-2">
                 Extracted Parameters
               </label>
-              <div className="space-y-1.5 font-data-mono text-xs">
+              <div className="space-y-1 font-mono text-xs">
                 {Object.entries(sourceSpecs).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-1 px-2 rounded-lg bg-surface-container-low">
-                    <span className="text-on-surface-variant capitalize">{key}:</span>
+                  <div key={key} className="flex justify-between py-1 px-2 rounded bg-surface-container-low">
+                    <span className="text-on-surface-variant capitalize font-sans">{key}:</span>
                     <span className="text-on-surface font-medium">{String(value)}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-outline-variant/30 text-[11px] font-data-mono text-on-surface-variant space-y-1">
+            <div className="pt-2 border-t border-outline-variant/40 text-[11px] font-mono text-on-surface-variant space-y-1">
               <div className="flex justify-between">
                 <span>Unit of Measure:</span>
-                <span className="text-on-surface font-bold">{currentTask.source.uom}</span>
+                <span className="text-on-surface font-medium">{currentTask.source.uom}</span>
               </div>
               <div className="flex justify-between">
-                <span>Originating Enterprise:</span>
-                <span className="text-on-surface">{currentTask.source.cpse}</span>
+                <span>Originating CPSE:</span>
+                <span className="text-on-surface font-medium">{currentTask.source.cpse}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Pane 2: Proposed Canonical Master (Center - 44% Width) */}
-        <div className="flex-1 bg-surface-container rounded-2xl border border-primary/40 flex flex-col overflow-hidden shadow-md relative">
-          <div className="p-3.5 border-b border-outline-variant/30 bg-primary/10 flex justify-between items-center">
+        <div className="flex-1 bg-surface-container rounded-xl border border-primary/50 flex flex-col overflow-hidden relative">
+          <div className="p-3.5 border-b border-outline-variant/50 bg-primary/5 flex justify-between items-center">
             <div>
-              <h3 className="font-table-header text-table-header text-primary uppercase font-bold flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                2. Recommended Match
+              <h3 className="text-xs font-semibold text-primary uppercase flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px]">verified</span>
+                2. Recommended National Match
               </h3>
-              <p className="text-[10px] text-on-surface-variant">AI-generated common national material code</p>
+              <p className="text-[10px] text-on-surface-variant">Common National Material Code (CNMC) Recommendation</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-primary text-on-primary font-data-mono text-xs font-bold shadow-xs">
-              {currentTask.aiAnalysis.confidence}% Match Confidence
+            <span className="px-2 py-0.5 rounded bg-primary text-on-primary font-mono text-xs font-bold">
+              {currentTask.aiAnalysis.confidence}% Match
             </span>
           </div>
 
-          <div className="p-5 flex-1 overflow-y-auto space-y-4">
+          <div className="p-4 flex-1 overflow-y-auto space-y-4">
             {/* Recommended Code & Title */}
-            <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-2">
+            <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant/50 space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">
+                <span className="text-[10px] text-on-surface-variant uppercase font-medium">
                   National Material Code (CNMC)
                 </span>
-                <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold font-data-mono">
+                <span className="px-1.5 py-0.5 rounded bg-primary/15 text-primary text-[10px] font-semibold font-mono">
                   {currentTask.candidate.matchType}
                 </span>
               </div>
-              <div className="font-display-cnmc text-xl text-primary font-bold">
+              <div className="font-mono text-lg text-primary font-bold">
                 {currentTask.candidate.proposedCnmc}
               </div>
-              <p className="font-body-standard text-xs text-on-surface leading-relaxed font-semibold">
+              <p className="text-xs text-on-surface leading-relaxed font-medium">
                 {currentTask.candidate.canonicalDescription}
               </p>
             </div>
@@ -222,37 +222,37 @@ export const HarmonizationScreen: React.FC = () => {
             {/* Why this match? Clear Specification Comparison */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <h4 className="font-label-caps text-label-caps text-on-surface-variant uppercase font-bold">
-                  Why This Match? — Specification Comparison
+                <h4 className="text-[11px] text-on-surface-variant uppercase font-semibold">
+                  Specification Comparison
                 </h4>
-                <span className="text-[10px] text-on-surface-variant font-data-mono">Source vs Recommended</span>
+                <span className="text-[10px] text-on-surface-variant font-mono">Source vs CNMC Standard</span>
               </div>
 
-              <div className="border border-outline-variant/40 rounded-xl overflow-hidden shadow-xs">
+              <div className="border border-outline-variant/50 rounded-lg overflow-hidden">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-surface-container-high text-on-surface-variant font-table-header text-[11px] border-b border-outline-variant/30">
+                  <thead className="bg-surface-container-high text-on-surface-variant font-medium text-[11px] border-b border-outline-variant/40">
                     <tr>
                       <th className="p-2.5">Attribute</th>
                       <th className="p-2.5">Source Record</th>
-                      <th className="p-2.5">Recommended CNMC</th>
+                      <th className="p-2.5">CNMC Standard</th>
                       <th className="p-2.5 text-center">Result</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/20 font-data-mono text-[11px]">
+                  <tbody className="divide-y divide-outline-variant/30 font-mono text-[11px]">
                     {comparisonRows.map((row, idx) => (
                       <tr key={idx} className="hover:bg-surface-container-high/40 transition-colors">
-                        <td className="p-2.5 text-on-surface-variant font-medium">{row.attribute}</td>
+                        <td className="p-2.5 text-on-surface-variant font-sans font-medium">{row.attribute}</td>
                         <td className="p-2.5 text-on-surface">{row.sourceVal}</td>
-                        <td className="p-2.5 text-primary font-semibold">{row.cnmcVal}</td>
+                        <td className="p-2.5 text-primary font-medium">{row.cnmcVal}</td>
                         <td className="p-2.5 text-center">
                           {row.parity === 'match' ? (
-                            <span className="text-status-success font-bold flex items-center justify-center gap-1">
-                              <span className="material-symbols-outlined text-xs">check_circle</span>
+                            <span className="text-status-success font-medium flex items-center justify-center gap-1 font-sans">
+                              <span className="material-symbols-outlined text-[13px]">check</span>
                               Match
                             </span>
                           ) : (
-                            <span className="text-status-warning font-bold flex items-center justify-center gap-1">
-                              <span className="material-symbols-outlined text-xs">warning</span>
+                            <span className="text-status-warning font-medium flex items-center justify-center gap-1 font-sans">
+                              <span className="material-symbols-outlined text-[13px]">info</span>
                               Review
                             </span>
                           )}
@@ -265,10 +265,10 @@ export const HarmonizationScreen: React.FC = () => {
             </div>
 
             {/* AI Decision Rationale in Plain Language */}
-            <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-1.5">
-              <span className="font-label-caps text-[10px] text-primary uppercase flex items-center gap-1 font-bold">
-                <span className="material-symbols-outlined text-xs">psychology</span>
-                AI Recommendation Evidence
+            <div className="p-3 bg-surface-container-low rounded-lg border border-outline-variant/40 space-y-1.5">
+              <span className="text-[10px] text-primary uppercase flex items-center gap-1 font-semibold">
+                <span className="material-symbols-outlined text-[13px]">insights</span>
+                Standardization Evidence
               </span>
               <ul className="text-xs text-on-surface-variant space-y-1 list-disc pl-4">
                 {currentTask.aiAnalysis.evidenceNotes.map((note, idx) => (
@@ -276,14 +276,14 @@ export const HarmonizationScreen: React.FC = () => {
                 ))}
               </ul>
               {currentTask.aiAnalysis.conflict && (
-                <div className="mt-2 p-2.5 rounded-lg bg-status-warning/10 border border-status-warning/30 text-xs text-status-warning space-y-0.5">
+                <div className="mt-2 p-2 rounded bg-status-warning/10 border border-status-warning/30 text-xs text-status-warning">
                   <strong>Notice:</strong> {currentTask.aiAnalysis.conflict.description}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="p-3 border-t border-outline-variant/30 bg-surface-container-high/50 flex justify-between items-center">
+          <div className="p-3 border-t border-outline-variant/50 bg-surface-container flex justify-between items-center">
             <button 
               onClick={() => openEvidence({
                 id: currentTask.taskId,
@@ -302,27 +302,27 @@ export const HarmonizationScreen: React.FC = () => {
                 candidateAttributes: {},
                 explanation: currentTask.aiAnalysis.evidenceNotes.join(' ')
               })}
-              className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"
+              className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-sm">visibility</span>
+              <span className="material-symbols-outlined text-[14px]">visibility</span>
               View Full Evidence Dossier
             </button>
-            <span className="text-[11px] font-data-mono text-on-surface-variant">
+            <span className="text-[11px] font-mono text-on-surface-variant">
               Queue: {currentTaskIndex + 1} of {tasksQueue.length}
             </span>
           </div>
         </div>
 
         {/* Pane 3: Other CPSEs Using This Material (28% Width) */}
-        <div className="w-[28%] bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col overflow-hidden shrink-0 shadow-sm">
-          <div className="p-3.5 border-b border-outline-variant/30 bg-surface-container-high/50 flex justify-between items-center">
+        <div className="w-[28%] bg-surface-container rounded-xl border border-outline-variant/60 flex flex-col overflow-hidden shrink-0">
+          <div className="p-3.5 border-b border-outline-variant/50 bg-surface-container flex justify-between items-center">
             <div>
-              <h3 className="font-table-header text-table-header text-on-surface uppercase font-bold">
-                3. Other CPSEs Using This Material
+              <h3 className="text-xs font-semibold text-on-surface uppercase">
+                3. Related CPSE Materials
               </h3>
               <p className="text-[10px] text-on-surface-variant">Existing mapped enterprise records</p>
             </div>
-            <span className="font-data-mono text-[10px] text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40 font-semibold">
+            <span className="font-mono text-[10px] text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded font-medium">
               {currentTask.candidate.mappingImpact.linkedCpseCodesCount} Linked
             </span>
           </div>
@@ -336,21 +336,21 @@ export const HarmonizationScreen: React.FC = () => {
               {currentTask.candidate.mappingImpact.sampleCodes.map((code, idx) => (
                 <div 
                   key={idx}
-                  className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/40 hover:border-primary/40 transition-colors"
+                  className="p-2.5 bg-surface-container-low rounded-lg border border-outline-variant/50 hover:border-outline transition-colors"
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-data-mono text-xs text-primary font-semibold">{code}</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface font-data-mono border border-outline-variant/30">
+                    <span className="font-mono text-xs text-primary font-semibold">{code}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface font-mono">
                       Standardized
                     </span>
                   </div>
-                  <p className="font-body-standard text-xs text-on-surface-variant truncate">
+                  <p className="text-xs text-on-surface-variant truncate">
                     {currentTask.candidate.canonicalDescription}
                   </p>
-                  <div className="flex justify-between items-center mt-2 text-[10px] font-data-mono text-on-surface-variant">
+                  <div className="flex justify-between items-center mt-2 text-[10px] font-mono text-on-surface-variant">
                     <span>UOM: {currentTask.source.uom}</span>
-                    <span className="text-relationship-identical flex items-center gap-0.5 font-semibold">
-                      <span className="material-symbols-outlined text-[12px] fill-icon">link</span>
+                    <span className="text-status-success flex items-center gap-0.5 font-medium">
+                      <span className="material-symbols-outlined text-[12px]">link</span>
                       IDENTICAL
                     </span>
                   </div>
@@ -358,18 +358,18 @@ export const HarmonizationScreen: React.FC = () => {
               ))}
             </div>
 
-            <div className="pt-3 border-t border-outline-variant/30">
-              <h4 className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1.5">
+            <div className="pt-3 border-t border-outline-variant/40">
+              <h4 className="text-[10px] text-on-surface-variant uppercase font-medium mb-1.5">
                 Expected System Impact
               </h4>
-              <ul className="space-y-1 text-xs text-on-surface-variant font-data-mono">
+              <ul className="space-y-1 text-xs text-on-surface-variant font-mono">
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
-                  <span>Cross-company spare parts sharing enabled</span>
+                  <span className="font-sans">Cross-company spare parts sharing enabled</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
-                  <span>Immediate joint procurement pooling</span>
+                  <span className="font-sans">Immediate joint procurement pooling</span>
                 </li>
               </ul>
             </div>

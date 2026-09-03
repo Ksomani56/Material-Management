@@ -9,53 +9,53 @@ export const ImpactModal: React.FC = () => {
   const isDestructive = impactModal.action === 'MERGE' || impactModal.action === 'RETIRE' || impactModal.action === 'SPLIT';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-surface-container border border-outline-variant/50 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px] transition-opacity duration-150">
+      <div className="bg-surface border border-outline-variant/60 rounded-xl max-w-lg w-full overflow-hidden shadow-xl transition-all">
         {/* Header */}
-        <div className={`p-4 border-b border-outline-variant/40 flex items-center justify-between ${
-          isDestructive ? 'bg-status-error/15 text-status-error' : 'bg-surface-container-high text-on-surface'
+        <div className={`p-4 border-b border-outline-variant/50 flex items-center justify-between ${
+          isDestructive ? 'bg-status-error/10 text-status-error' : 'bg-surface-container text-on-surface'
         }`}>
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[22px]">
+            <span className="material-symbols-outlined text-[20px]">
               {isDestructive ? 'warning' : 'info'}
             </span>
-            <h3 className="font-headline-section text-sm font-bold text-on-surface">
+            <h3 className="text-xs font-semibold text-on-surface">
               {impactModal.title}
             </h3>
           </div>
           <button
             onClick={closeImpactModal}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors"
+            className="w-7 h-7 rounded-md flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+            <span className="material-symbols-outlined text-[17px]">close</span>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="p-5 space-y-4">
           <p className="text-xs text-on-surface leading-relaxed">
-            You are about to execute action <strong className="text-primary font-data-mono">{impactModal.action}</strong> on source material record:
+            You are about to execute action <strong className="text-primary font-mono">{impactModal.action}</strong> on source material record:
           </p>
 
-          <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40 font-data-mono text-xs text-on-surface">
-            {impactModal.sourceCode}
+          <div className="p-3 bg-surface-container rounded-lg border border-outline-variant/60 font-mono text-xs text-on-surface">
+            <div>{impactModal.sourceCode}</div>
             {impactModal.targetCnmc && (
-              <span className="text-primary block mt-1 font-semibold">
-                ➔ Target Canonical: {impactModal.targetCnmc}
-              </span>
+              <div className="text-primary mt-1 font-semibold flex items-center gap-1">
+                <span>➔</span> Target Canonical: {impactModal.targetCnmc}
+              </div>
             )}
           </div>
 
-          {/* Impact Warning Card */}
-          <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/40 space-y-2">
-            <h4 className="font-table-header text-xs text-on-surface uppercase font-semibold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-relationship-near">hub</span>
+          {/* Staged Impact Preview */}
+          <div className="bg-surface-container p-4 rounded-lg border border-outline-variant/60 space-y-2.5">
+            <h4 className="text-[11px] text-on-surface uppercase font-semibold flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-sm text-status-warning">hub</span>
               Downstream Operational Impact Preview
             </h4>
-            <ul className="space-y-1.5 text-xs text-on-surface-variant font-body-standard">
+            <ul className="space-y-1.5 text-xs text-on-surface-variant">
               <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-relationship-identical shrink-0" />
-                <span>Impacts <strong className="text-on-surface font-data-mono">{impactModal.impactedCount || 4} CPSE ERP systems</strong> (SAP, Oracle, Maximo).</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-status-success shrink-0" />
+                <span>Impacts <strong className="text-on-surface font-mono">{impactModal.impactedCount || 4} CPSE ERP systems</strong> (SAP, Oracle, Maximo).</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-relationship-duplicate shrink-0" />
@@ -70,10 +70,10 @@ export const ImpactModal: React.FC = () => {
         </div>
 
         {/* Footer actions */}
-        <div className="p-4 border-t border-outline-variant/40 bg-surface-container-high flex justify-end gap-3">
+        <div className="p-4 border-t border-outline-variant/50 bg-surface-container flex justify-end gap-2.5">
           <button
             onClick={closeImpactModal}
-            className="px-4 py-2 border border-outline-variant/50 rounded-xl text-xs font-body-bold text-on-surface hover:bg-surface-container transition-colors"
+            className="px-3.5 py-1.5 border border-outline-variant/60 rounded-lg text-xs font-medium text-on-surface hover:bg-surface-container-high transition-colors"
           >
             Cancel
           </button>
@@ -82,13 +82,13 @@ export const ImpactModal: React.FC = () => {
               impactModal.onConfirm();
               closeImpactModal();
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-body-bold transition-all shadow-sm flex items-center gap-1.5 ${
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
               isDestructive
                 ? 'bg-status-error text-white hover:brightness-110'
                 : 'bg-primary text-on-primary hover:brightness-110'
             }`}
           >
-            <span className="material-symbols-outlined text-sm">check</span>
+            <span className="material-symbols-outlined text-[15px]">check</span>
             Confirm & Execute {impactModal.action}
           </button>
         </div>

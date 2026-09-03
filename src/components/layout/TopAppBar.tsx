@@ -24,46 +24,46 @@ export const TopAppBar: React.FC = () => {
   };
 
   return (
-    <header className="flex justify-between items-center w-full px-margin-page h-row-height-standard border-b border-outline-variant/40 z-40 bg-surface shrink-0 shadow-sm transition-colors">
+    <header className="flex justify-between items-center w-full px-6 h-13 border-b border-outline-variant/60 z-40 bg-surface shrink-0 select-none">
       {/* Navigation Links for Top Bar */}
       <div className="flex items-center gap-6">
-        <nav className="hidden md:flex gap-4 h-full items-end">
+        <nav className="hidden md:flex gap-1 h-full items-center">
           <button
             onClick={() => setActiveScreen('home')}
-            className={`pb-1.5 text-sm transition-all border-b-2 font-body-bold ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
               activeScreen === 'home'
-                ? 'text-primary border-primary'
-                : 'text-on-surface-variant hover:text-on-surface border-transparent font-body-standard'
+                ? 'bg-surface-container-high text-on-surface font-semibold'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             Home
           </button>
           <button
             onClick={() => setActiveScreen('dashboard')}
-            className={`pb-1.5 text-sm transition-all border-b-2 font-body-bold ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
               activeScreen === 'dashboard'
-                ? 'text-primary border-primary'
-                : 'text-on-surface-variant hover:text-on-surface border-transparent font-body-standard'
+                ? 'bg-surface-container-high text-on-surface font-semibold'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             Dashboard
           </button>
           <button
             onClick={() => setActiveScreen('harmonization')}
-            className={`pb-1.5 text-sm transition-all border-b-2 font-body-bold ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
               activeScreen === 'harmonization'
-                ? 'text-primary border-primary'
-                : 'text-on-surface-variant hover:text-on-surface border-transparent font-body-standard'
+                ? 'bg-surface-container-high text-on-surface font-semibold'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             Harmonization
           </button>
           <button
             onClick={() => setActiveScreen('governance')}
-            className={`pb-1.5 text-sm transition-all border-b-2 font-body-bold ${
+            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
               activeScreen === 'governance'
-                ? 'text-primary border-primary'
-                : 'text-on-surface-variant hover:text-on-surface border-transparent font-body-standard'
+                ? 'bg-surface-container-high text-on-surface font-semibold'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             Governance
@@ -72,10 +72,10 @@ export const TopAppBar: React.FC = () => {
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* Global Search Bar */}
-        <div className="relative focus-within:ring-1 focus-within:ring-primary rounded-lg transition-all">
-          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">
+        <div className="relative">
+          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[15px] pointer-events-none">
             search
           </span>
           <input
@@ -83,8 +83,8 @@ export const TopAppBar: React.FC = () => {
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
-            placeholder="Search CNMC or Material..."
-            className="bg-surface-container-low border border-outline-variant/50 text-on-surface text-xs pl-8 pr-3 py-1.5 rounded-lg w-60 focus:w-72 transition-all font-data-mono focus:outline-none focus:border-primary placeholder:text-on-surface-variant/60 shadow-inner"
+            placeholder="Search CNMC or material..."
+            className="bg-surface-container-low border border-outline-variant/60 text-on-surface text-xs pl-8 pr-7 py-1.5 rounded-lg w-56 focus:w-68 transition-all duration-150 font-mono focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/70"
           />
           {globalSearch && (
             <button 
@@ -100,19 +100,19 @@ export const TopAppBar: React.FC = () => {
         <button
           onClick={() => openUploadModal('ONGC')}
           title="Upload Excel or CSV Dataset"
-          className="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 text-on-surface text-xs font-body-bold flex items-center gap-1.5 transition-all shadow-sm hover:border-primary/50"
+          className="px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-on-surface text-xs font-medium flex items-center gap-1.5 transition-colors duration-150"
         >
-          <span className="material-symbols-outlined text-[16px] text-primary">upload_file</span>
-          <span className="hidden sm:inline">Upload XLS/CSV</span>
+          <span className="material-symbols-outlined text-[15px] text-primary">upload_file</span>
+          <span className="hidden sm:inline">Import Data</span>
         </button>
 
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-center border border-outline-variant/40"
+          className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 transition-colors duration-150 flex items-center justify-center"
         >
-          <span className="material-symbols-outlined text-[18px]">
+          <span className="material-symbols-outlined text-[17px]">
             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
           </span>
         </button>
@@ -122,33 +122,33 @@ export const TopAppBar: React.FC = () => {
           <button 
             onClick={() => setActiveScreen('review')}
             title="Notifications & Review Backlog"
-            className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors relative"
+            className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors duration-150 relative"
           >
-            <span className="material-symbols-outlined text-[18px]">notifications</span>
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-status-warning animate-subtle-pulse" />
+            <span className="material-symbols-outlined text-[17px]">notifications</span>
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-status-warning" />
           </button>
           
           <button 
             onClick={() => setActiveScreen('governance')}
             title="Audit Trail History"
-            className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors"
+            className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors duration-150"
           >
-            <span className="material-symbols-outlined text-[18px]">history</span>
+            <span className="material-symbols-outlined text-[17px]">history</span>
           </button>
           
           <button 
             onClick={() => setActiveScreen('settings')}
             title="System Settings"
-            className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors"
+            className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors duration-150"
           >
-            <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+            <span className="material-symbols-outlined text-[17px]">admin_panel_settings</span>
           </button>
         </div>
 
         {/* Administrator Avatar */}
         <div 
           onClick={() => setActiveScreen('settings')}
-          className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 overflow-hidden cursor-pointer hover:border-primary transition-all flex items-center justify-center font-bold text-xs text-primary shadow-sm"
+          className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/30 overflow-hidden cursor-pointer hover:border-primary transition-colors flex items-center justify-center font-bold text-xs text-primary"
           title="Logged in as System Administrator"
         >
           AU
