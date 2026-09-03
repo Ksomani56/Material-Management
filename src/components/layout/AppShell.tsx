@@ -8,130 +8,226 @@ interface NavItem {
   badge?: number;
 }
 
-export const AppShell: React.FC = () => {
-  const { activeScreen, setActiveScreen, reviewQueue, openUploadModal } = useApp();
+interface NavGroup {
+  id: string;
+  label: string;
+  items: NavItem[];
+}
 
-  const navItems: NavItem[] = [
-    { id: 'dashboard', label: 'Overview', icon: 'dashboard' },
-    { id: 'datahub', label: 'CPSE Data Hub', icon: 'database' },
-    { id: 'harmonization', label: 'Material Harmonization', icon: 'rebase_edit' },
-    { id: 'master', label: 'National Material Master', icon: 'inventory_2' },
-    { id: 'review', label: 'Review Queue', icon: 'fact_check', badge: reviewQueue.length },
-    { id: 'rationalization', label: 'Rationalization & Migration', icon: 'move_up' },
-    { id: 'analytics', label: 'Analytics', icon: 'monitoring' },
-    { id: 'governance', label: 'Governance', icon: 'gavel' },
+export const AppShell: React.FC = () => {
+  const {
+    activeScreen,
+    setActiveScreen,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    sidebarOpenGroups,
+    toggleSidebarGroup,
+    reviewQueue,
+  } = useApp();
+
+  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+
+  const groups: NavGroup[] = [
+    {
+      id: 'core',
+      label: 'Overview',
+      items: [
+        { id: 'dashboard', label: 'Overview', icon: 'grid_view' },
+        { id: 'home', label: 'Problem & Architecture', icon: 'hub' },
+      ],
+    },
+    {
+      id: 'catalog',
+      label: 'Catalog Management',
+      items: [
+        { id: 'master', label: 'Master Catalog', icon: 'inventory_2' },
+        { id: 'detail', label: 'Material Spec Sheet', icon: 'description' },
+        { id: 'datahub', label: 'CPSE Data Hub', icon: 'dataset' },
+      ],
+    },
+    {
+      id: 'review-ops',
+      label: 'Review & Operations',
+      items: [
+        { id: 'harmonization', label: 'Harmonization', icon: 'compare_arrows' },
+        {
+          id: 'review',
+          label: 'Review Queue',
+          icon: 'fact_check',
+          badge: reviewQueue.length,
+        },
+        { id: 'rationalization', label: 'Rationalization', icon: 'call_merge' },
+      ],
+    },
+    {
+      id: 'reporting',
+      label: 'Reporting & Governance',
+      items: [
+        { id: 'analytics', label: 'Analytics & Savings', icon: 'monitoring' },
+        { id: 'governance', label: 'Audit Trail', icon: 'gavel' },
+        { id: 'settings', label: 'Settings', icon: 'settings' },
+        { id: 'support', label: 'Documentation', icon: 'help_outline' },
+      ],
+    },
   ];
 
-  return (
-    <nav className="fixed left-0 top-0 h-full w-[240px] bg-surface border-r border-outline-variant/40 flex flex-col z-50 shrink-0 transition-colors duration-200">
-      {/* Brand Header */}
-      <div 
-        onClick={() => setActiveScreen('dashboard')}
-        className="p-4 border-b border-outline-variant/40 flex items-center gap-3 cursor-pointer hover:bg-surface-container/50 transition-colors"
-      >
-        <div className="w-9 h-9 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 shadow-sm">
-          <span className="material-symbols-outlined text-lg fill-icon">inventory_2</span>
-        </div>
-        <div className="overflow-hidden">
-          <h1 className="font-headline-section text-sm font-bold text-on-surface leading-tight truncate">
-            National Unified Master
-          </h1>
-          <p className="font-data-mono text-[11px] text-on-surface-variant truncate">
-            Material Management
-          </p>
-        </div>
-      </div>
+  const isActive = (id: ScreenType) => activeScreen === id;
 
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto py-3 px-2">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = activeScreen === item.id || (item.id === 'master' && activeScreen === 'detail');
+  const width = sidebarCollapsed ? 'w-16' : 'w-60';
+
+  return (
+    <aside
+      className={`fixed top-0 left-0 h-screen z-40 flex flex-col justify-between transition-all duration-200 select-none ${width}`}
+      style={{
+        background: '#000000',
+        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+      }}
+    >
+      {/* Top Brand Header */}
+      <div>
+        <div
+          onClick={() => setActiveScreen('landing')}
+          className="flex items-center gap-3 px-4 h-14 cursor-pointer hover:opacity-90 transition-opacity"
+          style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
+        >
+          {/* Logo icon box matching template */}
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
+            style={{
+              background: '#ffffff',
+              color: '#000000',
+            }}
+          >
+            <span className="material-symbols-outlined icon-fill text-[20px]">
+              inventory_2
+            </span>
+          </div>
+
+          {!sidebarCollapsed && (
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-white tracking-tight truncate leading-tight">
+                National Master
+              </p>
+              <p className="text-[10px] text-[#71717a] truncate font-mono">
+                SIH26099 · MoPNG
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="p-2 space-y-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+          {groups.map((group) => {
+            const open = sidebarOpenGroups.includes(group.id);
+            const groupHasActive = group.items.some((i) => isActive(i.id));
+
             return (
-              <li key={item.id}>
-                <button
-                  onClick={() => setActiveScreen(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs rounded-xl transition-all duration-150 ${
-                    isActive
-                      ? 'text-primary font-body-bold bg-surface-container-high shadow-sm border border-outline-variant/40'
-                      : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container/60 border border-transparent font-body-standard'
-                  }`}
+              <div key={group.id} className="space-y-1">
+                {/* Category Header */}
+                {!sidebarCollapsed && (
+                  <button
+                    onClick={() => toggleSidebarGroup(group.id)}
+                    className="w-full flex items-center justify-between px-2.5 py-1 text-left text-[11px] font-semibold uppercase tracking-wider transition-colors"
+                    style={{
+                      color: groupHasActive ? '#ffffff' : '#71717a',
+                    }}
+                  >
+                    <span>{group.label}</span>
+                    <span
+                      className="material-symbols-outlined text-[14px] transition-transform duration-200"
+                      style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    >
+                      expand_more
+                    </span>
+                  </button>
+                )}
+
+                {/* Sub-items */}
+                <div
+                  className={`accordion-content ${
+                    (!sidebarCollapsed && open) || sidebarCollapsed ? 'open' : 'closed'
+                  } space-y-0.5`}
                 >
-                  <div className="flex items-center min-w-0">
-                    <span className={`material-symbols-outlined mr-2.5 text-[18px] shrink-0 ${isActive ? 'fill-icon text-primary' : 'text-on-surface-variant'}`}>
-                      {item.icon}
-                    </span>
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className={`px-2 py-0.5 rounded-full font-data-mono text-[10px] font-bold shrink-0 ml-1.5 ${
-                      isActive 
-                        ? 'bg-primary text-on-primary' 
-                        : 'bg-surface-container-highest text-relationship-near border border-relationship-near/30'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              </li>
+                  {group.items.map((item) => {
+                    const active = isActive(item.id);
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveScreen(item.id)}
+                        title={sidebarCollapsed ? item.label : undefined}
+                        className="w-full flex items-center gap-3 rounded-lg transition-all duration-150"
+                        style={{
+                          padding: sidebarCollapsed ? '9px 0' : '8px 12px',
+                          justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                          background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                          color: active ? '#ffffff' : '#a1a1aa',
+                          fontWeight: active ? 500 : 400,
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!active) {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                            e.currentTarget.style.color = '#ffffff';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!active) {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.color = '#a1a1aa';
+                          }
+                        }}
+                      >
+                        <span
+                          className="material-symbols-outlined text-[19px] shrink-0"
+                          style={{
+                            color: active ? '#8b5cf6' : '#71717a',
+                          }}
+                        >
+                          {item.icon}
+                        </span>
+
+                        {!sidebarCollapsed && (
+                          <span className="text-sm truncate flex-1 text-left">
+                            {item.label}
+                          </span>
+                        )}
+
+                        {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
+                          <span
+                            className="text-[10px] font-bold px-1.5 py-0.2 rounded-full font-mono shrink-0"
+                            style={{
+                              background: 'rgba(245, 158, 11, 0.15)',
+                              color: '#f59e0b',
+                            }}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
-        </ul>
-
-        {/* Quick Ingest Button */}
-        <div className="mt-4 pt-3 border-t border-outline-variant/30">
-          <button
-            onClick={() => openUploadModal('ONGC')}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 font-body-bold text-xs transition-all shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[16px]">upload_file</span>
-            <span>Ingest Spreadsheet</span>
-          </button>
-        </div>
+        </nav>
       </div>
 
-      {/* System & Support Footer */}
-      <div className="p-3 border-t border-outline-variant/40 bg-surface-container-lowest/50">
-        <ul className="space-y-0.5 mb-2">
-          <li>
-            <button
-              onClick={() => setActiveScreen('settings')}
-              className={`w-full flex items-center px-3 py-1.5 text-xs transition-colors rounded-lg ${
-                activeScreen === 'settings'
-                  ? 'text-primary bg-surface-container font-body-bold'
-                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-              }`}
-            >
-              <span className="material-symbols-outlined mr-2.5 text-[16px]">settings</span>
-              <span>Settings</span>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveScreen('support')}
-              className={`w-full flex items-center px-3 py-1.5 text-xs transition-colors rounded-lg ${
-                activeScreen === 'support'
-                  ? 'text-primary bg-surface-container font-body-bold'
-                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-              }`}
-            >
-              <span className="material-symbols-outlined mr-2.5 text-[16px]">help</span>
-              <span>Support</span>
-            </button>
-          </li>
-        </ul>
-
-        {/* User Card */}
-        <div className="flex items-center gap-2.5 px-3 py-2 bg-surface-container rounded-xl border border-outline-variant/40">
-          <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 overflow-hidden shrink-0 flex items-center justify-center font-bold text-xs text-primary">
-            AU
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-body-bold text-xs text-on-surface truncate leading-tight">Admin User</p>
-            <p className="font-data-mono text-[10px] text-on-surface-variant truncate">ID: 8492-AX</p>
-          </div>
-        </div>
+      {/* Bottom Collapse Button matching template */}
+      <div
+        className="p-2 shrink-0"
+        style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}
+      >
+        <button
+          onClick={toggleSidebar}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#71717a] hover:text-white hover:bg-white/5 transition-colors"
+          style={{ justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}
+        >
+          <span className="material-symbols-outlined text-[18px]">
+            {sidebarCollapsed ? 'chevron_right' : 'chevron_left'}
+          </span>
+          {!sidebarCollapsed && <span>Collapse</span>}
+        </button>
       </div>
-    </nav>
+    </aside>
   );
 };

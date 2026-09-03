@@ -1,113 +1,139 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 
+const Section: React.FC<{ title: string; desc: string; children: React.ReactNode }> = ({ title, desc, children }) => (
+  <div className="pt-5" style={{ borderTop: '1px solid var(--border)' }}>
+    <h3 className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+    <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
+    {children}
+  </div>
+);
+
+const Row: React.FC<{ label: string; desc: string; action: React.ReactNode }> = ({ label, desc, action }) => (
+  <div className="flex items-center justify-between p-4 rounded-lg"
+    style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}>
+    <div>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{label}</p>
+      <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
+    </div>
+    {action}
+  </div>
+);
+
 export const SettingsScreen: React.FC = () => {
   const { theme, toggleTheme, openUploadModal } = useApp();
 
   return (
-    <main className="flex-1 overflow-y-auto p-margin-page bg-background transition-colors duration-200 space-y-6 max-w-4xl">
+    <main className="flex-1 overflow-y-auto p-6 space-y-5 max-w-3xl" style={{ background: 'var(--bg)' }}>
       <div>
-        <h1 className="font-headline-section text-headline-section text-on-surface font-bold">
-          System & Algorithm Settings
-        </h1>
-        <p className="font-data-mono text-xs text-on-surface-variant mt-0.5">
-          Configure AI match thresholds, taxonomy dictionaries, and interface preferences
+        <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+          Settings
+        </h2>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+          Manage application appearance, ingestion pipelines, and AI matching rules.
         </p>
       </div>
 
-      <div className="bg-surface-container border border-outline-variant/40 rounded-2xl p-6 shadow-sm space-y-6">
+      <div className="rounded-xl p-5 space-y-5"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+
+        {/* Theme */}
         <div>
-          <h3 className="font-body-bold text-sm text-on-surface mb-3">Theme & Visual Appearance</h3>
-          <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-xl border border-outline-variant/40">
-            <div>
-              <p className="font-semibold text-xs text-on-surface">Application Theme Mode</p>
-              <p className="text-xs text-on-surface-variant">Switch between National Unified Dark Theme and Foundry Light Theme.</p>
-            </div>
-            <button
-              onClick={toggleTheme}
-              className="px-4 py-2 bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 rounded-xl text-xs font-body-bold text-on-surface transition-colors flex items-center gap-2 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">
-                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-              </span>
-              Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode
-            </button>
-          </div>
+          <h3 className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>Application Theme</h3>
+          <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+            Choose between dark and light mode. Both share identical layout and structure.
+          </p>
+          <Row
+            label="Current Active Theme"
+            desc={`Currently running in ${theme === 'dark' ? 'Dark' : 'Light'} Mode.`}
+            action={
+              <button onClick={toggleTheme}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all"
+                style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
+                <span className="material-symbols-outlined text-[18px]">
+                  {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                </span>
+                Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode
+              </button>
+            }
+          />
         </div>
 
-        <div>
-          <h3 className="font-body-bold text-sm text-on-surface mb-3">Data Ingestion Pipelines</h3>
-          <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-xl border border-outline-variant/40">
-            <div>
-              <p className="font-semibold text-xs text-on-surface">Spreadsheet Ingestion (CSV / XLS / XLSX)</p>
-              <p className="text-xs text-on-surface-variant">Batch upload and parse legacy ERP materials into the national system.</p>
-            </div>
-            <button
-              onClick={() => openUploadModal('ONGC')}
-              className="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-body-bold hover:brightness-110 transition-colors flex items-center gap-2 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">upload_file</span>
-              Open File Ingestion
-            </button>
-          </div>
-        </div>
+        <Section title="Data Ingestion" desc="Upload and process legacy CPSE catalog spreadsheets into the national database.">
+          <Row
+            label="Spreadsheet Importer (CSV, XLS, XLSX)"
+            desc="Batch imports legacy material codes and attributes into the Review Queue."
+            action={
+              <button onClick={() => openUploadModal('ONGC')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-110 transition-all"
+                style={{ background: 'var(--blue)', color: '#fff' }}>
+                <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                Upload File
+              </button>
+            }
+          />
+        </Section>
 
-        <div>
-          <h3 className="font-body-bold text-sm text-on-surface mb-3">AI Model & Pipeline Hyperparameters</h3>
-          <div className="space-y-3 font-data-mono text-xs">
-            <div className="flex justify-between items-center p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40">
-              <div>
-                <p className="font-semibold text-on-surface">Auto-Approval Threshold</p>
-                <p className="text-on-surface-variant text-[11px] font-sans">Minimum semantic & attribute score required for zero-touch auto harmonization.</p>
-              </div>
-              <span className="text-primary font-bold px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">98.0%</span>
-            </div>
-            
-            <div className="flex justify-between items-center p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40">
-              <div>
-                <p className="font-semibold text-on-surface">Active Embedding Model</p>
-                <p className="text-on-surface-variant text-[11px] font-sans">Specialized multilingual technical transformer tuned on CPSE engineering catalogs.</p>
-              </div>
-              <span className="text-on-surface px-3 py-1 bg-surface-container rounded-lg border border-outline-variant/40">Technical-RoBERTa-v4.2</span>
-            </div>
-
-            <div className="flex justify-between items-center p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40">
-              <div>
-                <p className="font-semibold text-on-surface">UOM Conversion Dictionary</p>
-                <p className="text-on-surface-variant text-[11px] font-sans">ISO 80000-1 / SI unit normalization rules.</p>
-              </div>
-              <span className="text-status-success font-bold px-3 py-1 bg-status-success/15 rounded-lg border border-status-success/30">Active & Enforced</span>
-            </div>
+        <Section title="AI Matching Rules" desc="Control automated approval thresholds and standard unit conversions.">
+          <div className="space-y-2.5">
+            <Row
+              label="Auto-Approval Threshold"
+              desc="Matches at or above this confidence score are automatically approved."
+              action={<span className="text-sm font-mono font-bold px-3 py-1.5 rounded"
+                style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}>≥ 98.0%</span>}
+            />
+            <Row
+              label="Active Matching Model"
+              desc="Domain-tuned semantic taxonomy engine for material description parsing."
+              action={<span className="text-sm px-3 py-1.5 rounded"
+                style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
+                Technical-RoBERTa v4.2
+              </span>}
+            />
+            <Row
+              label="Automatic UOM Normalization"
+              desc="Converts imperial and legacy units (In, Lbs) to SI standards automatically."
+              action={<span className="text-sm font-semibold px-3 py-1.5 rounded"
+                style={{ background: 'var(--success-dim)', color: 'var(--success)' }}>Enabled</span>}
+            />
           </div>
-        </div>
+        </Section>
       </div>
     </main>
   );
 };
 
-export const SupportScreen: React.FC = () => {
-  return (
-    <main className="flex-1 overflow-y-auto p-margin-page bg-background transition-colors duration-200 space-y-6 max-w-4xl">
-      <div>
-        <h1 className="font-headline-section text-headline-section text-on-surface font-bold">
-          Technical Support & Documentation
-        </h1>
-        <p className="font-data-mono text-xs text-on-surface-variant mt-0.5">
-          SIH26099 National Unified Material Master Reference Architecture
-        </p>
-      </div>
+export const SupportScreen: React.FC = () => (
+  <main className="flex-1 overflow-y-auto p-6 space-y-5 max-w-3xl" style={{ background: 'var(--bg)' }}>
+    <div>
+      <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+        Documentation &amp; Support
+      </h2>
+      <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+        Cataloging taxonomy manuals, governance guidelines, and operational contacts.
+      </p>
+    </div>
 
-      <div className="bg-surface-container border border-outline-variant/40 rounded-2xl p-6 shadow-sm space-y-4">
-        <h3 className="font-body-bold text-sm text-on-surface">System Guidelines</h3>
-        <p className="text-xs text-on-surface-variant leading-relaxed font-body-standard">
-          This system operates under the guidelines for Central Public Sector Enterprises (CPSEs) to harmonize material masters, reduce redundant inventory, and facilitate cross-organization bulk procurement.
-        </p>
-        <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-2 text-xs font-data-mono">
-          <p className="text-primary font-bold">System Status: Operational</p>
-          <p className="text-on-surface-variant">Version: 2.4.0 (Enterprise Release)</p>
-          <p className="text-on-surface-variant">Governance Authority: Ministry of Petroleum & Natural Gas (MoPNG)</p>
-        </div>
-      </div>
-    </main>
-  );
-};
+    <div className="rounded-xl p-5 space-y-3"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Cataloging Governance Manuals</h3>
+      <ul className="space-y-2">
+        {[
+          { title: 'MoPNG National Taxonomy Guideline v3.0', desc: 'Fastener, Valve & Pump Standard Syntax' },
+          { title: 'MESC & UNSPSC Cross-Reference Matrix', desc: 'Version 2024.1 Mapping Schema' },
+          { title: 'CPSE ERP Connector Integration Guide', desc: 'SAP S/4HANA, Oracle, IBM Maximo' },
+        ].map(doc => (
+          <li key={doc.title}
+            className="flex items-center gap-3 p-4 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}>
+            <span className="material-symbols-outlined icon-fill text-[22px]" style={{ color: 'var(--blue)' }}>description</span>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{doc.title}</p>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{doc.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </main>
+);

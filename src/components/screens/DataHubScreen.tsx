@@ -2,140 +2,137 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export const DataHubScreen: React.FC = () => {
-  const { cpseList, addAuditLog, openUploadModal } = useApp();
+  const { cpseList, addAuditLog, openUploadModal, addToast } = useApp();
   const [syncingId, setSyncingId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
 
   const handleTriggerSync = (cpseId: string, name: string) => {
     setSyncingId(cpseId);
     setTimeout(() => {
       setSyncingId(null);
-      setMessage(`Successfully synchronized catalog delta for ${name}. 1,240 records updated.`);
+      addToast('success', `Delta ingestion complete for ${name} — 1,240 records updated.`);
       addAuditLog({
         action: 'Manual Ingestion Triggered',
-        description: `Triggered delta ingestion connector for ${name} ERP system. Pipeline executed successfully.`,
-        user: {
-          name: 'A. Kumar',
-          role: 'Administrator',
-          initials: 'AK'
-        },
-        targetEntity: cpseId
+        description: `Triggered delta ingestion connector for ${name} ERP. Pipeline executed successfully.`,
+        user: { name: 'A. Kumar', role: 'Administrator', initials: 'AK' },
+        targetEntity: cpseId,
       });
-      setTimeout(() => setMessage(null), 4000);
     }, 1500);
   };
 
   return (
-    <main className="flex-1 overflow-y-auto p-margin-page bg-background transition-colors duration-200 space-y-6">
+    <main className="flex-1 overflow-y-auto p-6 space-y-5" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="font-headline-section text-headline-section text-on-surface font-bold">
-            CPSE Data Hub & Connectors
-          </h1>
-          <p className="font-data-mono text-xs text-on-surface-variant mt-0.5">
-            Real-time integration status with enterprise ERP systems and file ingestion pipelines
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+            CPSE Data Hub &amp; Connectors
+          </h2>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            Real-time integration status with enterprise ERP systems and file ingestion pipelines.
           </p>
         </div>
-
-        <div className="flex items-center gap-3">
-          {message && (
-            <div className="px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary text-xs rounded-lg font-data-mono flex items-center animate-in fade-in">
-              <span className="material-symbols-outlined text-sm mr-1.5">check_circle</span>
-              {message}
-            </div>
-          )}
-
-          <button
-            onClick={() => openUploadModal('ONGC')}
-            className="px-4 py-2 bg-primary text-on-primary rounded-xl font-body-bold text-xs hover:brightness-110 transition-all flex items-center gap-2 shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[16px]">upload_file</span>
-            Upload Dataset (CSV/XLS)
-          </button>
-        </div>
+        <button
+          onClick={() => openUploadModal('ONGC')}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-110 transition-all shrink-0"
+          style={{ background: 'var(--blue)', color: '#fff' }}
+        >
+          <span className="material-symbols-outlined text-[16px]">upload_file</span>
+          Upload Dataset (CSV/XLS)
+        </button>
       </div>
 
-      {/* Grid of CPSE Connected Systems */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-        {cpseList.map((cpse) => (
-          <div 
+      {/* CPSE Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {cpseList.map(cpse => (
+          <div
             key={cpse.id}
-            className="bg-surface-container border border-outline-variant/40 rounded-2xl p-5 shadow-sm flex flex-col justify-between relative overflow-hidden card-interactive"
+            className="flex flex-col justify-between rounded-xl card-hover"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', padding: '20px' }}
           >
-            <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-transparent opacity-50" />
-
             <div>
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <span className="font-display-cnmc text-lg font-bold text-on-surface">{cpse.name}</span>
-                  <p className="font-body-standard text-xs text-on-surface-variant line-clamp-1">{cpse.fullName}</p>
+              {/* Title row */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold font-mono shrink-0"
+                    style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,0.2)' }}
+                  >
+                    {cpse.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-base font-mono" style={{ color: 'var(--text-primary)' }}>{cpse.name}</p>
+                    <p className="text-xs truncate max-w-[140px]" style={{ color: 'var(--text-muted)' }}>{cpse.fullName}</p>
+                  </div>
                 </div>
-                <span className={`px-2.5 py-0.5 rounded-full font-label-caps text-[10px] font-bold uppercase ${
-                  cpse.status === 'HEALTHY' 
-                    ? 'bg-status-success/15 text-status-success border border-status-success/30' 
-                    : 'bg-status-warning/15 text-status-warning border border-status-warning/30'
-                }`}>
+                <span
+                  className="px-2 py-1 rounded text-xs font-semibold shrink-0"
+                  style={{
+                    background: cpse.status === 'HEALTHY' ? 'var(--success-dim)' : 'var(--warn-dim)',
+                    color: cpse.status === 'HEALTHY' ? 'var(--success)' : 'var(--warning)',
+                  }}
+                >
                   {cpse.status}
                 </span>
               </div>
 
-              <div className="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30 space-y-2 mb-4 font-data-mono text-xs">
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>ERP System:</span>
-                  <span className="text-on-surface font-medium">{cpse.sourceSystem}</span>
-                </div>
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>Total Local Codes:</span>
-                  <span className="text-on-surface font-medium">{cpse.totalRecords.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>Harmonized Mapped:</span>
-                  <span className="text-primary font-medium">{cpse.mappedRecords.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>Pending Backlog:</span>
-                  <span className="text-relationship-near font-medium">{cpse.pendingRecords.toLocaleString()}</span>
-                </div>
+              {/* Stats grid */}
+              <div
+                className="rounded-lg p-3 mb-4 space-y-2 text-sm font-mono"
+                style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
+              >
+                {[
+                  { label: 'ERP System', val: cpse.sourceSystem, color: 'var(--text-primary)' },
+                  { label: 'Total Local Codes', val: cpse.totalRecords.toLocaleString(), color: 'var(--text-primary)' },
+                  { label: 'Harmonized CNMC', val: cpse.mappedRecords.toLocaleString(), color: 'var(--blue)' },
+                  { label: 'Pending Backlog', val: cpse.pendingRecords.toLocaleString(), color: 'var(--warning)' },
+                ].map(row => (
+                  <div key={row.label} className="flex justify-between">
+                    <span style={{ color: 'var(--text-muted)' }}>{row.label}</span>
+                    <span className="font-semibold" style={{ color: row.color }}>{row.val}</span>
+                  </div>
+                ))}
               </div>
 
-              {/* Progress */}
-              <div className="mb-4">
-                <div className="flex justify-between text-xs font-data-mono mb-1">
-                  <span className="text-on-surface-variant">Harmonization Progress</span>
-                  <span className="text-primary font-bold">{cpse.coveragePercentage}%</span>
+              {/* Progress bar */}
+              <div className="mb-1">
+                <div className="flex justify-between text-sm mb-2">
+                  <span style={{ color: 'var(--text-secondary)' }}>Harmonization Progress</span>
+                  <span className="font-mono font-bold" style={{ color: 'var(--blue)' }}>{cpse.coveragePercentage}%</span>
                 </div>
-                <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-relationship-identical h-full transition-all duration-500 rounded-full"
-                    style={{ width: `${cpse.coveragePercentage}%` }}
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${cpse.coveragePercentage}%`, background: 'var(--blue)' }}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-outline-variant/30 flex justify-between items-center text-xs font-data-mono gap-2">
-              <span className="text-on-surface-variant text-[11px] truncate">Synced: {cpse.lastSync}</span>
-              
-              <div className="flex items-center gap-1.5 shrink-0">
+            {/* Footer */}
+            <div
+              className="flex justify-between items-center pt-3 mt-4"
+              style={{ borderTop: '1px solid var(--border-subtle)' }}
+            >
+              <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                Synced: {cpse.lastSync}
+              </span>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => openUploadModal(cpse.name)}
-                  title={`Upload CSV/XLS for ${cpse.name}`}
-                  className="px-2.5 py-1.5 bg-surface-container-high hover:bg-surface-container-highest text-primary border border-outline-variant/40 rounded-lg font-body-bold text-[11px] flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1 transition-all hover:brightness-110"
+                  style={{ background: 'var(--bg-hover)', color: 'var(--blue)', border: '1px solid var(--border)' }}
                 >
-                  <span className="material-symbols-outlined text-[14px]">upload</span>
+                  <span className="material-symbols-outlined text-[13px]">upload</span>
                   Upload
                 </button>
-
                 <button
                   disabled={syncingId === cpse.id}
                   onClick={() => handleTriggerSync(cpse.id, cpse.name)}
-                  className="px-2.5 py-1.5 bg-surface-container-high hover:bg-surface-container-highest text-on-surface border border-outline-variant/40 rounded-lg font-body-bold text-[11px] flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1 transition-all hover:brightness-110 disabled:opacity-60"
+                  style={{ background: 'var(--blue)', color: '#fff' }}
                 >
-                  <span className={`material-symbols-outlined text-[14px] ${syncingId === cpse.id ? 'animate-spin' : ''}`}>
-                    sync
-                  </span>
-                  {syncingId === cpse.id ? 'Syncing...' : 'Sync'}
+                  <span className={`material-symbols-outlined text-[13px] ${syncingId === cpse.id ? 'animate-spin' : ''}`}>sync</span>
+                  {syncingId === cpse.id ? 'Syncing…' : 'Sync'}
                 </button>
               </div>
             </div>

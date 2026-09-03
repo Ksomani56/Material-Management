@@ -2,46 +2,65 @@ import React from 'react';
 import { HarmonizationStatus } from '../../types/material';
 
 interface Props {
-  status: HarmonizationStatus | 'Active' | 'Under Review' | 'Deprecated';
+  status: HarmonizationStatus | 'Active' | 'Under Review' | 'Deprecated' | 'Approved' | 'Retired' | string;
   size?: 'sm' | 'md';
 }
 
 export const StatusBadge: React.FC<Props> = ({ status, size = 'sm' }) => {
+  const sz = size === 'sm' ? 'text-xs px-2.5 py-0.5' : 'text-xs px-3 py-1';
   switch (status) {
     case 'Harmonized':
     case 'Active':
+    case 'Approved':
       return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-success/10 border border-status-success/20 text-status-success font-label-caps font-bold uppercase tracking-wider ${size === 'sm' ? 'text-[10px]' : 'text-xs'}`}>
-          <span className="material-symbols-outlined text-[12px] fill-icon">check_circle</span>
+        <span 
+          className={`inline-flex items-center gap-1.5 rounded-md font-semibold ${sz}`}
+          style={{ background: 'var(--success-dim)', color: 'var(--success)' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }} />
           {status}
         </span>
       );
     case 'Pending Review':
     case 'Under Review':
       return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-warning/10 border border-status-warning/20 text-status-warning font-label-caps font-bold uppercase tracking-wider ${size === 'sm' ? 'text-[10px]' : 'text-xs'}`}>
-          <span className="material-symbols-outlined text-[12px] fill-icon">pending</span>
+        <span 
+          className={`inline-flex items-center gap-1.5 rounded-md font-semibold ${sz}`}
+          style={{ background: 'var(--warn-dim)', color: 'var(--warning)' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--warning)' }} />
           {status}
         </span>
       );
     case 'Archived':
     case 'Deprecated':
+    case 'Retired':
       return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-outline-variant/30 border border-outline-variant text-on-surface-variant font-label-caps font-bold uppercase tracking-wider ${size === 'sm' ? 'text-[10px]' : 'text-xs'}`}>
-          <span className="material-symbols-outlined text-[12px]">archive</span>
+        <span 
+          className={`inline-flex items-center gap-1.5 rounded-md font-semibold ${sz}`}
+          style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--text-muted)' }} />
           {status}
         </span>
       );
     case 'Flagged':
       return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-error/10 border border-status-error/20 text-status-error font-label-caps font-bold uppercase tracking-wider ${size === 'sm' ? 'text-[10px]' : 'text-xs'}`}>
-          <span className="material-symbols-outlined text-[12px] fill-icon">flag</span>
+        <span 
+          className={`inline-flex items-center gap-1.5 rounded-md font-semibold ${sz}`}
+          style={{ background: 'var(--error-dim)', color: 'var(--error)' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--error)' }} />
           Flagged
         </span>
       );
     default:
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-caps text-[10px]">
+        <span 
+          className={`inline-flex items-center gap-1.5 rounded-md font-semibold ${sz}`}
+          style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--border)' }} />
           {status}
         </span>
       );

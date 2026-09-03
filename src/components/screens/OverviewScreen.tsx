@@ -1,338 +1,562 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  mockDashboardKPIs, 
-  mockMappingHealthTrend, 
-  mockDuplicateCandidatesTable 
-} from '../../data/mockData';
 
-export const OverviewScreen: React.FC = () => {
-  const { setActiveScreen, reviewQueue, cpseList, rationalizationActions, openUploadModal } = useApp();
+/* -----------------------------------------------------------------------
+   Dual-Line Spline Area Chart matching template exactly
+   ----------------------------------------------------------------------- */
+const AreaChart: React.FC = () => {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string; v1: string; v2: string } | null>(null);
+
+  const months = [
+    { label: 'Jan', revenue: 160, target: 175 },
+    { label: 'Feb', revenue: 190, target: 205 },
+    { label: 'Mar', revenue: 235, target: 225 },
+    { label: 'Apr', revenue: 280, target: 245 },
+    { label: 'May', revenue: 200, target: 260 },
+    { label: 'Jun', revenue: 320, target: 280 },
+    { label: 'Jul', revenue: 350, target: 305 },
+    { label: 'Aug', revenue: 385, target: 330 },
+    { label: 'Sep', revenue: 430, target: 355 },
+    { label: 'Oct', revenue: 475, target: 380 },
+    { label: 'Nov', revenue: 520, target: 410 },
+    { label: 'Dec', revenue: 590, target: 440 },
+  ];
+
+  const W = 680;
+  const H = 240;
+  const padL = 48;
+  const padR = 16;
+  const padT = 16;
+  const padB = 36;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const maxVal = 650;
+
+  const toX = (i: number) => padL + (i / (months.length - 1)) * innerW;
+  const toY = (v: number) => padT + innerH - (v / maxVal) * innerH;
+
+  // Build SVG path strings with smooth curves
+  const getSplinePath = (pts: { x: number; y: number }[]) => {
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i === 0 ? 0 : i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  };
+
+  const ptsRevenue = months.map((m, i) => ({ x: toX(i), y: toY(m.revenue) }));
+  const ptsTarget = months.map((m, i) => ({ x: toX(i), y: toY(m.target) }));
+
+  const pathRevenue = getSplinePath(ptsRevenue);
+  const pathTarget = getSplinePath(ptsTarget);
+
+  const areaRevenue = `${pathRevenue} L ${toX(months.length - 1)},${padT + innerH} L ${padL},${padT + innerH} Z`;
+
+  const yTicks = [0, 150, 300, 450, 600];
 
   return (
-    <main className="flex-1 overflow-y-auto p-margin-page bg-background transition-colors duration-200 space-y-6">
-      {/* KPI Row (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-        {/* KPI 1 */}
-        <div className="bg-surface-container rounded-2xl p-5 border border-outline-variant/40 relative overflow-hidden shadow-sm card-interactive">
-          <div className="absolute -right-4 -top-4 text-surface-container-high opacity-20 pointer-events-none">
-            <span className="material-symbols-outlined text-[100px]">dataset</span>
-          </div>
-          <div className="relative z-10">
-            <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">
-              TOTAL SOURCE CODES
-            </p>
-            <h2 className="font-display-cnmc text-display-cnmc text-on-surface">
-              {mockDashboardKPIs.totalSourceCodes}
-            </h2>
-            <div className="flex items-center mt-2 text-status-success font-data-mono text-data-mono">
-              <span className="material-symbols-outlined text-[14px] mr-1">trending_up</span>
-              {mockDashboardKPIs.totalSourceChange}
-            </div>
-          </div>
-        </div>
+    <div className="relative w-full" style={{ height: `${H}px` }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        className="w-full h-full"
+      >
+        <defs>
+          {/* Electric Violet gradient */}
+          <linearGradient id="v0VioletGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+          </linearGradient>
+        </defs>
 
-        {/* KPI 2 */}
-        <div 
-          onClick={() => setActiveScreen('master')}
-          className="bg-surface-container rounded-2xl p-5 border border-outline-variant/40 relative overflow-hidden shadow-sm cursor-pointer hover:border-primary/50 card-interactive"
-        >
-          <div className="absolute -right-4 -top-4 text-surface-container-high opacity-20 pointer-events-none">
-            <span className="material-symbols-outlined text-[100px]">inventory_2</span>
-          </div>
-          <div className="relative z-10">
-            <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">
-              CANONICAL MATERIALS (CNMC)
-            </p>
-            <h2 className="font-display-cnmc text-display-cnmc text-primary">
-              {mockDashboardKPIs.canonicalMaterialsCount}
-            </h2>
-            <div className="flex items-center mt-2 text-on-surface-variant font-data-mono text-data-mono">
-              <span className="material-symbols-outlined text-[14px] mr-1 text-primary">check_circle</span>
-              {mockDashboardKPIs.canonicalSubtitle}
-            </div>
-          </div>
-        </div>
+        {/* Horizontal grid lines */}
+        {yTicks.map(val => (
+          <g key={val}>
+            <line
+              x1={padL}
+              y1={toY(val)}
+              x2={W - padR}
+              y2={toY(val)}
+              stroke="rgba(255, 255, 255, 0.05)"
+              strokeWidth="1"
+            />
+            <text
+              x={padL - 8}
+              y={toY(val) + 4}
+              textAnchor="end"
+              fontSize="11"
+              fill="#52525b"
+              fontFamily="Inter, sans-serif"
+            >
+              ${val}k
+            </text>
+          </g>
+        ))}
 
-        {/* KPI 3 */}
-        <div 
-          onClick={() => setActiveScreen('datahub')}
-          className="bg-surface-container rounded-2xl p-5 border border-outline-variant/40 relative overflow-hidden shadow-sm cursor-pointer hover:border-relationship-identical/50 card-interactive"
-        >
-          <div className="absolute -right-4 -top-4 text-surface-container-high opacity-20 pointer-events-none">
-            <span className="material-symbols-outlined text-[100px]">donut_large</span>
-          </div>
-          <div className="relative z-10">
-            <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">
-              MAPPING COVERAGE
-            </p>
-            <h2 className="font-display-cnmc text-display-cnmc text-on-surface">
-              {mockDashboardKPIs.mappingCoveragePct}%
-            </h2>
-            <div className="w-full bg-surface-container-high h-2 mt-3 rounded-full overflow-hidden">
-              <div 
-                className="bg-relationship-identical h-full transition-all duration-500 rounded-full" 
-                style={{ width: `${mockDashboardKPIs.mappingCoveragePct}%` }}
-              />
-            </div>
-          </div>
-        </div>
+        {/* X-axis labels */}
+        {months.map((m, i) => (
+          <text
+            key={m.label}
+            x={toX(i)}
+            y={H - 10}
+            textAnchor="middle"
+            fontSize="11"
+            fill="#52525b"
+            fontFamily="Inter, sans-serif"
+          >
+            {m.label}
+          </text>
+        ))}
 
-        {/* KPI 4 */}
-        <div 
-          onClick={() => setActiveScreen('review')}
-          className="bg-surface-container rounded-2xl p-5 border border-primary/40 relative overflow-hidden shadow-sm cursor-pointer hover:border-primary card-interactive"
+        {/* Violet Area Gradient Fill */}
+        <path d={areaRevenue} fill="url(#v0VioletGrad)" />
+
+        {/* Target Line (Emerald Green) */}
+        <path
+          d={pathTarget}
+          fill="none"
+          stroke="#10b981"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Revenue Line (Electric Violet) */}
+        <path
+          d={pathRevenue}
+          fill="none"
+          stroke="#8b5cf6"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Hover interaction points */}
+        {months.map((m, i) => (
+          <rect
+            key={i}
+            x={toX(i) - 18}
+            y={padT}
+            width={36}
+            height={innerH}
+            fill="transparent"
+            onMouseEnter={() => setTooltip({
+              x: toX(i),
+              y: Math.min(toY(m.revenue), toY(m.target)) - 10,
+              label: m.label,
+              v1: `$${m.revenue}k`,
+              v2: `$${m.target}k`,
+            })}
+            onMouseLeave={() => setTooltip(null)}
+            style={{ cursor: 'crosshair' }}
+          />
+        ))}
+
+        {/* Marker Dots on Tooltip */}
+        {tooltip && months.map((m, i) => {
+          if (m.label !== tooltip.label) return null;
+          return (
+            <g key="marker">
+              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#8b5cf6" stroke="#000000" strokeWidth="2" />
+              <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#000000" strokeWidth="1.5" />
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Floating Tooltip matching template */}
+      {tooltip && (
+        <div
+          className="absolute pointer-events-none z-10 text-xs rounded-lg px-3 py-2"
+          style={{
+            left: `${(tooltip.x / W) * 100}%`,
+            top: `${(Math.max(0, tooltip.y - 45) / H) * 100}%`,
+            transform: 'translateX(-50%)',
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
+          }}
         >
-          <div className="absolute -right-4 -top-4 text-surface-container-high opacity-20 pointer-events-none">
-            <span className="material-symbols-outlined text-[100px]">fact_check</span>
+          <div className="font-semibold text-white mb-1.5">{tooltip.label}</div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full" style={{ background: '#8b5cf6' }} />
+            <span className="text-[#a1a1aa]">Revenue: <strong className="text-white">{tooltip.v1}</strong></span>
           </div>
-          <div className="relative z-10 flex justify-between items-start">
-            <div>
-              <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">
-                REVIEW BACKLOG
-              </p>
-              <h2 className="font-display-cnmc text-display-cnmc text-relationship-near">
-                {reviewQueue.length > 0 ? (12400 + reviewQueue.length).toLocaleString() : '12,450'}
-              </h2>
-            </div>
-            <span className="material-symbols-outlined text-relationship-near text-2xl">warning</span>
-          </div>
-          <div className="flex items-center mt-2 text-relationship-near font-data-mono text-data-mono">
-            {mockDashboardKPIs.backlogStatus} (Click to inspect)
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
+            <span className="text-[#a1a1aa]">Target: <strong className="text-white">{tooltip.v2}</strong></span>
           </div>
         </div>
+      )}
+    </div>
+  );
+};
+
+/* -----------------------------------------------------------------------
+   KPI Card matching template exactly
+   ----------------------------------------------------------------------- */
+interface KpiCardProps {
+  label: string;
+  value: string;
+  delta: string;
+  deltaUp: boolean;
+  icon: string;
+}
+
+const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon }) => (
+  <div
+    className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
+    style={{
+      background: '#09090b',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+    }}
+  >
+    {/* Top Row: Label + Icon Box */}
+    <div className="flex items-center justify-between mb-3">
+      <span className="text-sm font-medium text-[#71717a]">{label}</span>
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a1a1aa]"
+        style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
+        <span className="material-symbols-outlined text-[17px]">{icon}</span>
+      </div>
+    </div>
+
+    {/* Bottom Row: Big Bold Metric + Trend Pill */}
+    <div className="flex items-baseline gap-3 mt-1">
+      <span className="text-3xl font-bold tracking-tight text-white leading-none">
+        {value}
+      </span>
+      <span
+        className="text-xs font-semibold flex items-center gap-0.5"
+        style={{ color: deltaUp ? '#10b981' : '#f43f5e' }}
+      >
+        <span className="material-symbols-outlined text-[14px]">
+          {deltaUp ? 'trending_up' : 'trending_down'}
+        </span>
+        {delta}
+      </span>
+    </div>
+  </div>
+);
+
+/* -----------------------------------------------------------------------
+   Overview Screen matching template 1:1
+   ----------------------------------------------------------------------- */
+export const OverviewScreen: React.FC = () => {
+  const { setActiveScreen, reviewQueue, cpseList } = useApp();
+
+  const recentDeals = [
+    { initial: 'A', name: 'Acme Corp', sub: 'Sarah Chen • 2 hours ago', amount: '$125,000', status: 'Won' },
+    { initial: 'T', name: 'TechStart Inc', sub: 'Mike Johnson • 5 hours ago', amount: '$89,500', status: 'Pending' },
+    { initial: 'G', name: 'GlobalFin', sub: 'Emily Davis • 1 day ago', amount: '$245,000', status: 'Pending' },
+    { initial: 'D', name: 'DataSync Solutions', sub: 'James Wilson • 2 days ago', amount: '$67,800', status: 'Lost' },
+    { initial: 'C', name: 'CloudBase Ltd', sub: 'Sarah Chen • 3 days ago', amount: '$178,000', status: 'Won' },
+  ];
+
+  const topPerformers = [
+    { rank: 1, initial: 'SC', name: 'Sarah Chen', deals: '24 deals closed', amount: '$487,500', growth: '+15%' },
+    { rank: 2, initial: 'MJ', name: 'Mike Johnson', deals: '19 deals closed', amount: '$356,200', growth: '+8%' },
+    { rank: 3, initial: 'ED', name: 'Emily Davis', deals: '17 deals closed', amount: '$312,800', growth: '+12%' },
+    { rank: 4, initial: 'JW', name: 'James Wilson', deals: '15 deals closed', amount: '$289,400', growth: '+5%' },
+    { rank: 5, initial: 'LP', name: 'Lisa Park', deals: '14 deals closed', amount: '$267,100', growth: '+9%' },
+  ];
+
+  const pipelineStages = [
+    { name: 'Lead', count: 892, pct: 45, color: '#8b5cf6' },
+    { name: 'Qualified', count: 556, pct: 28, color: '#10b981' },
+    { name: 'Proposal', count: 357, pct: 18, color: '#f59e0b' },
+    { name: 'Negotiation', count: 179, pct: 9, color: '#34d399' },
+  ];
+
+  return (
+    <main
+      className="flex-1 overflow-y-auto p-6 space-y-6"
+      style={{ background: '#000000' }}
+    >
+      {/* 1. Top Row of 4 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          label="Total Revenue"
+          value="$2.4M"
+          delta="+12.5%"
+          deltaUp={true}
+          icon="attach_money"
+        />
+        <KpiCard
+          label="Conversion Rate"
+          value="24.8%"
+          delta="+3.2%"
+          deltaUp={true}
+          icon="trending_up"
+        />
+        <KpiCard
+          label="Active Deals"
+          value="147"
+          delta="-5"
+          deltaUp={false}
+          icon="track_changes"
+        />
+        <KpiCard
+          label="New Leads"
+          value="892"
+          delta="+18.3%"
+          deltaUp={true}
+          icon="group"
+        />
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-12 gap-gutter">
-        {/* Mapping Health Chart (Span 8) */}
-        <div className="col-span-12 lg:col-span-8 bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-high/50">
-            <h3 className="font-headline-section text-headline-section text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-status-info text-sm">auto_graph</span>
-              Mapping Health Trend
-            </h3>
-            <div className="flex gap-2">
-              <span className="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-data-mono text-[10px]">
-                Duplicates Detected
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-primary-container/20 text-primary font-data-mono text-[10px] font-bold">
-                Approved CNMCs
-              </span>
+      {/* 2. Middle Row: Revenue Trend Area Chart + Pipeline Stages */}
+      <div className="grid grid-cols-12 gap-5">
+        {/* Revenue Trend Area Chart (2/3 width) */}
+        <div
+          className="col-span-12 lg:col-span-8 rounded-xl p-6"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          {/* Header & Legend matching template */}
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Revenue Trend
+              </h2>
+              <p className="text-xs text-[#71717a] mt-0.5">
+                Monthly performance vs target
+              </p>
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#8b5cf6' }} />
+                <span className="text-[#a1a1aa]">Revenue</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10b981' }} />
+                <span className="text-[#a1a1aa]">Target</span>
+              </div>
             </div>
           </div>
-          
-          <div className="p-5 flex-1 min-h-[250px] relative flex items-end gap-2">
-            {/* Grid Lines */}
-            <div className="absolute inset-0 p-5 flex flex-col justify-between pointer-events-none opacity-20 border-l border-b border-outline-variant/50 ml-4 mb-4">
-              <div className="w-full border-b border-outline-variant/50 border-dashed" />
-              <div className="w-full border-b border-outline-variant/50 border-dashed" />
-              <div className="w-full border-b border-outline-variant/50 border-dashed" />
-            </div>
-            
-            {/* Chart Bars */}
-            <div className="w-full h-full flex items-end justify-around pb-4 pl-4 z-10 pt-4">
-              {mockMappingHealthTrend.map((item) => (
-                <div key={item.label} className="flex flex-col items-center gap-1.5 w-12 group cursor-pointer">
-                  <div className="flex items-end gap-1.5 w-full h-[180px] bg-transparent">
-                    <div 
-                      className="w-1/2 bg-relationship-duplicate/40 hover:bg-relationship-duplicate/70 rounded-t-md transition-all relative"
-                      style={{ height: `${item.duplicateCandidatesPct}%` }}
-                      title={`Duplicates: ${item.duplicateVal}`}
-                    />
-                    <div 
-                      className="w-1/2 bg-relationship-identical hover:brightness-110 rounded-t-md transition-all relative shadow-sm"
-                      style={{ height: `${item.approvedCnmcsPct}%` }}
-                      title={`Approved CNMCs: ${item.approvedVal}`}
+
+          <AreaChart />
+        </div>
+
+        {/* Pipeline Stages (1/3 width) */}
+        <div
+          className="col-span-12 lg:col-span-4 rounded-xl p-6 flex flex-col justify-between"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <div>
+            <h2 className="text-base font-semibold text-white tracking-tight">
+              Pipeline Stages
+            </h2>
+            <p className="text-xs text-[#71717a] mt-0.5 mb-5">
+              Distribution by stage
+            </p>
+
+            {/* Stage Progress Bars matching template */}
+            <div className="space-y-4">
+              {pipelineStages.map((stage) => (
+                <div key={stage.name}>
+                  <div className="flex justify-between items-center mb-1.5 text-xs">
+                    <span className="font-semibold text-white">{stage.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#71717a] font-mono">{stage.count}</span>
+                      <span className="font-bold text-white font-mono">{stage.pct}%</span>
+                    </div>
+                  </div>
+                  <div
+                    className="w-full h-2 rounded-full overflow-hidden"
+                    style={{ background: 'rgba(255, 255, 255, 0.06)' }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${stage.pct}%`,
+                        background: stage.color,
+                      }}
                     />
                   </div>
-                  <span className="font-data-mono text-[10px] text-on-surface-variant group-hover:text-primary transition-colors">
-                    {item.label}
-                  </span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Rationalization Progress (Span 4) */}
-        <div className="col-span-12 lg:col-span-4 bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-high/50">
-            <h3 className="font-headline-section text-headline-section text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-on-surface-variant">move_up</span>
-              Action Progress
-            </h3>
-            <button 
-              onClick={() => setActiveScreen('rationalization')}
-              className="text-primary text-xs font-body-bold hover:underline"
+          {/* Bottom Total Value matching template */}
+          <div
+            className="pt-4 mt-6 flex justify-between items-baseline"
+            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}
+          >
+            <span className="text-xs text-[#71717a]">Total Pipeline Value</span>
+            <span className="text-2xl font-bold text-white tracking-tight">$4.8M</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Bottom Row: Recent Deals + Top Performers */}
+      <div className="grid grid-cols-12 gap-5">
+        {/* Recent Deals (Left 7 cols) */}
+        <div
+          className="col-span-12 lg:col-span-7 rounded-xl p-6"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Recent Deals
+              </h2>
+              <p className="text-xs text-[#71717a] mt-0.5">Latest activity</p>
+            </div>
+            <button
+              onClick={() => setActiveScreen('review')}
+              className="text-xs font-semibold flex items-center gap-1 hover:underline"
+              style={{ color: '#10b981' }}
             >
-              EXPLORE
+              View all <span className="material-symbols-outlined text-[14px]">arrow_outward</span>
             </button>
           </div>
-          
-          <div className="p-5 flex flex-col justify-center gap-5 flex-1">
-            {rationalizationActions.map((action) => {
-              const color = action.actionType === 'MAP' 
-                ? 'bg-status-info' 
-                : action.actionType === 'MERGE' 
-                  ? 'bg-relationship-near' 
-                  : 'bg-outline';
+
+          <div className="space-y-3">
+            {recentDeals.map((deal, idx) => {
+              const statusCfg = {
+                Won: { border: 'rgba(16, 185, 129, 0.25)', color: '#10b981', icon: 'check_circle' },
+                Pending: { border: 'rgba(245, 158, 11, 0.25)', color: '#f59e0b', icon: 'schedule' },
+                Lost: { border: 'rgba(244, 63, 94, 0.25)', color: '#f43f5e', icon: 'cancel' },
+              }[deal.status] || { border: 'transparent', color: '#a1a1aa', icon: 'info' };
 
               return (
-                <div key={action.id} className="cursor-pointer group" onClick={() => setActiveScreen('rationalization')}>
-                  <div className="flex justify-between mb-1.5">
-                    <span className="font-body-bold text-xs text-on-surface group-hover:text-primary transition-colors">
-                      {action.title}
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-white/[0.02] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Square Dark Initial Box */}
+                    <div
+                      className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs text-white"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      {deal.initial}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{deal.name}</p>
+                      <p className="text-xs text-[#71717a]">{deal.sub}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-bold text-white font-mono">
+                      {deal.amount}
                     </span>
-                    <span className="font-data-mono text-xs text-on-surface-variant">
-                      {action.percentage}%
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                      style={{
+                        border: `1px solid ${statusCfg.border}`,
+                        color: statusCfg.color,
+                        background: 'transparent',
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[12px]">
+                        {statusCfg.icon}
+                      </span>
+                      {deal.status}
                     </span>
                   </div>
-                  <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-                    <div 
-                      className={`${color} h-full transition-all duration-500 rounded-full`}
-                      style={{ width: `${action.percentage}%` }}
-                    />
-                  </div>
-                  <p className="font-data-mono text-[10px] text-on-surface-variant mt-1 text-right">
-                    {action.recordCount}
-                  </p>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Duplicate Candidates Table (Span 6) */}
-        <div className="col-span-12 lg:col-span-6 bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-high/50">
-            <h3 className="font-table-header text-table-header text-on-surface uppercase">
-              TOP DUPLICATE CANDIDATES
-            </h3>
-            <button 
-              onClick={() => setActiveScreen('review')}
-              className="text-primary text-xs font-body-bold hover:underline"
-            >
-              VIEW ALL
-            </button>
+        {/* Top Performers (Right 5 cols) */}
+        <div
+          className="col-span-12 lg:col-span-5 rounded-xl p-6"
+          style={{
+            background: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Top Performers
+              </h2>
+              <p className="text-xs text-[#71717a] mt-0.5">This month's leaders</p>
+            </div>
+            <span className="material-symbols-outlined text-[20px] text-[#f59e0b]">
+              emoji_events
+            </span>
           </div>
-          <div className="flex-1 overflow-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-surface-container-high border-b border-outline-variant/40 z-10">
-                <tr>
-                  <th className="p-2.5 font-table-header text-[10px] text-on-surface-variant tracking-wider">MAT. GROUP</th>
-                  <th className="p-2.5 font-table-header text-[10px] text-on-surface-variant tracking-wider">DESCRIPTION</th>
-                  <th className="p-2.5 font-table-header text-[10px] text-on-surface-variant tracking-wider text-right">CANDIDATES</th>
-                  <th className="p-2.5 font-table-header text-[10px] text-on-surface-variant tracking-wider text-center">AI CONFIDENCE</th>
-                </tr>
-              </thead>
-              <tbody className="font-data-mono text-data-mono divide-y divide-outline-variant/20">
-                {mockDuplicateCandidatesTable.map((row) => (
-                  <tr 
-                    key={row.groupCode}
-                    onClick={() => setActiveScreen('harmonization')}
-                    className="h-row-height-dense hover:bg-surface-container-high/60 transition-colors cursor-pointer"
-                  >
-                    <td className="p-2.5 text-primary">{row.groupCode}</td>
-                    <td className="p-2.5 text-on-surface truncate max-w-[160px]">{row.description}</td>
-                    <td className="p-2.5 text-right text-relationship-duplicate font-semibold">{row.candidates}</td>
-                    <td className="p-2.5 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        row.status === 'success' 
-                          ? 'bg-status-success/15 text-status-success' 
-                          : 'bg-status-warning/15 text-status-warning'
-                      }`}>
-                        <span className="material-symbols-outlined text-[10px]">auto_awesome</span> 
-                        {row.confidence}%
+
+          <div className="space-y-3.5">
+            {topPerformers.map((p) => {
+              const rankBg = {
+                1: '#ea580c', // Orange for 1st
+                2: '#d97706', // Yellow-orange for 2nd
+                3: '#b45309', // Darker orange for 3rd
+              }[p.rank] || '#3f3f46';
+
+              return (
+                <div key={p.rank} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Circular Teal Avatar with Rank Badge */}
+                    <div className="relative">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm"
+                        style={{ background: '#7c3aed' }}
+                      >
+                        {p.initial}
+                      </div>
+                      <span
+                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                        style={{ background: rankBg }}
+                      >
+                        {p.rank}
                       </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    </div>
 
-        {/* CPSE Coverage Matrix (Span 6) */}
-        <div className="col-span-12 lg:col-span-6 bg-surface-container rounded-2xl border border-outline-variant/40 flex flex-col overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-high/50">
-            <h3 className="font-table-header text-table-header text-on-surface uppercase">
-              CPSE HARMONIZATION STATUS
-            </h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => openUploadModal('ONGC')}
-                className="text-xs text-primary font-body-bold hover:underline flex items-center gap-1"
-              >
-                <span className="material-symbols-outlined text-[14px]">upload_file</span>
-                INGEST
-              </button>
-              <span className="text-outline-variant">|</span>
-              <button 
-                onClick={() => setActiveScreen('datahub')}
-                className="text-primary text-xs font-body-bold hover:underline"
-              >
-                DATA HUB
-              </button>
-            </div>
-          </div>
-          <div className="p-5 flex-1">
-            <div className="grid grid-cols-5 gap-y-3.5 gap-x-2 items-center">
-              {/* Header Row */}
-              <div className="col-span-2 font-table-header text-[10px] text-on-surface-variant uppercase">ENTITY</div>
-              <div className="font-table-header text-[10px] text-on-surface-variant text-center uppercase">MAPPED</div>
-              <div className="font-table-header text-[10px] text-on-surface-variant text-center uppercase">PENDING</div>
-              <div className="font-table-header text-[10px] text-on-surface-variant text-center uppercase">STATUS</div>
+                    <div>
+                      <p className="text-sm font-semibold text-white leading-tight">
+                        {p.name}
+                      </p>
+                      <p className="text-xs text-[#71717a] mt-0.5">{p.deals}</p>
+                    </div>
+                  </div>
 
-              {/* Rows */}
-              {cpseList.map((cpse) => {
-                const pendingPct = (100 - cpse.coveragePercentage).toFixed(0);
-                return (
-                  <React.Fragment key={cpse.id}>
-                    <div 
-                      onClick={() => setActiveScreen('datahub')}
-                      className="col-span-2 font-data-mono text-xs text-on-surface flex items-center cursor-pointer hover:text-primary transition-colors"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-primary mr-2" />
-                      <span className="font-semibold">{cpse.name}</span>
-                      <span className="text-[10px] text-on-surface-variant ml-1.5 hidden sm:inline">({cpse.sourceSystem.split(' ')[0]})</span>
-                    </div>
-                    
-                    <div className="text-center font-data-mono text-xs text-on-surface-variant flex flex-col justify-center">
-                      <div className="w-full bg-surface-container-high h-1.5 mb-1 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-relationship-identical h-full rounded-full" 
-                          style={{ width: `${cpse.coveragePercentage}%` }}
-                        />
-                      </div>
-                      {cpse.coveragePercentage}%
-                    </div>
-                    
-                    <div className="text-center font-data-mono text-xs text-on-surface-variant flex flex-col justify-center">
-                      <div className="w-full bg-surface-container-high h-1.5 mb-1 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-status-warning h-full rounded-full" 
-                          style={{ width: `${pendingPct}%` }}
-                        />
-                      </div>
-                      {pendingPct}%
-                    </div>
-                    
-                    <div className="text-center flex justify-center items-center">
-                      {cpse.status === 'HEALTHY' ? (
-                        <span className="material-symbols-outlined text-status-success text-base fill-icon" title="Healthy Sync">
-                          check_circle
-                        </span>
-                      ) : (
-                        <span className="material-symbols-outlined text-status-warning text-base fill-icon" title="Requires Attention">
-                          pending
-                        </span>
-                      )}
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-            </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-white font-mono leading-tight">
+                      {p.amount}
+                    </p>
+                    <p className="text-xs font-semibold mt-0.5 flex items-center justify-end gap-0.5 text-[#10b981]">
+                      <span className="material-symbols-outlined text-[12px]">trending_up</span>
+                      {p.growth}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

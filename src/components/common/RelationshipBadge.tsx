@@ -8,41 +8,57 @@ interface Props {
 }
 
 export const RelationshipBadge: React.FC<Props> = ({ type, showIcon = true, size = 'sm' }) => {
+  const sz = size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-xs px-2.5 py-1';
   switch (type) {
     case 'IDENTICAL':
       return (
-        <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-relationship-identical/30 bg-relationship-identical/10 text-relationship-identical ${size === 'sm' ? 'text-[11px]' : 'text-xs'}`}>
-          {showIcon && <span className="material-symbols-outlined text-[13px] fill-icon">check_circle</span>}
-          <span className="font-label-caps uppercase tracking-wider font-bold">IDENTICAL</span>
-        </div>
+        <span 
+          className={`inline-flex items-center gap-1 rounded-md font-semibold font-mono ${sz}`}
+          style={{ background: 'var(--success-dim)', color: 'var(--success)' }}
+        >
+          {showIcon && <span className="material-symbols-outlined text-[13px]">check_circle</span>}
+          <span>Identical</span>
+        </span>
       );
     case 'DUPLICATE':
       return (
-        <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-relationship-duplicate/30 bg-relationship-duplicate/10 text-relationship-duplicate ${size === 'sm' ? 'text-[11px]' : 'text-xs'}`}>
-          {showIcon && <span className="material-symbols-outlined text-[13px] fill-icon">content_copy</span>}
-          <span className="font-label-caps uppercase tracking-wider font-bold">DUPLICATE</span>
-        </div>
+        <span 
+          className={`inline-flex items-center gap-1 rounded-md font-semibold font-mono ${sz}`}
+          style={{ background: 'var(--indigo-dim)', color: 'var(--indigo)' }}
+        >
+          {showIcon && <span className="material-symbols-outlined text-[13px]">content_copy</span>}
+          <span>Duplicate</span>
+        </span>
       );
     case 'NEAR-DUPLICATE':
       return (
-        <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-relationship-near/30 bg-relationship-near/10 text-relationship-near ${size === 'sm' ? 'text-[11px]' : 'text-xs'}`}>
-          {showIcon && <span className="material-symbols-outlined text-[13px] fill-icon">warning</span>}
-          <span className="font-label-caps uppercase tracking-wider font-bold">NEAR-DUP</span>
-        </div>
+        <span 
+          className={`inline-flex items-center gap-1 rounded-md font-semibold font-mono ${sz}`}
+          style={{ background: 'var(--warn-dim)', color: 'var(--warning)' }}
+        >
+          {showIcon && <span className="material-symbols-outlined text-[13px]">compare_arrows</span>}
+          <span>Near Duplicate</span>
+        </span>
       );
     case 'FUNCTIONALLY EQUIVALENT':
       return (
-        <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 ${size === 'sm' ? 'text-[11px]' : 'text-xs'}`}>
-          {showIcon && <span className="material-symbols-outlined text-[13px] fill-icon">swap_horiz</span>}
-          <span className="font-label-caps uppercase tracking-wider font-bold">FUNC EQUIV</span>
-        </div>
+        <span 
+          className={`inline-flex items-center gap-1 rounded-md font-semibold font-mono ${sz}`}
+          style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
+        >
+          {showIcon && <span className="material-symbols-outlined text-[13px]">swap_horiz</span>}
+          <span>Func Equiv</span>
+        </span>
       );
     default:
       return (
-        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-outline-variant/30 bg-surface-container text-on-surface-variant text-[11px]">
+        <span 
+          className={`inline-flex items-center gap-1 rounded-md font-semibold font-mono ${sz}`}
+          style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}
+        >
           {showIcon && <span className="material-symbols-outlined text-[13px]">link</span>}
-          <span className="font-label-caps uppercase tracking-wider font-bold">{type}</span>
-        </div>
+          <span>{type}</span>
+        </span>
       );
   }
 };
