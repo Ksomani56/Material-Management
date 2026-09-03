@@ -4,111 +4,93 @@
 
 /* ==========================================================================
    NATIONAL UNIFIED MATERIAL MASTER (SIH26099)
-   DESIGN SYSTEM TOKENS - SALESOPS + CMS ADMIN SPECIFICATION
-   High-contrast, scannable, calm, enterprise-grade dark & light themes.
+   DESIGN SYSTEM - SALESOPS DASHBOARD SPECIFICATION
+   Minimalist, high-authority, dark charcoal/zinc enterprise UI with emerald accents.
    ========================================================================== */
 
 :root,
 html.light {
   color-scheme: light;
   
-  /* Canvas & Text */
-  --background: #f8fafc;              /* Slate 50 clean neutral */
-  --on-background: #0f172a;           /* Slate 900 high contrast */
+  --background: #f8fafc;
+  --on-background: #0f172a;
   
-  /* Surfaces & Containers */
-  --surface: #ffffff;                 /* Pure white surface */
-  --surface-dim: #f1f5f9;             /* Slate 100 */
+  --surface: #ffffff;
+  --surface-dim: #f1f5f9;
   --surface-bright: #ffffff;
   --surface-container-lowest: #ffffff;
   --surface-container-low: #f8fafc;
   --surface-container: #ffffff;
-  --surface-container-high: #f1f5f9;  /* Slate 100 */
-  --surface-container-highest: #e2e8f0;/* Slate 200 */
+  --surface-container-high: #f1f5f9;
+  --surface-container-highest: #e2e8f0;
   
-  /* Text Variants */
-  --on-surface: #0f172a;              /* Slate 900 */
-  --on-surface-variant: #64748b;      /* Slate 500 */
+  --on-surface: #0f172a;
+  --on-surface-variant: #64748b;
   
-  /* Borders & Outlines */
-  --outline: #94a3b8;                 /* Slate 400 */
-  --outline-variant: #e2e8f0;         /* Slate 200 subtle divider */
+  --outline: #cbd5e1;
+  --outline-variant: #e2e8f0;
   --border-subtle: #e2e8f0;
   
-  /* Primary Mint/Green Accent */
-  --primary: #059669;                 /* Emerald 600 */
+  --primary: #059669;
   --on-primary: #ffffff;
-  --primary-container: #ecfdf5;       /* Emerald 50 */
-  --on-primary-container: #065f46;    /* Emerald 800 */
-  --inverse-primary: #34d399;
+  --primary-container: #ecfdf5;
+  --on-primary-container: #065f46;
+  --inverse-primary: #10b981;
   
-  /* Secondary Neutral */
-  --secondary: #475569;               /* Slate 600 */
+  --secondary: #475569;
   --on-secondary: #ffffff;
   --secondary-container: #f1f5f9;
   --on-secondary-container: #1e293b;
   
-  /* Restrained Semantic Indicators */
-  --status-success: #15803d;          /* Green 700 */
-  --status-warning: #b45309;          /* Amber 700 */
-  --status-error: #b91c1c;            /* Red 700 */
-  --status-info: #2563eb;             /* Blue 600 */
+  --status-success: #15803d;
+  --status-warning: #b45309;
+  --status-error: #b91c1c;
+  --status-info: #2563eb;
   
-  /* Harmonization Relationships */
   --relationship-identical: #059669;
   --relationship-duplicate: #2563eb;
   --relationship-near: #d97706;
 }
 
-/* TRUE SALESOPS DARK THEME
-   Near-black charcoal background, slightly lighter charcoal surfaces, subtle borders,
-   off-white primary text, muted gray secondary text, and vibrant mint/emerald accent. */
+/* TRUE SALESOPS DARK MODE (Zinc 950 / Zinc 900 Charcoal Palette) */
 html.dark {
   color-scheme: dark;
   
-  /* Canvas & Text */
-  --background: #090a0c;              /* Deep charcoal black */
-  --on-background: #f1f5f9;           /* Slate 100 */
+  --background: #09090b;              /* Zinc 950 deep charcoal */
+  --on-background: #fafafa;           /* Zinc 50 */
   
-  /* Surfaces & Containers */
-  --surface: #121316;                 /* Dark slate charcoal */
-  --surface-dim: #0d0e11;
-  --surface-bright: #1c1e24;
-  --surface-container-lowest: #090a0c;
-  --surface-container-low: #0f1013;
-  --surface-container: #14161a;        /* Card surface */
-  --surface-container-high: #1c1e24;   /* Header & hover surface */
-  --surface-container-highest: #262932;/* Elevated surface */
+  --surface: #121215;                 /* Zinc 900 sidebar & bars */
+  --surface-dim: #09090b;
+  --surface-bright: #27272a;
+  --surface-container-lowest: #09090b;
+  --surface-container-low: #0e0e11;
+  --surface-container: #141418;        /* Card surface */
+  --surface-container-high: #1c1c21;   /* Hover surface */
+  --surface-container-highest: #27272f;/* Elevated elements */
   
-  /* Text Variants */
-  --on-surface: #f1f5f9;              /* Slate 100 */
-  --on-surface-variant: #94a3b8;      /* Slate 400 */
+  --on-surface: #f4f4f5;              /* Zinc 100 */
+  --on-surface-variant: #a1a1aa;      /* Zinc 400 */
   
-  /* Borders & Outlines */
-  --outline: #475569;                 /* Slate 600 */
-  --outline-variant: #262932;         /* Subtle separator */
-  --border-subtle: #20232a;
+  --outline: #3f3f46;                 /* Zinc 700 */
+  --outline-variant: #222227;         /* Subtle separator border */
+  --border-subtle: #1c1c22;
   
-  /* Primary Mint/Green Accent */
   --primary: #10b981;                 /* Emerald 500 */
-  --on-primary: #062b1e;              /* Deep contrast on bright emerald */
-  --primary-container: #064e3b;       /* Emerald 900/50 */
-  --on-primary-container: #a7f3d0;    /* Emerald 200 */
+  --on-primary: #022c1e;
+  --primary-container: #064e3b;
+  --on-primary-container: #a7f3d0;
   --inverse-primary: #059669;
   
-  /* Secondary Neutral */
-  --secondary: #94a3b8;
-  --on-secondary: #090a0c;
-  --secondary-container: #1e293b;
-  --on-secondary-container: #f1f5f9;
+  --secondary: #a1a1aa;
+  --on-secondary: #09090b;
+  --secondary-container: #27272a;
+  --on-secondary-container: #f4f4f5;
   
-  /* Restrained Semantic Indicators */
-  --status-success: #10b981;          /* Emerald 500 */
-  --status-warning: #f59e0b;          /* Amber 500 */
-  --status-error: #ef4444;            /* Red 500 */
-  --status-info: #38bdf8;             /* Sky 400 */
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-info: #38bdf8;
   
-  /* Harmonization Relationships */
   --relationship-identical: #10b981;
   --relationship-duplicate: #38bdf8;
   --relationship-near: #f59e0b;
@@ -117,15 +99,14 @@ html.dark {
 body {
   background-color: var(--background);
   color: var(--on-surface);
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
   overflow-x: hidden;
-  transition: background-color 200ms ease-out, color 200ms ease-out;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Material Symbols configuration */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -147,7 +128,7 @@ body {
   font-variation-settings: 'FILL' 1 !important;
 }
 
-/* Custom technical scrollbar */
+/* Custom minimal scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -166,16 +147,15 @@ body {
   background: var(--outline);
 }
 
-/* Interactive Card & Button Micro-transitions */
+/* SalesOps Card Hover Effect */
 .card-interactive {
-  transition: background-color 140ms ease-out, border-color 140ms ease-out, box-shadow 140ms ease-out;
+  transition: border-color 140ms ease-out, background-color 140ms ease-out;
 }
 
 .card-interactive:hover {
   border-color: var(--outline);
 }
 
-/* Reduced Motion Respect */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
