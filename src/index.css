@@ -1,112 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ==========================================================================
-   NATIONAL UNIFIED MATERIAL MASTER (SIH26099)
-   DESIGN SYSTEM - SALESOPS DASHBOARD SPECIFICATION
-   Minimalist, high-authority, dark charcoal/zinc enterprise UI with emerald accents.
+   SIH26099 — NATIONAL UNIFIED MATERIAL MASTER
+   SalesOps Visual Language: Pure black + Zinc surfaces + Emerald accent
    ========================================================================== */
 
+/* LIGHT MODE */
 :root,
 html.light {
   color-scheme: light;
-  
-  --background: #f8fafc;
-  --on-background: #0f172a;
-  
-  --surface: #ffffff;
-  --surface-dim: #f1f5f9;
-  --surface-bright: #ffffff;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f8fafc;
-  --surface-container: #ffffff;
-  --surface-container-high: #f1f5f9;
-  --surface-container-highest: #e2e8f0;
-  
-  --on-surface: #0f172a;
-  --on-surface-variant: #64748b;
-  
-  --outline: #cbd5e1;
-  --outline-variant: #e2e8f0;
-  --border-subtle: #e2e8f0;
-  
-  --primary: #059669;
-  --on-primary: #ffffff;
-  --primary-container: #ecfdf5;
-  --on-primary-container: #065f46;
-  --inverse-primary: #10b981;
-  
-  --secondary: #475569;
-  --on-secondary: #ffffff;
-  --secondary-container: #f1f5f9;
-  --on-secondary-container: #1e293b;
-  
-  --status-success: #15803d;
-  --status-warning: #b45309;
-  --status-error: #b91c1c;
-  --status-info: #2563eb;
-  
-  --relationship-identical: #059669;
-  --relationship-duplicate: #2563eb;
-  --relationship-near: #d97706;
+  --bg: #f0f2f5;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-hover: #f5f7fa;
+  --bg-input: #f0f2f5;
+  --border: #e4e6eb;
+  --border-subtle: #eaedf0;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --accent: #059669;
+  --accent-dim: rgba(5,150,105,0.12);
+  --accent2: #2563eb;
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #2563eb;
 }
 
-/* TRUE SALESOPS DARK MODE (Zinc 950 / Zinc 900 Charcoal Palette) */
+/* DARK MODE — Match reference screenshot exactly */
 html.dark {
   color-scheme: dark;
-  
-  --background: #09090b;              /* Zinc 950 deep charcoal */
-  --on-background: #fafafa;           /* Zinc 50 */
-  
-  --surface: #121215;                 /* Zinc 900 sidebar & bars */
-  --surface-dim: #09090b;
-  --surface-bright: #27272a;
-  --surface-container-lowest: #09090b;
-  --surface-container-low: #0e0e11;
-  --surface-container: #141418;        /* Card surface */
-  --surface-container-high: #1c1c21;   /* Hover surface */
-  --surface-container-highest: #27272f;/* Elevated elements */
-  
-  --on-surface: #f4f4f5;              /* Zinc 100 */
-  --on-surface-variant: #a1a1aa;      /* Zinc 400 */
-  
-  --outline: #3f3f46;                 /* Zinc 700 */
-  --outline-variant: #222227;         /* Subtle separator border */
+  --bg: #0b0b0f;
+  --bg-surface: #111115;
+  --bg-card: #161618;
+  --bg-sidebar: #101014;
+  --bg-hover: #1e1e24;
+  --bg-input: #1a1a1e;
+  --border: #222228;
   --border-subtle: #1c1c22;
-  
-  --primary: #10b981;                 /* Emerald 500 */
-  --on-primary: #022c1e;
-  --primary-container: #064e3b;
-  --on-primary-container: #a7f3d0;
-  --inverse-primary: #059669;
-  
-  --secondary: #a1a1aa;
-  --on-secondary: #09090b;
-  --secondary-container: #27272a;
-  --on-secondary-container: #f4f4f5;
-  
-  --status-success: #10b981;
-  --status-warning: #f59e0b;
-  --status-error: #ef4444;
-  --status-info: #38bdf8;
-  
-  --relationship-identical: #10b981;
-  --relationship-duplicate: #38bdf8;
-  --relationship-near: #f59e0b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #10b981;
+  --accent-dim: rgba(16,185,129,0.12);
+  --accent2: #06b6d4;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #f87171;
+  --info: #38bdf8;
 }
 
+/* Apply CSS variables as Tailwind-compatible properties */
 body {
-  background-color: var(--background);
-  color: var(--on-surface);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
-  overflow-x: hidden;
-  transition: background-color 150ms ease-out, color 150ms ease-out;
-  line-height: 1.5;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
 }
 
+/* Material Symbols */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -121,46 +83,20 @@ body {
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
 }
 
-.fill-icon {
-  font-variation-settings: 'FILL' 1 !important;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-/* Custom minimal scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--outline-variant);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--outline);
-}
-
-/* SalesOps Card Hover Effect */
-.card-interactive {
-  transition: border-color 140ms ease-out, background-color 140ms ease-out;
-}
-
-.card-interactive:hover {
-  border-color: var(--outline);
-}
+/* Utility: Monospace data font */
+.mono { font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; }
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

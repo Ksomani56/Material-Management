@@ -6,347 +6,437 @@ import {
   mockDuplicateCandidatesTable
 } from '../../data/mockData';
 
-export const OverviewScreen: React.FC = () => {
-  const { setActiveScreen, reviewQueue, cpseList, rationalizationActions, openUploadModal } = useApp();
-  const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null);
+/* -----------------------------------------------------------------------
+   SVG Area Chart — matches the SalesOps reference screenshot exactly
+   ----------------------------------------------------------------------- */
+const AreaChart: React.FC = () => {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string; v1: string; v2: string } | null>(null);
+
+  // Extended weekly data for a fuller chart (12 weeks)
+  const weeks = [
+    { label: 'W1', approved: 18, dupes: 82 },
+    { label: 'W2', approved: 22, dupes: 76 },
+    { label: 'W3', approved: 19, dupes: 78 },
+    { label: 'W4', approved: 28, dupes: 70 },
+    { label: 'W5', approved: 35, dupes: 60 },
+    { label: 'W6', approved: 40, dupes: 52 },
+    { label: 'W7', approved: 55, dupes: 44 },
+    { label: 'W8', approved: 65, dupes: 38 },
+    { label: 'W9', approved: 72, dupes: 30 },
+    { label: 'W10', approved: 80, dupes: 22 },
+    { label: 'W11', approved: 90, dupes: 14 },
+    { label: 'W12', approved: 94, dupes: 10 },
+  ];
+
+  const W = 600;
+  const H = 200;
+  const padL = 40;
+  const padR = 10;
+  const padT = 10;
+  const padB = 30;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+
+  const toX = (i: number) => padL + (i / (weeks.length - 1)) * innerW;
+  const toY = (v: number) => padT + innerH - (v / 100) * innerH;
+
+  const polyApproved = weeks.map((w, i) => `${toX(i)},${toY(w.approved)}`).join(' ');
+  const polyDupes = weeks.map((w, i) => `${toX(i)},${toY(w.dupes)}`).join(' ');
+
+  const areaApproved = `${padL},${padT + innerH} ${polyApproved} ${toX(weeks.length - 1)},${padT + innerH}`;
+  const areaDupes = `${padL},${padT + innerH} ${polyDupes} ${toX(weeks.length - 1)},${padT + innerH}`;
+
+  const gridLines = [0, 25, 50, 75, 100];
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-background space-y-6">
-      {/* Page Header with Timeframe & Filters */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-on-surface tracking-tight">
-            Executive Dashboard
-          </h1>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            National material master standardization metrics, duplicate resolution, and active pipeline health across 6 CPSEs.
-          </p>
-        </div>
+    <div className="relative w-full" style={{ height: `${H}px` }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        className="w-full h-full"
+      >
+        <defs>
+          {/* Cyan (approved CNMC) gradient — reference line 1 */}
+          <linearGradient id="gradApproved" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.02" />
+          </linearGradient>
+          {/* Green (target/harmonization) gradient — reference line 2 */}
+          <linearGradient id="gradDupes" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/60 text-xs text-on-surface-variant font-mono">
-            <span className="material-symbols-outlined text-[15px]">calendar_today</span>
-            <span>Last 6 Weeks</span>
+        {/* Horizontal grid lines */}
+        {gridLines.map(g => (
+          <g key={g}>
+            <line
+              x1={padL} y1={toY(g)} x2={W - padR} y2={toY(g)}
+              stroke="rgba(255,255,255,0.06)" strokeWidth="1"
+            />
+            <text
+              x={padL - 5} y={toY(g) + 4}
+              textAnchor="end"
+              fontSize="9"
+              fill="rgba(255,255,255,0.3)"
+              fontFamily="JetBrains Mono, monospace"
+            >
+              {g}%
+            </text>
+          </g>
+        ))}
+
+        {/* X-axis labels */}
+        {weeks.map((w, i) => (
+          i % 2 === 0 && (
+            <text
+              key={w.label}
+              x={toX(i)}
+              y={H - 6}
+              textAnchor="middle"
+              fontSize="9"
+              fill="rgba(255,255,255,0.3)"
+              fontFamily="JetBrains Mono, monospace"
+            >
+              {w.label}
+            </text>
+          )
+        ))}
+
+        {/* Approved CNMC area fill (cyan) */}
+        <polygon points={areaApproved} fill="url(#gradApproved)" />
+
+        {/* Dupes/backlog area fill (green) */}
+        <polygon points={areaDupes} fill="url(#gradDupes)" />
+
+        {/* Approved line (cyan) */}
+        <polyline
+          points={polyApproved}
+          fill="none"
+          stroke="#06b6d4"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+
+        {/* Dupes line (green) */}
+        <polyline
+          points={polyDupes}
+          fill="none"
+          stroke="#10b981"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+
+        {/* Invisible hit areas for tooltip */}
+        {weeks.map((w, i) => (
+          <rect
+            key={i}
+            x={toX(i) - 20}
+            y={padT}
+            width={40}
+            height={innerH}
+            fill="transparent"
+            onMouseEnter={() => setTooltip({
+              x: toX(i),
+              y: Math.min(toY(w.approved), toY(w.dupes)) - 8,
+              label: w.label,
+              v1: `${w.approved}%`,
+              v2: `${w.dupes}%`,
+            })}
+            onMouseLeave={() => setTooltip(null)}
+            style={{ cursor: 'crosshair' }}
+          />
+        ))}
+
+        {/* Tooltip marker dots */}
+        {tooltip && weeks.map((w, i) => {
+          if (weeks[i].label !== tooltip.label) return null;
+          return (
+            <g key="dot">
+              <circle cx={toX(i)} cy={toY(w.approved)} r="4" fill="#06b6d4" />
+              <circle cx={toX(i)} cy={toY(w.dupes)} r="4" fill="#10b981" />
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Floating Tooltip */}
+      {tooltip && (
+        <div
+          className="absolute pointer-events-none z-10 text-[11px] rounded shadow-xl px-2.5 py-1.5 mono"
+          style={{
+            left: `${(tooltip.x / 600) * 100}%`,
+            top: `${(Math.max(0, tooltip.y - 40) / 200) * 100}%`,
+            transform: 'translateX(-50%)',
+            background: 'rgba(20,20,26,0.96)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            color: 'var(--text-primary)',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div className="font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>{tooltip.label}</div>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="w-2 h-2 rounded-sm" style={{ background: '#06b6d4' }} />
+            <span>Approved: <strong style={{ color: '#06b6d4' }}>{tooltip.v1}</strong></span>
           </div>
-          <button
-            onClick={() => openUploadModal('ONGC')}
-            className="px-3 py-1.5 bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-on-surface rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
-          >
-            <span className="material-symbols-outlined text-[15px] text-primary">upload_file</span>
-            Import Dataset
-          </button>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-sm" style={{ background: '#10b981' }} />
+            <span>Backlog: <strong style={{ color: '#10b981' }}>{tooltip.v2}</strong></span>
+          </div>
         </div>
+      )}
+    </div>
+  );
+};
+
+/* -----------------------------------------------------------------------
+   KPI Card — matches the SalesOps reference exactly
+   ----------------------------------------------------------------------- */
+interface KpiCardProps {
+  label: string;
+  value: string;
+  delta?: string;
+  deltaUp?: boolean;
+  icon?: string;
+  accent?: boolean;
+}
+
+const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon, accent }) => (
+  <div
+    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    className="rounded-lg p-4 flex flex-col justify-between"
+  >
+    <div className="flex items-start justify-between mb-2">
+      <span style={{ color: 'var(--text-secondary)' }} className="text-xs">{label}</span>
+      {icon && (
+        <div
+          style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}
+          className="w-7 h-7 rounded flex items-center justify-center"
+        >
+          <span className="material-symbols-outlined text-[16px]">{icon}</span>
+        </div>
+      )}
+    </div>
+    <div className="flex items-end gap-2">
+      <span
+        style={{ color: accent ? 'var(--accent)' : 'var(--text-primary)' }}
+        className="text-2xl font-bold tracking-tight leading-none"
+      >
+        {value}
+      </span>
+      {delta && (
+        <span
+          className="text-xs font-medium mb-0.5 flex items-center gap-0.5"
+          style={{ color: deltaUp ? 'var(--success)' : 'var(--error)' }}
+        >
+          <span className="material-symbols-outlined text-[13px]">{deltaUp ? 'arrow_upward' : 'arrow_downward'}</span>
+          {delta}
+        </span>
+      )}
+    </div>
+  </div>
+);
+
+/* -----------------------------------------------------------------------
+   Main Overview Screen
+   ----------------------------------------------------------------------- */
+export const OverviewScreen: React.FC = () => {
+  const { setActiveScreen, reviewQueue, cpseList, rationalizationActions } = useApp();
+
+  return (
+    <main
+      style={{ background: 'var(--bg)' }}
+      className="flex-1 overflow-y-auto p-5 space-y-4"
+    >
+      {/* 4 KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <KpiCard
+          label="Total Source Records"
+          value={mockDashboardKPIs.totalSourceCodes}
+          delta="+12.4%"
+          deltaUp={true}
+          icon="dataset"
+        />
+        <KpiCard
+          label="Approved Masters (CNMC)"
+          value={mockDashboardKPIs.canonicalMaterialsCount}
+          delta="+14.2k"
+          deltaUp={true}
+          icon="inventory_2"
+          accent={true}
+        />
+        <KpiCard
+          label="Harmonization Coverage"
+          value={`${mockDashboardKPIs.mappingCoveragePct}%`}
+          delta="+3.1%"
+          deltaUp={true}
+          icon="pie_chart"
+        />
+        <KpiCard
+          label="Review Backlog"
+          value={reviewQueue.length > 0 ? (12400 + reviewQueue.length).toLocaleString() : '12,405'}
+          delta="-5"
+          deltaUp={false}
+          icon="fact_check"
+        />
       </div>
 
-      {/* 4 Compact SalesOps KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1 */}
-        <div className="bg-surface-container rounded-xl p-4.5 border border-outline-variant/60 flex flex-col justify-between card-interactive">
-          <div className="flex justify-between items-start">
-            <span className="text-xs font-medium text-on-surface-variant">
-              Total Source Records
-            </span>
-            <span className="material-symbols-outlined text-on-surface-variant/60 text-[18px]">dataset</span>
-          </div>
-          <div className="my-2">
-            <div className="text-2xl font-bold text-on-surface tracking-tight font-sans">
-              {mockDashboardKPIs.totalSourceCodes}
-            </div>
-            <div className="flex items-center gap-1.5 mt-1 text-xs">
-              <span className="text-status-success font-medium flex items-center gap-0.5">
-                <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
-                +12.4%
-              </span>
-              <span className="text-on-surface-variant text-[11px]">vs last period</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-on-surface-variant/80 truncate">
-            Across ONGC, IOCL, GAIL, NTPC, SAIL, BHEL
-          </p>
-        </div>
-
-        {/* KPI 2 */}
-        <div className="bg-surface-container rounded-xl p-4.5 border border-outline-variant/60 flex flex-col justify-between card-interactive">
-          <div className="flex justify-between items-start">
-            <span className="text-xs font-medium text-on-surface-variant">
-              Approved Masters (CNMC)
-            </span>
-            <span className="material-symbols-outlined text-primary text-[18px]">inventory_2</span>
-          </div>
-          <div className="my-2">
-            <div className="text-2xl font-bold text-primary tracking-tight font-sans">
-              {mockDashboardKPIs.canonicalMaterialsCount}
-            </div>
-            <div className="flex items-center gap-1.5 mt-1 text-xs">
-              <span className="text-status-success font-medium flex items-center gap-0.5">
-                <span className="material-symbols-outlined text-[14px]">verified</span>
-                100% Validated
-              </span>
-              <span className="text-on-surface-variant text-[11px]">national standard</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-on-surface-variant/80 truncate">
-            Governed under MoPNG unified taxonomy
-          </p>
-        </div>
-
-        {/* KPI 3 */}
-        <div className="bg-surface-container rounded-xl p-4.5 border border-outline-variant/60 flex flex-col justify-between card-interactive">
-          <div className="flex justify-between items-start">
-            <span className="text-xs font-medium text-on-surface-variant">
-              Harmonization Coverage
-            </span>
-            <span className="material-symbols-outlined text-primary text-[18px]">pie_chart</span>
-          </div>
-          <div className="my-2">
-            <div className="text-2xl font-bold text-on-surface tracking-tight font-sans">
-              {mockDashboardKPIs.mappingCoveragePct}%
-            </div>
-            <div className="w-full bg-surface-container-high h-1.5 mt-2 rounded-full overflow-hidden">
-              <div
-                className="bg-primary h-full transition-all duration-500 rounded-full"
-                style={{ width: `${mockDashboardKPIs.mappingCoveragePct}%` }}
-              />
-            </div>
-          </div>
-          <p className="text-[11px] text-on-surface-variant/80 truncate">
-            21.6% pending automated/cataloger review
-          </p>
-        </div>
-
-        {/* KPI 4 */}
-        <div className="bg-surface-container rounded-xl p-4.5 border border-outline-variant/60 flex flex-col justify-between card-interactive">
-          <div className="flex justify-between items-start">
-            <span className="text-xs font-medium text-status-warning">
-              Review Backlog
-            </span>
-            <span className="material-symbols-outlined text-status-warning text-[18px]">fact_check</span>
-          </div>
-          <div className="my-2">
-            <div className="text-2xl font-bold text-status-warning tracking-tight font-sans">
-              {reviewQueue.length > 0 ? (12400 + reviewQueue.length).toLocaleString() : '12,405'}
-            </div>
-            <div className="flex items-center gap-1.5 mt-1 text-xs">
-              <span className="text-status-warning font-medium">
-                Action Required
-              </span>
-              <span className="text-on-surface-variant text-[11px]">high duplicate probability</span>
-            </div>
-          </div>
-          <button
-            onClick={() => setActiveScreen('review')}
-            className="w-full py-1.5 bg-primary text-on-primary font-semibold rounded-md text-xs hover:brightness-110 transition flex items-center justify-center gap-1"
-          >
-            <span>Resolve Queue</span>
-            <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Grid: Real Chart & Action Progress */}
-      <div className="grid grid-cols-12 gap-5">
-        {/* Standardization & Mapping Velocity Chart (Span 8) */}
-        <div className="col-span-12 lg:col-span-8 bg-surface-container rounded-xl border border-outline-variant/60 p-5 flex flex-col justify-between">
-          <div className="flex justify-between items-center mb-4">
+      {/* Main Two-Column Row: Area Chart + Pipeline Stages */}
+      <div className="grid grid-cols-12 gap-3">
+        {/* Area Chart (span 8) */}
+        <div
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          className="col-span-12 lg:col-span-8 rounded-lg p-4"
+        >
+          <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="text-xs font-semibold text-on-surface uppercase tracking-wide">
-                Standardization Velocity & Duplicate Resolution
+              <h3 style={{ color: 'var(--text-primary)' }} className="text-sm font-semibold">
+                Standardization Velocity
               </h3>
-              <p className="text-[11px] text-on-surface-variant mt-0.5">
-                Weekly progress of materials resolved into approved CNMC national standards
+              <p style={{ color: 'var(--text-muted)' }} className="text-xs mt-0.5">
+                Weekly harmonization progress vs duplicate backlog resolution
               </p>
             </div>
-
-            {/* Chart Legend */}
-            <div className="flex items-center gap-3 text-[11px] font-mono">
+            {/* Legend */}
+            <div className="flex items-center gap-3 text-[11px]">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-primary" />
-                <span className="text-on-surface">Approved CNMC</span>
+                <span className="w-3 h-0.5 rounded" style={{ background: '#06b6d4', display: 'inline-block' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>Approved CNMC</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-surface-container-highest" />
-                <span className="text-on-surface-variant">Duplicate Backlog</span>
+                <span className="w-3 h-0.5 rounded" style={{ background: '#10b981', display: 'inline-block' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>Backlog</span>
               </div>
             </div>
           </div>
 
-          {/* Genuine SVG/CSS Bar Chart with Gridlines and Tooltip */}
-          <div className="relative pt-6 pb-2">
-            {/* Horizontal Dashed Guidelines */}
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-6">
-              <div className="border-b border-outline-variant/30 w-full flex justify-between text-[10px] text-on-surface-variant/50 font-mono">
-                <span>100%</span>
-              </div>
-              <div className="border-b border-outline-variant/30 w-full flex justify-between text-[10px] text-on-surface-variant/50 font-mono">
-                <span>75%</span>
-              </div>
-              <div className="border-b border-outline-variant/30 w-full flex justify-between text-[10px] text-on-surface-variant/50 font-mono">
-                <span>50%</span>
-              </div>
-              <div className="border-b border-outline-variant/30 w-full flex justify-between text-[10px] text-on-surface-variant/50 font-mono">
-                <span>25%</span>
-              </div>
-              <div className="border-b border-outline-variant/50 w-full flex justify-between text-[10px] text-on-surface-variant/50 font-mono">
-                <span>0%</span>
-              </div>
-            </div>
+          <AreaChart />
 
-            {/* Bar Columns Container */}
-            <div className="h-52 flex items-end justify-between gap-4 px-6 relative z-10">
-              {mockMappingHealthTrend.map((bar, idx) => {
-                const approvedHeight = (bar.approvedCnmcsPct / 100) * 190;
-                const duplicateHeight = (bar.duplicateCandidatesPct / 100) * 190;
-
-                return (
-                  <div
-                    key={idx}
-                    onMouseEnter={() => setHoveredBarIndex(idx)}
-                    onMouseLeave={() => setHoveredBarIndex(null)}
-                    className="flex-1 flex flex-col items-center justify-end h-full group cursor-pointer relative"
-                  >
-                    {/* Hover Floating Tooltip */}
-                    {hoveredBarIndex === idx && (
-                      <div className="absolute -top-12 z-30 bg-surface-container-highest text-on-surface border border-outline-variant/80 text-[11px] font-mono px-2.5 py-1 rounded shadow-lg whitespace-nowrap pointer-events-none">
-                        <div className="text-primary font-bold">Approved: {bar.approvedCnmcsPct}% ({bar.approvedVal})</div>
-                        <div className="text-on-surface-variant">Duplicate: {bar.duplicateCandidatesPct}% ({bar.duplicateVal})</div>
-                      </div>
-                    )}
-
-                    {/* Dual Bars */}
-                    <div className="flex items-end gap-1.5 w-full justify-center">
-                      {/* Approved Bar */}
-                      <div
-                        style={{ height: `${approvedHeight}px` }}
-                        className="w-4 sm:w-6 bg-primary rounded-t-sm transition-all duration-200 group-hover:brightness-110"
-                      />
-                      {/* Duplicate Candidates Bar */}
-                      <div
-                        style={{ height: `${duplicateHeight}px` }}
-                        className="w-4 sm:w-6 bg-surface-container-highest rounded-t-sm transition-all duration-200 group-hover:brightness-125"
-                      />
-                    </div>
-
-                    {/* X-axis Label */}
-                    <span className="text-[11px] font-mono text-on-surface-variant mt-2 font-medium">
-                      {bar.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center text-xs text-on-surface-variant font-mono pt-3 border-t border-outline-variant/40 mt-2">
-            <span>Cumulative 6-Week Progress</span>
-            <span className="text-status-success font-medium">+14,280 New Approved Masters</span>
+          <div
+            className="flex justify-between text-[11px] pt-3 mt-1"
+            style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}
+          >
+            <span>12-Week period view</span>
+            <span style={{ color: 'var(--success)' }} className="font-medium">Steady upward trend across all CPSEs</span>
           </div>
         </div>
 
-        {/* Action Progress Summary (Span 4) */}
-        <div className="col-span-12 lg:col-span-4 bg-surface-container rounded-xl border border-outline-variant/60 p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <h3 className="text-xs font-semibold text-on-surface uppercase tracking-wide">
-                Catalog Rationalization Actions
+        {/* Pipeline / Rationalization Stages (span 4) */}
+        <div
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          className="col-span-12 lg:col-span-4 rounded-lg p-4 flex flex-col"
+        >
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <h3 style={{ color: 'var(--text-primary)' }} className="text-sm font-semibold">
+                Rationalization Pipeline
               </h3>
-              <button
-                onClick={() => setActiveScreen('rationalization')}
-                className="text-xs text-primary font-medium hover:underline"
-              >
-                Workbench
-              </button>
-            </div>
-            <p className="text-[11px] text-on-surface-variant mb-4">
-              Status of catalog consolidation and duplicate resolution actions
-            </p>
-
-            <div className="space-y-4">
-              {rationalizationActions.slice(0, 3).map((act) => (
-                <div key={act.id} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-medium text-on-surface">{act.title}</span>
-                    <span className="font-mono text-on-surface-variant">{act.percentage}%</span>
-                  </div>
-                  <div className="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        act.actionType === 'MAP' ? 'bg-relationship-duplicate' :
-                        act.actionType === 'MERGE' ? 'bg-primary' : 'bg-outline'
-                      }`}
-                      style={{ width: `${act.percentage}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[11px] text-on-surface-variant font-mono">
-                    <span>{act.recordCount}</span>
-                    <span className="text-[10px] text-status-success font-medium">Active</span>
-                  </div>
-                </div>
-              ))}
+              <p style={{ color: 'var(--text-muted)' }} className="text-xs mt-0.5">
+                Distribution by action type
+              </p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-outline-variant/40 mt-4 flex items-center justify-between">
-            <span className="text-xs text-on-surface-variant">Batch Import New Datasets</span>
-            <button
-              onClick={() => openUploadModal('ONGC')}
-              className="px-3 py-1.5 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/60 text-xs font-medium rounded-lg text-on-surface transition-colors flex items-center gap-1.5"
-            >
-              <span className="material-symbols-outlined text-[15px] text-primary">upload_file</span>
-              Upload XLS/CSV
-            </button>
+          <div className="flex-1 space-y-4 mt-4">
+            {rationalizationActions.map((act, idx) => {
+              const colors = ['#06b6d4', '#10b981', '#f59e0b', '#a78bfa'];
+              const c = colors[idx % colors.length];
+              return (
+                <div key={act.id}>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span style={{ color: 'var(--text-primary)' }} className="text-xs font-medium">
+                      {act.title}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: 'var(--text-secondary)' }} className="text-xs mono">
+                        {act.recordCount.split(' ')[0]}
+                      </span>
+                      <span className="text-xs font-semibold" style={{ color: c }}>{act.percentage}%</span>
+                    </div>
+                  </div>
+                  <div style={{ background: 'var(--bg-hover)' }} className="w-full h-1.5 rounded-full overflow-hidden">
+                    <div
+                      style={{ width: `${act.percentage}%`, background: c }}
+                      className="h-full rounded-full transition-all duration-500"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)' }} className="pt-3 mt-4 flex justify-between items-center">
+            <span style={{ color: 'var(--text-muted)' }} className="text-xs">Total Pipeline Value</span>
+            <span style={{ color: 'var(--text-primary)' }} className="text-lg font-bold mono">₹4,820 Cr</span>
           </div>
         </div>
       </div>
 
-      {/* Bottom Grid: Priority Review Items & CPSE Status Table */}
-      <div className="grid grid-cols-12 gap-5">
-        {/* Priority Duplicates (Span 7) */}
-        <div className="col-span-12 lg:col-span-7 bg-surface-container rounded-xl border border-outline-variant/60 p-5">
-          <div className="flex justify-between items-center mb-1">
-            <h3 className="text-xs font-semibold text-on-surface uppercase tracking-wide">
-              Pending Duplicate Candidates
-            </h3>
+      {/* Bottom Row: Pending Duplicates + CPSE Status */}
+      <div className="grid grid-cols-12 gap-3">
+        {/* Pending Duplicate Candidates (span 7) */}
+        <div
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          className="col-span-12 lg:col-span-7 rounded-lg"
+        >
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div>
+              <h3 style={{ color: 'var(--text-primary)' }} className="text-xs font-semibold">
+                Recent Duplicate Candidates
+              </h3>
+              <p style={{ color: 'var(--text-muted)' }} className="text-[11px]">Latest activity</p>
+            </div>
             <button
               onClick={() => setActiveScreen('review')}
-              className="text-xs text-primary font-medium hover:underline"
+              className="text-xs font-medium flex items-center gap-1"
+              style={{ color: 'var(--accent)' }}
             >
-              View Full Queue ({reviewQueue.length > 0 ? reviewQueue.length : 12405})
+              View all <span className="material-symbols-outlined text-[13px]">arrow_outward</span>
             </button>
           </div>
-          <p className="text-[11px] text-on-surface-variant mb-4">
-            Items flagged with high duplicate probability across different CPSE ERP systems
-          </p>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-surface-container-high text-on-surface-variant font-medium text-[11px] border-b border-outline-variant/40">
-                <tr>
-                  <th className="p-2.5">Material Group</th>
-                  <th className="p-2.5">Description</th>
-                  <th className="p-2.5 text-center">Candidates</th>
-                  <th className="p-2.5 text-right">Confidence</th>
-                  <th className="p-2.5 text-right">Action</th>
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                  {['Group', 'Description', 'Candidates', 'Confidence', ''].map(h => (
+                    <th
+                      key={h}
+                      style={{ color: 'var(--text-muted)' }}
+                      className="px-4 py-2 text-[11px] font-medium uppercase tracking-wide"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-outline-variant/30 font-mono text-xs">
-                {mockDuplicateCandidatesTable.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-surface-container-high/40 transition-colors duration-140">
-                    <td className="p-2.5 text-on-surface font-semibold">{item.groupCode}</td>
-                    <td className="p-2.5 font-sans text-on-surface-variant max-w-xs truncate" title={item.description}>
+              <tbody>
+                {mockDuplicateCandidatesTable.slice(0, 5).map((item, idx) => (
+                  <tr
+                    key={idx}
+                    style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                    className="hover:opacity-90 transition-opacity"
+                  >
+                    <td style={{ color: 'var(--text-secondary)' }} className="px-4 py-2.5 mono text-[11px]">
+                      {item.groupCode}
+                    </td>
+                    <td style={{ color: 'var(--text-primary)' }} className="px-4 py-2.5 max-w-[220px] truncate" title={item.description}>
                       {item.description}
                     </td>
-                    <td className="p-2.5 text-center">
-                      <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-mono text-[11px]">
-                        {item.candidates}
-                      </span>
+                    <td style={{ color: 'var(--text-secondary)' }} className="px-4 py-2.5 text-center mono">
+                      {item.candidates}
                     </td>
-                    <td className="p-2.5 text-right text-status-success font-semibold">
+                    <td className="px-4 py-2.5 text-center mono font-semibold" style={{ color: item.confidence >= 90 ? 'var(--success)' : 'var(--warning)' }}>
                       {item.confidence}%
                     </td>
-                    <td className="p-2.5 text-right">
+                    <td className="px-4 py-2.5 text-right">
                       <button
                         onClick={() => setActiveScreen('review')}
-                        className="text-xs text-primary hover:underline font-medium font-sans"
+                        style={{ color: 'var(--accent)' }}
+                        className="text-[11px] font-medium hover:underline"
                       >
                         Review
                       </button>
@@ -358,61 +448,47 @@ export const OverviewScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* CPSE Ingestion Status (Span 5) */}
-        <div className="col-span-12 lg:col-span-5 bg-surface-container rounded-xl border border-outline-variant/60 p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <h3 className="text-xs font-semibold text-on-surface uppercase tracking-wide">
-                CPSE Harmonization Status
-              </h3>
-              <button
-                onClick={() => setActiveScreen('datahub')}
-                className="text-xs text-primary font-medium hover:underline"
-              >
-                Data Hub
-              </button>
+        {/* Top CPSE Performers (span 5) */}
+        <div
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          className="col-span-12 lg:col-span-5 rounded-lg"
+        >
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div>
+              <h3 style={{ color: 'var(--text-primary)' }} className="text-xs font-semibold">Top CPSE Coverage</h3>
+              <p style={{ color: 'var(--text-muted)' }} className="text-[11px]">This month's leaders</p>
             </div>
-            <p className="text-[11px] text-on-surface-variant mb-4">
-              Catalog synchronization progress per public enterprise
-            </p>
-
-            <div className="space-y-2.5">
-              {cpseList.slice(0, 4).map((cpse) => (
-                <div
-                  key={cpse.id}
-                  className="p-3 bg-surface-container-low rounded-lg border border-outline-variant/40 flex items-center justify-between"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-xs text-on-surface">{cpse.name}</span>
-                      <span className="text-[10px] text-on-surface-variant font-mono">{cpse.sector}</span>
-                    </div>
-                    <span className="text-[11px] text-on-surface-variant font-mono mt-0.5 block">
-                      {cpse.mappedRecords.toLocaleString()} of {cpse.totalRecords.toLocaleString()} mapped
-                    </span>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="font-mono text-sm font-bold text-primary">
-                      {cpse.coveragePercentage}%
-                    </span>
-                    <span className="block text-[10px] text-status-success font-medium">
-                      Connected
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--warning)' }}>
+              emoji_events
+            </span>
           </div>
-
-          <div className="pt-3 border-t border-outline-variant/40 mt-3 flex justify-between items-center text-xs">
-            <span className="text-on-surface-variant font-mono text-[11px]">All CPSE ERP connectors healthy</span>
-            <button
-              onClick={() => setActiveScreen('datahub')}
-              className="text-xs text-primary font-medium hover:underline flex items-center gap-0.5"
-            >
-              Manage Connectors <span className="material-symbols-outlined text-[13px]">chevron_right</span>
-            </button>
+          <div className="p-4 space-y-3">
+            {cpseList
+              .slice()
+              .sort((a, b) => b.coveragePercentage - a.coveragePercentage)
+              .slice(0, 4)
+              .map((cpse, idx) => {
+                const medals = ['🥇', '🥈', '🥉', ''];
+                return (
+                  <div key={cpse.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-base w-5">{medals[idx]}</span>
+                      <div>
+                        <p style={{ color: 'var(--text-primary)' }} className="text-xs font-medium leading-tight">{cpse.name}</p>
+                        <p style={{ color: 'var(--text-muted)' }} className="text-[10px] truncate max-w-[120px]">{cpse.sector}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p style={{ color: 'var(--accent)' }} className="text-sm font-bold mono leading-tight">
+                        {cpse.coveragePercentage}%
+                      </p>
+                      <p style={{ color: 'var(--text-muted)' }} className="text-[10px] mono">
+                        {cpse.mappedRecords.toLocaleString()} CNMC
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>

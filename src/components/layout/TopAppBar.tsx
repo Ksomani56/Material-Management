@@ -2,21 +2,26 @@ import React from 'react';
 import { useApp, ScreenType } from '../../context/AppContext';
 
 export const TopAppBar: React.FC = () => {
-  const { 
-    theme, 
-    toggleTheme, 
-    activeScreen, 
-    setActiveScreen, 
-    globalSearch, 
-    setGlobalSearch,
-    navigateToMaterial,
-    openUploadModal,
-    reviewQueue
-  } = useApp();
+  const { theme, toggleTheme, activeScreen, setActiveScreen, globalSearch, setGlobalSearch, navigateToMaterial, openUploadModal, reviewQueue } = useApp();
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const screenTitles: Record<ScreenType, string> = {
+    home: 'Architecture & Problem Context',
+    dashboard: 'Overview',
+    datahub: 'CPSE Data Hub',
+    harmonization: 'Harmonization Workbench',
+    master: 'National Material Master',
+    detail: 'Material Specification Sheet',
+    review: 'Review Queue',
+    rationalization: 'Rationalization & Merge',
+    analytics: 'Analytics & Savings',
+    governance: 'Audit Trail',
+    settings: 'Settings',
+    support: 'Documentation & Support',
+  };
+
+  const handleSearchKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && globalSearch.trim()) {
-      if (globalSearch.toUpperCase().includes('CNMC')) {
+      if (globalSearch.toUpperCase().startsWith('CNMC')) {
         navigateToMaterial(globalSearch.trim().toUpperCase());
       } else {
         setActiveScreen('master');
@@ -24,98 +29,87 @@ export const TopAppBar: React.FC = () => {
     }
   };
 
-  const getScreenTitle = (screen: ScreenType): string => {
-    switch (screen) {
-      case 'dashboard': return 'Executive Dashboard';
-      case 'home': return 'Problem & Architecture';
-      case 'datahub': return 'CPSE Data Hub';
-      case 'harmonization': return 'Harmonization Workbench';
-      case 'master': return 'National Material Master';
-      case 'detail': return 'Master Specification Sheet';
-      case 'review': return 'Review Queue';
-      case 'rationalization': return 'Rationalization & Merge';
-      case 'analytics': return 'Analytics & Savings';
-      case 'governance': return 'Audit Trail Ledger';
-      case 'settings': return 'System Settings';
-      case 'support': return 'Documentation & Support';
-      default: return 'Overview';
-    }
-  };
-
   return (
-    <header className="flex justify-between items-center w-full px-6 h-13 border-b border-outline-variant/60 z-40 bg-surface shrink-0 select-none">
-      {/* Contextual Breadcrumb & Live Pipeline Badge */}
+    <header
+      style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}
+      className="flex items-center justify-between px-5 h-12 shrink-0 z-40"
+    >
+      {/* Left: Screen Title + Date */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-on-surface-variant font-medium">Unified Master</span>
-          <span className="text-on-surface-variant/40">/</span>
-          <span className="font-semibold text-on-surface">{getScreenTitle(activeScreen)}</span>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-status-success/10 text-status-success text-[10px] font-medium">
-          <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
-          <span>6 CPSE ERPs Live</span>
+        <h1
+          style={{ color: 'var(--text-primary)' }}
+          className="text-sm font-semibold"
+        >
+          {screenTitles[activeScreen] ?? 'Overview'}
+        </h1>
+        <div
+          style={{ color: 'var(--text-muted)', border: '1px solid var(--border)', background: 'var(--bg-input)' }}
+          className="flex items-center gap-1.5 px-2 py-1 rounded text-[11px]"
+        >
+          <span className="material-symbols-outlined text-[13px]">calendar_today</span>
+          <span>Last 30 days</span>
         </div>
       </div>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-3">
-        {/* Global Search Bar with Keyboard Shortcut */}
+      {/* Right: Search + Actions */}
+      <div className="flex items-center gap-2">
+        {/* Search Input */}
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[15px] pointer-events-none">
+          <span
+            className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[14px] pointer-events-none"
+            style={{ color: 'var(--text-muted)' }}
+          >
             search
           </span>
           <input
             type="text"
             value={globalSearch}
-            onChange={(e) => setGlobalSearch(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            placeholder="Search CNMC, materials..."
-            className="bg-surface-container-low border border-outline-variant/60 text-on-surface text-xs pl-8 pr-12 py-1.5 rounded-lg w-52 focus:w-64 transition-all duration-140 font-mono focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/60"
+            onChange={e => setGlobalSearch(e.target.value)}
+            onKeyDown={handleSearchKey}
+            placeholder="Search..."
+            style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
+            className="text-xs pl-7 pr-3 py-1.5 rounded w-44 focus:w-56 transition-all duration-150 focus:outline-none focus:ring-1 placeholder:opacity-50"
           />
-          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-on-surface-variant/60 bg-surface-container-high px-1 rounded border border-outline-variant/50 pointer-events-none">
-            ⌘K
-          </span>
         </div>
 
-        {/* Upload Dataset Button */}
+        {/* Notification Bell */}
         <button
-          onClick={() => openUploadModal('ONGC')}
-          title="Upload Excel or CSV Dataset"
-          className="px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold flex items-center gap-1.5 hover:brightness-110 transition-all shadow-xs"
+          onClick={() => setActiveScreen('review')}
+          className="relative p-1.5 rounded transition-colors hover:opacity-80"
+          style={{ color: 'var(--text-secondary)' }}
+          title="Review Queue"
         >
-          <span className="material-symbols-outlined text-[15px]">upload_file</span>
-          <span>Import Data</span>
+          <span className="material-symbols-outlined text-[18px]">notifications</span>
+          {reviewQueue.length > 0 && (
+            <span
+              className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full"
+              style={{ background: 'var(--warning)' }}
+            />
+          )}
         </button>
 
-        {/* Theme Toggle Button */}
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
+          className="p-1.5 rounded transition-colors hover:opacity-80"
+          style={{ color: 'var(--text-secondary)' }}
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 transition-colors flex items-center justify-center"
         >
-          <span className="material-symbols-outlined text-[16px]">
+          <span className="material-symbols-outlined text-[18px]">
             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
           </span>
         </button>
 
-        {/* Notifications */}
-        <button 
-          onClick={() => setActiveScreen('review')}
-          title="Notifications & Review Backlog"
-          className="p-1.5 rounded-lg hover:text-on-surface hover:bg-surface-container text-on-surface-variant transition-colors relative"
-        >
-          <span className="material-symbols-outlined text-[17px]">notifications</span>
-          {reviewQueue.length > 0 && (
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-status-warning" />
-          )}
-        </button>
-
-        {/* Administrator Avatar */}
-        <div 
+        {/* User Avatar */}
+        <div
           onClick={() => setActiveScreen('settings')}
-          className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 overflow-hidden cursor-pointer hover:border-primary transition-colors flex items-center justify-center font-bold text-[11px] text-primary"
-          title="Logged in as System Administrator"
+          style={{ background: 'var(--accent)', color: '#022c1e' }}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold cursor-pointer hover:opacity-90 transition-opacity"
+          title="Admin Steward"
         >
           AU
         </div>

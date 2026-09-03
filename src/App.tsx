@@ -53,12 +53,12 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background font-body-standard text-on-surface transition-colors duration-200">
-      {/* Fixed Left Navigation Sidebar (240px) */}
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)', color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif' }}>
+      {/* Fixed Left Navigation Sidebar (200px) */}
       <AppShell />
 
       {/* Main Content Area */}
-      <div className="ml-[240px] flex-1 flex flex-col h-full bg-background overflow-hidden transition-colors duration-200">
+      <div className="ml-[200px] flex-1 flex flex-col h-full overflow-hidden" style={{ background: 'var(--bg)' }}>
         <TopAppBar />
         <div className="flex-1 flex flex-col overflow-hidden relative">
           {renderScreen()}
