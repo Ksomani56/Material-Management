@@ -8,7 +8,7 @@ export const MaterialDetailScreen: React.FC = () => {
   const [filterQuery, setFilterQuery] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const filteredMappings = currentMaterial.mappings.filter(m => 
+  const filteredMappings = currentMaterial.mappings.filter(m =>
     !filterQuery.trim() ||
     m.cpse.toLowerCase().includes(filterQuery.toLowerCase()) ||
     m.localCode.toLowerCase().includes(filterQuery.toLowerCase()) ||
@@ -31,12 +31,12 @@ export const MaterialDetailScreen: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col h-full overflow-y-auto" style={{ background: 'var(--bg)' }}>
       {/* Detail Header Bar */}
-      <header 
+      <header
         className="sticky top-0 z-40 px-6 h-14 flex items-center justify-between shrink-0"
         style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}
       >
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => setActiveScreen('master')}
             className="flex items-center gap-1.5 transition-colors hover:opacity-80"
             style={{ color: 'var(--text-secondary)' }}
@@ -44,9 +44,9 @@ export const MaterialDetailScreen: React.FC = () => {
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             <span className="text-xs font-semibold">Back to Catalog</span>
           </button>
-          
+
           <div className="h-4 w-px" style={{ background: 'var(--border)' }} />
-          
+
           <div className="font-mono text-xs flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
             <span className="font-bold" style={{ color: 'var(--blue)' }}>{currentMaterial.cnmc}</span>
           </div>
@@ -64,7 +64,7 @@ export const MaterialDetailScreen: React.FC = () => {
             </span>
           </button>
 
-          <button 
+          <button
             onClick={() => openEvidence(currentMaterial)}
             className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 hover:opacity-80"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
@@ -72,8 +72,8 @@ export const MaterialDetailScreen: React.FC = () => {
             <span className="material-symbols-outlined text-[16px]">visibility</span>
             View Evidence
           </button>
-          
-          <button 
+
+          <button
             onClick={() => addToast('info', `Profile Editor: Specifications for ${currentMaterial.cnmc} are governed under MoPNG Taxonomy.`)}
             className="px-4 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center gap-1.5 hover:brightness-110"
             style={{ background: 'var(--blue)', color: '#fff' }}
@@ -89,7 +89,7 @@ export const MaterialDetailScreen: React.FC = () => {
         {/* Left Column: Primary Data (9 columns) */}
         <div className="col-span-12 xl:col-span-9 flex flex-col gap-6">
           {/* Entity Header Card */}
-          <section 
+          <section
             className="rounded-xl p-6 relative"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
@@ -100,14 +100,14 @@ export const MaterialDetailScreen: React.FC = () => {
                     {currentMaterial.cnmc}
                   </span>
                   <StatusBadge status={status} size="sm" />
-                  <span 
+                  <span
                     className="font-mono text-xs px-2.5 py-0.5 rounded font-semibold"
                     style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
                   >
                     Version {currentMaterial.version}
                   </span>
                 </div>
-                
+
                 <h1 className="text-lg font-semibold leading-snug" style={{ color: 'var(--text-primary)' }}>
                   {currentMaterial.canonicalDescription}
                 </h1>
@@ -140,7 +140,7 @@ export const MaterialDetailScreen: React.FC = () => {
           </section>
 
           {/* Technical Specifications Grid */}
-          <section 
+          <section
             className="rounded-xl p-6 space-y-4"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
@@ -153,7 +153,7 @@ export const MaterialDetailScreen: React.FC = () => {
                   Normalized attribute values synthesized from enterprise standards
                 </p>
               </div>
-              <span 
+              <span
                 className="font-mono text-xs px-2.5 py-1 rounded"
                 style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
               >
@@ -163,8 +163,8 @@ export const MaterialDetailScreen: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {Object.entries(specs).map(([key, value]) => (
-                <div 
-                  key={key} 
+                <div
+                  key={key}
                   className="p-3.5 rounded-lg"
                   style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
                 >
@@ -180,11 +180,11 @@ export const MaterialDetailScreen: React.FC = () => {
           </section>
 
           {/* Mapped CPSE Enterprise Codes */}
-          <section 
+          <section
             className="rounded-xl overflow-hidden"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
-            <div 
+            <div
               className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
               style={{ borderBottom: '1px solid var(--border)' }}
             >
@@ -197,13 +197,13 @@ export const MaterialDetailScreen: React.FC = () => {
                 </p>
               </div>
 
-              <div 
+              <div
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg w-full sm:w-64"
                 style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}
               >
                 <span className="material-symbols-outlined text-[16px]" style={{ color: 'var(--text-muted)' }}>search</span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder="Filter by CPSE or Code..."
@@ -228,7 +228,7 @@ export const MaterialDetailScreen: React.FC = () => {
                   {filteredMappings.map((m, idx) => (
                     <tr key={idx} className="hover:opacity-90 transition-opacity">
                       <td className="p-3.5 font-sans font-bold" style={{ color: 'var(--text-primary)' }}>
-                        <span 
+                        <span
                           className="px-2 py-0.5 rounded text-xs mr-2 font-mono"
                           style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
                         >
@@ -261,14 +261,14 @@ export const MaterialDetailScreen: React.FC = () => {
         {/* Right Column: Metadata & Governance (3 columns) */}
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-6">
           {/* Metadata Card */}
-          <section 
+          <section
             className="rounded-xl p-5 space-y-4"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
             <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
               Catalog Metadata
             </h3>
-            
+
             <div className="space-y-3 text-xs">
               <div>
                 <span className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Lead Steward</span>
@@ -292,7 +292,7 @@ export const MaterialDetailScreen: React.FC = () => {
           </section>
 
           {/* Quick Actions Card */}
-          <section 
+          <section
             className="rounded-xl p-5 space-y-3"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
@@ -300,7 +300,7 @@ export const MaterialDetailScreen: React.FC = () => {
               Governance Actions
             </h3>
             <div className="space-y-2 text-xs">
-              <button 
+              <button
                 onClick={() => addToast('info', `Export initiated for ${currentMaterial.cnmc}`)}
                 className="w-full py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80"
                 style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
@@ -308,7 +308,7 @@ export const MaterialDetailScreen: React.FC = () => {
                 <span className="material-symbols-outlined text-[16px]">file_download</span>
                 Export Spec Sheet (PDF)
               </button>
-              <button 
+              <button
                 onClick={() => addToast('warning', `Item flagged for committee re-inspection`)}
                 className="w-full py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80"
                 style={{ background: 'var(--warn-dim)', border: '1px solid rgba(245,158,11,0.3)', color: 'var(--warning)' }}

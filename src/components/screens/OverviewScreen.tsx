@@ -72,10 +72,10 @@ const AreaChart: React.FC = () => {
         className="w-full h-full"
       >
         <defs>
-          {/* Electric Violet gradient */}
+          {/* Emerald Teal gradient */}
           <linearGradient id="v0VioletGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+            <stop offset="0%" stopColor="#10B981" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
           </linearGradient>
         </defs>
 
@@ -88,54 +88,58 @@ const AreaChart: React.FC = () => {
               x2={W - padR}
               y2={toY(val)}
               stroke="rgba(255, 255, 255, 0.05)"
-              strokeWidth="1"
+              strokeDasharray="4 4"
             />
             <text
               x={padL - 8}
               y={toY(val) + 4}
-              textAnchor="end"
+              fill="#71717a"
               fontSize="11"
-              fill="#52525b"
-              fontFamily="Inter, sans-serif"
+              fontFamily="monospace"
+              textAnchor="end"
             >
               ${val}k
             </text>
           </g>
         ))}
 
-        {/* X-axis labels */}
+        {/* X Axis Labels */}
         {months.map((m, i) => (
           <text
             key={m.label}
             x={toX(i)}
-            y={H - 10}
-            textAnchor="middle"
+            y={H - 8}
+            fill="#71717a"
             fontSize="11"
-            fill="#52525b"
-            fontFamily="Inter, sans-serif"
+            fontFamily="monospace"
+            textAnchor="middle"
           >
             {m.label}
           </text>
         ))}
 
-        {/* Violet Area Gradient Fill */}
-        <path d={areaRevenue} fill="url(#v0VioletGrad)" />
+        {/* Area fill */}
+        <path
+          d={areaRevenue}
+          fill="url(#v0VioletGrad)"
+        />
 
-        {/* Target Line (Emerald Green) */}
+        {/* Target Line (Muted Gray) */}
         <path
           d={pathTarget}
           fill="none"
-          stroke="#10b981"
+          stroke="rgba(255, 255, 255, 0.2)"
           strokeWidth="2"
+          strokeDasharray="4 4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
 
-        {/* Revenue Line (Electric Violet) */}
+        {/* Revenue Line (Emerald Teal) */}
         <path
           d={pathRevenue}
           fill="none"
-          stroke="#8b5cf6"
+          stroke="#10B981"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -167,8 +171,8 @@ const AreaChart: React.FC = () => {
           if (m.label !== tooltip.label) return null;
           return (
             <g key="marker">
-              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#8b5cf6" stroke="#000000" strokeWidth="2" />
-              <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#000000" strokeWidth="1.5" />
+              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#10B981" stroke="#0F1110" strokeWidth="2" />
+              <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#0F1110" strokeWidth="1.5" />
             </g>
           );
         })}
@@ -182,19 +186,19 @@ const AreaChart: React.FC = () => {
             left: `${(tooltip.x / W) * 100}%`,
             top: `${(Math.max(0, tooltip.y - 45) / H) * 100}%`,
             transform: 'translateX(-50%)',
-            background: '#09090b',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            background: '#171A18',
+            border: '1px solid #303532',
             boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
           }}
         >
           <div className="font-semibold text-white mb-1.5">{tooltip.label}</div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#8b5cf6' }} />
-            <span className="text-[#a1a1aa]">Revenue: <strong className="text-white">{tooltip.v1}</strong></span>
+            <span className="w-2 h-2 rounded-full" style={{ background: '#10B981' }} />
+            <span className="text-[#A7ADA9]">Revenue: <strong className="text-white">{tooltip.v1}</strong></span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
-            <span className="text-[#a1a1aa]">Target: <strong className="text-white">{tooltip.v2}</strong></span>
+            <span className="w-2 h-2 rounded-full" style={{ background: '#10B981' }} />
+            <span className="text-[#A7ADA9]">Target: <strong className="text-white">{tooltip.v2}</strong></span>
           </div>
         </div>
       )}
@@ -276,16 +280,16 @@ export const OverviewScreen: React.FC = () => {
   ];
 
   const pipelineStages = [
-    { name: 'Lead', count: 892, pct: 45, color: '#8b5cf6' },
+    { name: 'Lead', count: 892, pct: 45, color: '#10B981' },
     { name: 'Qualified', count: 556, pct: 28, color: '#10b981' },
-    { name: 'Proposal', count: 357, pct: 18, color: '#f59e0b' },
+    { name: 'Proposal', count: 357, pct: 18, color: '#EAB308' },
     { name: 'Negotiation', count: 179, pct: 9, color: '#34d399' },
   ];
 
   return (
     <main
       className="flex-1 overflow-y-auto p-6 space-y-6"
-      style={{ background: '#000000' }}
+      style={{ background: '#0F1110' }}
     >
       {/* 1. Top Row of 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -325,8 +329,8 @@ export const OverviewScreen: React.FC = () => {
         <div
           className="col-span-12 lg:col-span-8 rounded-xl p-6"
           style={{
-            background: '#09090b',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#171A18',
+            border: '1px solid #303532',
           }}
         >
           {/* Header & Legend matching template */}
@@ -335,7 +339,7 @@ export const OverviewScreen: React.FC = () => {
               <h2 className="text-base font-semibold text-white tracking-tight">
                 Revenue Trend
               </h2>
-              <p className="text-xs text-[#71717a] mt-0.5">
+              <p className="text-xs text-[#A7ADA9] mt-0.5">
                 Monthly performance vs target
               </p>
             </div>
@@ -343,12 +347,12 @@ export const OverviewScreen: React.FC = () => {
             {/* Legend */}
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#8b5cf6' }} />
-                <span className="text-[#a1a1aa]">Revenue</span>
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10B981' }} />
+                <span className="text-[#A7ADA9]">Revenue</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10b981' }} />
-                <span className="text-[#a1a1aa]">Target</span>
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10B981' }} />
+                <span className="text-[#A7ADA9]">Target</span>
               </div>
             </div>
           </div>
@@ -360,8 +364,8 @@ export const OverviewScreen: React.FC = () => {
         <div
           className="col-span-12 lg:col-span-4 rounded-xl p-6 flex flex-col justify-between"
           style={{
-            background: '#09090b',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#171A18',
+            border: '1px solid #303532',
           }}
         >
           <div>
@@ -423,21 +427,21 @@ export const OverviewScreen: React.FC = () => {
         <div
           className="col-span-12 lg:col-span-7 rounded-xl p-6"
           style={{
-            background: '#09090b',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#171A18',
+            border: '1px solid #303532',
           }}
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-base font-semibold text-white tracking-tight">
+              <h2 className="text-base font-semibold text-[#F3F4F6] tracking-tight">
                 Recent Deals
               </h2>
-              <p className="text-xs text-[#71717a] mt-0.5">Latest activity</p>
+              <p className="text-xs text-[#A7ADA9] mt-0.5">Latest activity</p>
             </div>
             <button
               onClick={() => setActiveScreen('review')}
               className="text-xs font-semibold flex items-center gap-1 hover:underline"
-              style={{ color: '#10b981' }}
+              style={{ color: '#10B981' }}
             >
               View all <span className="material-symbols-outlined text-[14px]">arrow_outward</span>
             </button>
@@ -446,10 +450,10 @@ export const OverviewScreen: React.FC = () => {
           <div className="space-y-3">
             {recentDeals.map((deal, idx) => {
               const statusCfg = {
-                Won: { border: 'rgba(16, 185, 129, 0.25)', color: '#10b981', icon: 'check_circle' },
-                Pending: { border: 'rgba(245, 158, 11, 0.25)', color: '#f59e0b', icon: 'schedule' },
-                Lost: { border: 'rgba(244, 63, 94, 0.25)', color: '#f43f5e', icon: 'cancel' },
-              }[deal.status] || { border: 'transparent', color: '#a1a1aa', icon: 'info' };
+                Won: { border: 'rgba(16, 185, 129, 0.25)', color: '#10B981', icon: 'check_circle' },
+                Pending: { border: 'rgba(234, 179, 8, 0.25)', color: '#EAB308', icon: 'schedule' },
+                Lost: { border: 'rgba(239, 68, 68, 0.25)', color: '#EF4444', icon: 'cancel' },
+              }[deal.status] || { border: 'transparent', color: '#A7ADA9', icon: 'info' };
 
               return (
                 <div
@@ -462,19 +466,19 @@ export const OverviewScreen: React.FC = () => {
                       className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs text-white"
                       style={{
                         background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        border: '1px solid #303532',
                       }}
                     >
                       {deal.initial}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{deal.name}</p>
-                      <p className="text-xs text-[#71717a]">{deal.sub}</p>
+                      <p className="text-sm font-semibold text-[#F3F4F6]">{deal.name}</p>
+                      <p className="text-xs text-[#A7ADA9]">{deal.sub}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className="text-sm font-bold text-white font-mono">
+                    <span className="text-sm font-bold text-[#F3F4F6] font-mono">
                       {deal.amount}
                     </span>
                     <span
@@ -501,18 +505,18 @@ export const OverviewScreen: React.FC = () => {
         <div
           className="col-span-12 lg:col-span-5 rounded-xl p-6"
           style={{
-            background: '#09090b',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#171A18',
+            border: '1px solid #303532',
           }}
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-base font-semibold text-white tracking-tight">
+              <h2 className="text-base font-semibold text-[#F3F4F6] tracking-tight">
                 Top Performers
               </h2>
-              <p className="text-xs text-[#71717a] mt-0.5">This month's leaders</p>
+              <p className="text-xs text-[#A7ADA9] mt-0.5">This month's leaders</p>
             </div>
-            <span className="material-symbols-outlined text-[20px] text-[#f59e0b]">
+            <span className="material-symbols-outlined text-[20px] text-[#EAB308]">
               emoji_events
             </span>
           </div>
@@ -531,8 +535,8 @@ export const OverviewScreen: React.FC = () => {
                     {/* Circular Teal Avatar with Rank Badge */}
                     <div className="relative">
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm"
-                        style={{ background: '#7c3aed' }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-[#0F1110] shadow-sm"
+                        style={{ background: '#10B981' }}
                       >
                         {p.initial}
                       </div>

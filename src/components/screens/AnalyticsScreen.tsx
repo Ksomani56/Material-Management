@@ -47,18 +47,18 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, badge, badgeType, spark
   <div
     className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
     style={{
-      background: '#09090b',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
+      background: '#171A18',
+      border: '1px solid #303532',
     }}
   >
     <div className="flex items-center justify-between mb-2">
-      <span className="text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-[#A7ADA9]">{label}</span>
       <span
         className="text-xs font-bold px-2.5 py-0.5 rounded-full font-mono flex items-center gap-0.5"
         style={{
-          background: badgeType === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(139, 92, 246, 0.15)',
-          color: badgeType === 'success' ? '#10b981' : '#8b5cf6',
-          border: `1px solid ${badgeType === 'success' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`,
+          background: badgeType === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+          color: badgeType === 'success' ? '#10B981' : '#3B82F6',
+          border: `1px solid ${badgeType === 'success' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
         }}
       >
         <span className="material-symbols-outlined text-[12px]">trending_up</span>
@@ -70,7 +70,7 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, badge, badgeType, spark
       <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-none">
         {value}
       </span>
-      <Sparkline data={sparklineData} color="#8b5cf6" />
+      <Sparkline data={sparklineData} color="#10B981" />
     </div>
   </div>
 );
@@ -239,33 +239,33 @@ const ProcurementMultiSeriesChart: React.FC = () => {
                 />
               )}
 
-              {/* Bar 1: ONGC (Electric Violet #8b5cf6) */}
+              {/* Bar 1: ONGC (Emerald Teal #10B981) */}
               <rect
                 x={startX}
                 y={padT + innerH - ongcH}
                 width={barW}
                 height={ongcH}
-                fill="#8b5cf6"
+                fill="#10B981"
                 rx="4"
               />
 
-              {/* Bar 2: IOCL (Purple #a855f7) */}
+              {/* Bar 2: IOCL (Info Blue #3B82F6) */}
               <rect
                 x={startX + barW + barGap}
                 y={padT + innerH - ioclH}
                 width={barW}
                 height={ioclH}
-                fill="#a855f7"
+                fill="#3B82F6"
                 rx="4"
               />
 
-              {/* Bar 3: GAIL (Soft Lavender #c4b5fd) */}
+              {/* Bar 3: GAIL (Muted Sage #A7ADA9) */}
               <rect
                 x={startX + (barW + barGap) * 2}
                 y={padT + innerH - gailH}
                 width={barW}
                 height={gailH}
-                fill="#c4b5fd"
+                fill="#A7ADA9"
                 rx="4"
               />
 
@@ -276,7 +276,7 @@ const ProcurementMultiSeriesChart: React.FC = () => {
                 textAnchor="middle"
                 fontSize="12"
                 fontWeight="600"
-                fill={hoveredQuarter === i ? '#ffffff' : '#a1a1aa'}
+                fill={hoveredQuarter === i ? '#F3F4F6' : '#A7ADA9'}
                 fontFamily="Inter, sans-serif"
               >
                 {q.name}
@@ -295,11 +295,11 @@ const ProcurementMultiSeriesChart: React.FC = () => {
           strokeLinejoin="round"
         />
 
-        {/* Trendline 2: Violet Curve (Realized Savings) */}
+        {/* Trendline 2: Teal Curve (Realized Savings) */}
         <path
           d={savingsPath}
           fill="none"
-          stroke="#8b5cf6"
+          stroke="#10B981"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -308,20 +308,20 @@ const ProcurementMultiSeriesChart: React.FC = () => {
         {/* Indicator marker dots on selected quarter */}
         {activePt && (
           <g>
-            <circle cx={activePt.x} cy={activePt.y} r="5" fill="#ffffff" stroke="#000000" strokeWidth="2" />
+            <circle cx={activePt.x} cy={activePt.y} r="5" fill="#ffffff" stroke="#0F1110" strokeWidth="2" />
             <circle
               cx={savingsPts[hoveredQuarter !== null ? hoveredQuarter : 2].x}
               cy={savingsPts[hoveredQuarter !== null ? hoveredQuarter : 2].y}
               r="5"
-              fill="#8b5cf6"
-              stroke="#000000"
+              fill="#10B981"
+              stroke="#0F1110"
               strokeWidth="2"
             />
           </g>
         )}
       </svg>
 
-      {/* Floating Detailed Popover Card matching Purple Mockup */}
+      {/* Floating Detailed Popover Card matching Charcoal Mockup */}
       {activeQ && (
         <div
           className="absolute z-20 rounded-xl p-3 shadow-2xl transition-all duration-150 pointer-events-none"
@@ -329,43 +329,43 @@ const ProcurementMultiSeriesChart: React.FC = () => {
             left: `${((padL + (hoveredQuarter !== null ? hoveredQuarter : 2) * quarterWidth + quarterWidth / 2) / W) * 100}%`,
             top: '8%',
             transform: 'translateX(-50%)',
-            background: '#0e0e13',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 16px rgba(139, 92, 246, 0.15)',
+            background: '#171A18',
+            border: '1px solid #303532',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8)',
             minWidth: '170px',
           }}
         >
           <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10">
             <span className="text-xs font-bold text-white">{activeQ.name} Procurement Detail</span>
-            <TextShimmer duration={2.2} className="text-[10px] font-mono font-bold text-[#8b5cf6]">
+            <TextShimmer duration={2.2} className="text-[10px] font-mono font-bold text-[#10B981]">
               Pooled
             </TextShimmer>
           </div>
 
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[#a1a1aa]">
-                <span className="w-2 h-2 rounded-sm" style={{ background: '#8b5cf6' }} /> ONGC:
+              <span className="flex items-center gap-1.5 text-[#A7ADA9]">
+                <span className="w-2 h-2 rounded-sm" style={{ background: '#10B981' }} /> ONGC:
               </span>
               <span className="font-bold text-white">{activeQ.ongcLabel}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[#a1a1aa]">
-                <span className="w-2 h-2 rounded-sm" style={{ background: '#a855f7' }} /> IOCL:
+              <span className="flex items-center gap-1.5 text-[#A7ADA9]">
+                <span className="w-2 h-2 rounded-sm" style={{ background: '#3B82F6' }} /> IOCL:
               </span>
               <span className="font-bold text-white">{activeQ.ioclLabel}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[#a1a1aa]">
-                <span className="w-2 h-2 rounded-sm" style={{ background: '#c4b5fd' }} /> GAIL:
+              <span className="flex items-center gap-1.5 text-[#A7ADA9]">
+                <span className="w-2 h-2 rounded-sm" style={{ background: '#A7ADA9' }} /> GAIL:
               </span>
               <span className="font-bold text-white">{activeQ.gailLabel}</span>
             </div>
           </div>
 
           <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-between text-xs">
-            <span className="text-[#a1a1aa]">Total Savings:</span>
-            <span className="font-bold text-[#8b5cf6] font-mono">{activeQ.savingsLabel}</span>
+            <span className="text-[#A7ADA9]">Total Savings:</span>
+            <span className="font-bold text-[#10B981] font-mono">{activeQ.savingsLabel}</span>
           </div>
         </div>
       )}
@@ -428,14 +428,14 @@ export const AnalyticsScreen: React.FC = () => {
   ];
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6" style={{ background: '#000000' }}>
+    <main className="flex-1 overflow-y-auto p-6 space-y-6" style={{ background: '#0F1110' }}>
       {/* 1. Header with Breadcrumb & Quick Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-white">
             National Unified Material Master - Analytics &amp; Savings
           </h1>
-          <p className="text-xs text-[#a1a1aa] mt-0.5">
+          <p className="text-xs text-[#A7ADA9] mt-0.5">
             Inter-enterprise procurement pooling, volume discounts, and price harmonization
           </p>
         </div>
@@ -444,16 +444,16 @@ export const AnalyticsScreen: React.FC = () => {
           <button
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:bg-white/10"
             style={{
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#171A18',
+              border: '1px solid #303532',
             }}
           >
             <span className="material-symbols-outlined text-[16px]">filter_list</span>
             Filters
           </button>
           <button
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:brightness-110 shadow-sm"
-            style={{ background: '#8b5cf6' }}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#0F1110] transition-all hover:brightness-110 shadow-sm font-bold"
+            style={{ background: '#10B981' }}
           >
             <span className="material-symbols-outlined text-[16px]">calendar_today</span>
             Quarters (2024)
@@ -497,8 +497,8 @@ export const AnalyticsScreen: React.FC = () => {
       <div
         className="rounded-xl p-6 space-y-4"
         style={{
-          background: '#09090b',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#171A18',
+          border: '1px solid #303532',
         }}
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -506,32 +506,32 @@ export const AnalyticsScreen: React.FC = () => {
             <h2 className="text-base font-bold text-white tracking-tight">
               Multi-Series Procurement Analytics
             </h2>
-            <p className="text-xs text-[#71717a] mt-0.5">
+            <p className="text-xs text-[#A7ADA9] mt-0.5">
               Quarterly spend pooling breakdown across public sector energy enterprises
             </p>
           </div>
 
-          {/* Legend Items matching Purple Concept */}
+          {/* Legend Items matching Charcoal Concept */}
           <div className="flex flex-wrap items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#8b5cf6' }} />
-              <span className="text-[#a1a1aa]">ONGC</span>
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#10B981' }} />
+              <span className="text-[#A7ADA9]">ONGC</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#a855f7' }} />
-              <span className="text-[#a1a1aa]">IOCL</span>
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#3B82F6' }} />
+              <span className="text-[#A7ADA9]">IOCL</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#c4b5fd' }} />
-              <span className="text-[#a1a1aa]">GAIL</span>
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#A7ADA9' }} />
+              <span className="text-[#A7ADA9]">GAIL</span>
             </div>
             <div className="flex items-center gap-1.5 pl-2 border-l border-white/10">
               <span className="w-4 h-0.5" style={{ background: '#ffffff' }} />
               <span className="text-white font-medium">Total Spend</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-4 h-0.5" style={{ background: '#8b5cf6' }} />
-              <span className="text-[#8b5cf6] font-medium">Total Savings</span>
+              <span className="w-4 h-0.5" style={{ background: '#10B981' }} />
+              <span className="text-[#10B981] font-medium">Total Savings</span>
             </div>
           </div>
         </div>
@@ -544,8 +544,8 @@ export const AnalyticsScreen: React.FC = () => {
       <div
         className="rounded-xl overflow-hidden"
         style={{
-          background: '#09090b',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#171A18',
+          border: '1px solid #303532',
         }}
       >
         <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10">
@@ -553,7 +553,7 @@ export const AnalyticsScreen: React.FC = () => {
             <h2 className="text-base font-bold text-white tracking-tight">
               Material Catalog &amp; Price Variance
             </h2>
-            <p className="text-xs text-[#71717a] mt-0.5">
+            <p className="text-xs text-[#A7ADA9] mt-0.5">
               Consolidated items with inter-enterprise price differences and active status
             </p>
           </div>
@@ -561,13 +561,13 @@ export const AnalyticsScreen: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:bg-white/10 transition-colors"
-              style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+              style={{ background: '#121513', border: '1px solid #303532' }}
             >
               Export CSV
             </button>
             <button
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:brightness-110 transition-all shadow-sm"
-              style={{ background: '#8b5cf6' }}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#0F1110] hover:brightness-110 transition-all shadow-sm"
+              style={{ background: '#10B981' }}
             >
               Add Material
             </button>

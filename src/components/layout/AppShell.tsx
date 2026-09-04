@@ -79,8 +79,8 @@ export const AppShell: React.FC = () => {
     <aside
       className={`fixed top-0 left-0 h-screen z-40 flex flex-col justify-between transition-all duration-200 select-none ${width}`}
       style={{
-        background: '#000000',
-        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+        background: '#0F1110',
+        borderRight: '1px solid #303532',
       }}
     >
       {/* Top Brand Header */}
@@ -88,14 +88,14 @@ export const AppShell: React.FC = () => {
         <div
           onClick={() => setActiveScreen('landing')}
           className="flex items-center gap-3 px-4 h-14 cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
+          style={{ borderBottom: '1px solid #303532' }}
         >
           {/* Logo icon box matching template */}
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
             style={{
-              background: '#ffffff',
-              color: '#000000',
+              background: '#10B981',
+              color: '#0F1110',
             }}
           >
             <span className="material-symbols-outlined icon-fill text-[20px]">
@@ -105,10 +105,10 @@ export const AppShell: React.FC = () => {
 
           {!sidebarCollapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-white tracking-tight truncate leading-tight">
+              <p className="text-sm font-bold text-[#F3F4F6] tracking-tight truncate leading-tight">
                 National Master
               </p>
-              <p className="text-[10px] text-[#71717a] truncate font-mono">
+              <p className="text-[10px] text-[#A7ADA9] truncate font-mono">
                 SIH26099 · MoPNG
               </p>
             </div>
@@ -129,7 +129,7 @@ export const AppShell: React.FC = () => {
                     onClick={() => toggleSidebarGroup(group.id)}
                     className="w-full flex items-center justify-between px-2.5 py-1 text-left text-[11px] font-semibold uppercase tracking-wider transition-colors"
                     style={{
-                      color: groupHasActive ? '#ffffff' : '#71717a',
+                      color: groupHasActive ? '#F3F4F6' : '#A7ADA9',
                     }}
                   >
                     <span>{group.label}</span>
@@ -159,27 +159,27 @@ export const AppShell: React.FC = () => {
                         style={{
                           padding: sidebarCollapsed ? '9px 0' : '8px 12px',
                           justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                          background: active ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-                          color: active ? '#ffffff' : '#a1a1aa',
+                          background: active ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+                          color: active ? '#F3F4F6' : '#A7ADA9',
                           fontWeight: active ? 500 : 400,
                         }}
                         onMouseEnter={(e) => {
                           if (!active) {
                             e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                            e.currentTarget.style.color = '#ffffff';
+                            e.currentTarget.style.color = '#F3F4F6';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!active) {
                             e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = '#a1a1aa';
+                            e.currentTarget.style.color = '#A7ADA9';
                           }
                         }}
                       >
                         <span
                           className="material-symbols-outlined text-[19px] shrink-0"
                           style={{
-                            color: active ? '#8b5cf6' : '#71717a',
+                            color: active ? '#10B981' : '#A7ADA9',
                           }}
                         >
                           {item.icon}
@@ -195,8 +195,8 @@ export const AppShell: React.FC = () => {
                           <span
                             className="text-[10px] font-bold px-1.5 py-0.2 rounded-full font-mono shrink-0"
                             style={{
-                              background: 'rgba(245, 158, 11, 0.15)',
-                              color: '#f59e0b',
+                              background: 'rgba(234, 179, 8, 0.15)',
+                              color: '#EAB308',
                             }}
                           >
                             {item.badge}
@@ -215,11 +215,11 @@ export const AppShell: React.FC = () => {
       {/* Bottom Collapse Button matching template */}
       <div
         className="p-2 shrink-0"
-        style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}
+        style={{ borderTop: '1px solid #303532' }}
       >
         <button
           onClick={toggleSidebar}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#71717a] hover:text-white hover:bg-white/5 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#A7ADA9] hover:text-[#F3F4F6] hover:bg-white/5 transition-colors"
           style={{ justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}
         >
           <span className="material-symbols-outlined text-[18px]">

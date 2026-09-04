@@ -3,59 +3,64 @@
 @tailwind utilities;
 
 /* =======================================================================
-   ELECTRIC VIOLET & PURE BLACK DESIGN SYSTEM
-   Inspired by Raycast, Linear AI & Modern Tech Dark Mode
+   CHARCOAL + TEAL/GREEN INDUSTRIAL DESIGN SYSTEM
+   Government + Industrial + Trustworthy
    ======================================================================= */
 
 :root, html.dark {
   color-scheme: dark;
-  /* Pure Pitch Black Canvas & Obsidian Cards */
-  --bg:              #000000;
-  --bg-surface:      #000000;
-  --bg-card:         #09090b;
-  --bg-sidebar:      #000000;
-  --bg-hover:        rgba(255, 255, 255, 0.05);
-  --bg-active:       rgba(139, 92, 246, 0.12);
-  --bg-input:        #0e0e12;
+  /* Charcoal Canvas & Panels */
+  --bg:              #0F1110;
+  --bg-surface:      #171A18;
+  --bg-card:         #171A18;
+  --bg-sidebar:      #0F1110;
+  --bg-hover:        rgba(255, 255, 255, 0.04);
+  --bg-active:       rgba(16, 185, 129, 0.12);
+  --bg-input:        #121513;
 
-  /* Subtle Wireframe Borders */
-  --border:          rgba(255, 255, 255, 0.08);
-  --border-subtle:   rgba(255, 255, 255, 0.04);
-  --border-active:   rgba(139, 92, 246, 0.4);
+  /* Industrial Borders */
+  --border:          #303532;
+  --border-subtle:   rgba(48, 53, 50, 0.6);
+  --border-active:   #10B981;
 
   /* High-Contrast Typography */
-  --text-primary:    #ffffff;
-  --text-secondary:  #a1a1aa;
-  --text-muted:      #71717a;
+  --text-primary:    #F3F4F6;
+  --text-secondary:  #A7ADA9;
+  --text-muted:      #6B7280;
 
-  /* Electric Violet Palette */
-  --violet:          #8b5cf6;
-  --violet-hover:    #7c3aed;
-  --violet-dim:      rgba(139, 92, 246, 0.12);
-  --purple:          #a855f7;
-  --purple-dim:      rgba(168, 85, 247, 0.12);
-  --lavender:        #c4b5fd;
+  /* Primary Accent: Emerald / Teal Green */
+  --primary:         #10B981;
+  --primary-hover:   #059669;
+  --primary-dim:     rgba(16, 185, 129, 0.12);
 
-  /* Universal Status Indicators */
-  --success:         #10b981;
+  /* Semantic Status Indicators */
+  --success:         #10B981;
   --success-dim:     rgba(16, 185, 129, 0.12);
-  --warning:         #f59e0b;
-  --warning-dim:     rgba(245, 158, 11, 0.12);
-  --error:           #f43f5e;
-  --error-dim:       rgba(244, 63, 94, 0.12);
+  --warning:         #EAB308;
+  --warning-dim:     rgba(234, 179, 8, 0.12);
+  --error:           #EF4444;
+  --error-dim:       rgba(239, 68, 68, 0.12);
+  --info:            #3B82F6;
+  --info-dim:        rgba(59, 130, 246, 0.12);
 
-  /* Aliases mapped to Electric Violet */
-  --blue:            #8b5cf6;
-  --blue-dim:        rgba(139, 92, 246, 0.12);
-  --indigo:          #a855f7;
-  --indigo-dim:      rgba(168, 85, 247, 0.12);
-  --cyan:            #8b5cf6;
-  --cyan-dim:        rgba(139, 92, 246, 0.12);
-  --emerald:         #10b981;
+  /* Palette compatibility mappings */
+  --blue:            #10B981;
+  --blue-dim:        rgba(16, 185, 129, 0.12);
+  --indigo:          #3B82F6;
+  --indigo-dim:      rgba(59, 130, 246, 0.12);
+  --cyan:            #10B981;
+  --cyan-dim:        rgba(16, 185, 129, 0.12);
+  --emerald:         #10B981;
   --emerald-dim:     rgba(16, 185, 129, 0.12);
+  --violet:          #10B981;
+  --violet-hover:    #059669;
+  --violet-dim:      rgba(16, 185, 129, 0.12);
+  --purple:          #3B82F6;
+  --purple-dim:      rgba(59, 130, 246, 0.12);
+  --lavender:        #A7ADA9;
 
-  --shadow-card:     0 1px 3px rgba(0,0,0,0.8);
-  --shadow-elevated: 0 10px 30px -10px rgba(0,0,0,0.9);
+  --shadow-card:     0 1px 3px rgba(0,0,0,0.6);
+  --shadow-elevated: 0 10px 30px -10px rgba(0,0,0,0.8);
 }
 
 /* Light mode fallback */
@@ -74,24 +79,24 @@ html.light {
   --text-primary:    #09090b;
   --text-secondary:  #64748b;
   --text-muted:      #94a3b8;
-  --violet:          #7c3aed;
-  --violet-hover:    #6d28d9;
-  --violet-dim:      rgba(124, 58, 237, 0.10);
-  --purple:          #9333ea;
-  --purple-dim:      rgba(147, 51, 234, 0.10);
-  --lavender:        #8b5cf6;
+  --violet:          #059669;
+  --violet-hover:    #047857;
+  --violet-dim:      rgba(5, 150, 105, 0.10);
+  --purple:          #3B82F6;
+  --purple-dim:      rgba(59, 130, 246, 0.10);
+  --lavender:        #64748b;
   --success:         #059669;
   --success-dim:     rgba(5, 150, 105, 0.10);
   --warning:         #d97706;
   --warning-dim:     rgba(217, 119, 6, 0.10);
   --error:           #e11d48;
   --error-dim:       rgba(225, 29, 72, 0.10);
-  --blue:            #7c3aed;
-  --blue-dim:        rgba(124, 58, 237, 0.10);
-  --indigo:          #9333ea;
-  --indigo-dim:      rgba(147, 51, 234, 0.10);
-  --cyan:            #7c3aed;
-  --cyan-dim:        rgba(124, 58, 237, 0.10);
+  --blue:            #059669;
+  --blue-dim:        rgba(5, 150, 105, 0.10);
+  --indigo:          #3B82F6;
+  --indigo-dim:      rgba(59, 130, 246, 0.10);
+  --cyan:            #059669;
+  --cyan-dim:        rgba(5, 150, 105, 0.10);
   --emerald:         #059669;
   --emerald-dim:     rgba(5, 150, 105, 0.10);
 }
