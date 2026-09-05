@@ -226,14 +226,14 @@ html.light .bg-\[\#070908\] {
 /* Chrome surfaces: Sidebar & Top App Bar */
 html.light aside,
 html.light aside[class*="bg-"],
-html.light header,
-html.light header[class*="bg-"] {
+html.light header.app-header,
+html.light header:not(.landing-header)[class*="bg-"] {
   background-color: #FFFFFF !important;
   border-color: #E5E7EB !important;
 }
 
 /* Subtle shadows for depth — no jarring bg color differences */
-html.light header {
+html.light header:not(.landing-header) {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
 }
 html.light aside {

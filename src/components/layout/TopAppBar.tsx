@@ -18,7 +18,7 @@ export const TopAppBar: React.FC = () => {
         borderBottom: '1px solid var(--border)',
         color: 'var(--text-primary)',
       }}
-      className="flex items-center justify-between px-8 h-16 shrink-0 z-30"
+      className="app-header flex items-center justify-between px-8 h-16 shrink-0 z-30"
     >
       {/* Search Bar */}
       <div className="flex-1 max-w-xl">
