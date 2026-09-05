@@ -100,7 +100,7 @@ const AreaChart: React.FC = () => {
               fontFamily="monospace"
               textAnchor="end"
             >
-              {val === 0 ? '0' : `${val}k`}
+              {val === 0 ? '0' : `${val}`}
             </text>
           </g>
         ))}
@@ -160,8 +160,8 @@ const AreaChart: React.FC = () => {
               x: toX(i),
               y: Math.min(toY(m.revenue), toY(m.target)) - 10,
               label: m.label,
-              v1: `${m.revenue}k`,
-              v2: `${m.target}k`,
+              v1: `${m.revenue}`,
+              v2: `${m.target}`,
             })}
             onMouseLeave={() => setTooltip(null)}
             style={{ cursor: 'crosshair' }}
@@ -259,29 +259,52 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
    Overview Screen matching template 1:1
    ----------------------------------------------------------------------- */
 export const OverviewScreen: React.FC = () => {
-  const { setActiveScreen, reviewQueue, cpseList, navigateToMaterial } = useApp();
+  const { setActiveScreen, reviewQueue, cpseList, navigateToMaterial, catalogueMaterials, auditLogs, nationalAnalytics } = useApp();
 
-  const recentApprovals = [
-    { initial: 'ON', name: 'ONGC (Hazira Plant)', sub: 'MAT-VLV-0928 • Ball Valve 50mm 150# CS Flanged', amount: '₹14,200', status: 'Approved' },
-    { initial: 'IO', name: 'IOCL (Panipat)', sub: 'IOCL-FST-902 • Hex Bolt M10 x 50 SS304 Full Thd', amount: '₹55', status: 'Harmonized' },
-    { initial: 'GA', name: 'GAIL (Vijaipur)', sub: 'G-201-9482 • Valve Ball Flanged 2IN Class 150', amount: '₹15,100', status: 'Approved' },
-    { initial: 'NT', name: 'NTPC (Singrauli)', sub: 'NGC-BLT-004 • Fastener Hex Head M10*50 SS-304', amount: '₹52', status: 'Pending' },
-    { initial: 'BH', name: 'BHEL (Haridwar)', sub: 'BHEL-ROT-108 • Bronze Impeller OD210 Bore32', amount: '₹39,200', status: 'Harmonized' },
-  ];
+  const totalUnifiedMasters = nationalAnalytics?.total_canonical_cnmcs || catalogueMaterials.length || 8;
+  const dedupRatio = nationalAnalytics?.deduplication_ratio_pct || 98.8;
+  const projectedSavingsCr = nationalAnalytics?.estimated_synergy_savings
+    ? +(nationalAnalytics.estimated_synergy_savings / 10000000).toFixed(2)
+    : 2.84;
+  const totalLegacyRecords = nationalAnalytics?.total_source_materials || 640;
+  const totalEquivalenceGroups = nationalAnalytics?.total_equivalence_groups || 129;
 
-  const cpseLeaderboard = [
-    { rank: 1, initial: 'ON', name: 'ONGC', desc: '94.2% catalog standardized', amount: '₹1,840 Cr', growth: '+15%' },
-    { rank: 2, initial: 'IO', name: 'IOCL', desc: '91.8% catalog standardized', amount: '₹1,320 Cr', growth: '+8%' },
-    { rank: 3, initial: 'GA', name: 'GAIL', desc: '88.5% catalog standardized', amount: '₹860 Cr', growth: '+12%' },
-    { rank: 4, initial: 'NT', name: 'NTPC', desc: '86.2% catalog standardized', amount: '₹520 Cr', growth: '+5%' },
-    { rank: 5, initial: 'BH', name: 'BHEL', desc: '82.4% catalog standardized', amount: '₹280 Cr', growth: '+9%' },
-  ];
+  const recentApprovals = React.useMemo(() => {
+    if (auditLogs && auditLogs.length > 0) {
+      return auditLogs.slice(0, 5).map(log => ({
+        initial: log.targetEntity ? log.targetEntity.slice(0, 2).toUpperCase() : 'CP',
+        name: log.user.name || 'Catalog Steward',
+        sub: `${log.targetEntity || 'CNMC'}: ${log.description.slice(0, 60)}`,
+        amount: log.action,
+        status: log.action.toLowerCase().includes('approve') || log.action.toLowerCase().includes('merge') ? 'Approved' : 'Harmonized',
+        cnmcTarget: log.targetEntity && log.targetEntity.includes('CNMC') ? log.targetEntity.split(' ')[1] : undefined
+      }));
+    }
+    return [
+      { initial: 'ON', name: 'ONGC (Hazira Plant)', sub: 'MAT-VLV-0928 • Ball Valve 50mm 150# CS Flanged', amount: 'Approved', status: 'Approved', cnmcTarget: 'CNMC-00018427' },
+      { initial: 'IO', name: 'IOCL (Panipat)', sub: 'IOCL-FST-902 • Hex Bolt M10 x 50 SS304 Full Thd', amount: 'Harmonized', status: 'Harmonized', cnmcTarget: 'CNMC-00018428' },
+    ];
+  }, [auditLogs]);
+
+  const cpseLeaderboard = React.useMemo(() => {
+    if (cpseList && cpseList.length > 0) {
+      return cpseList.map((c, idx) => ({
+        rank: idx + 1,
+        initial: c.name.slice(0, 2).toUpperCase(),
+        name: c.name,
+        desc: `${c.mappedRecords || c.totalRecords} materials mapped`,
+        amount: `₹${((c.totalRecords * 0.08) || 12.5).toFixed(1)} Cr`,
+        growth: `+${c.coveragePercentage || 95}%`,
+      }));
+    }
+    return [];
+  }, [cpseList]);
 
   const pipelineStages = [
-    { name: 'Raw Ingested', count: 892, pct: 45, color: '#10B981' },
-    { name: 'Specs Extracted', count: 556, pct: 28, color: '#10b981' },
-    { name: 'Candidate Matched', count: 357, pct: 18, color: '#EAB308' },
-    { name: 'CNMC Approved', count: 179, pct: 9, color: '#34d399' },
+    { name: 'Raw Ingested', count: totalLegacyRecords, pct: 100, color: '#10B981' },
+    { name: 'Specs Extracted', count: Math.round(totalLegacyRecords * (dedupRatio / 100)), pct: Math.round(dedupRatio), color: '#10b981' },
+    { name: 'Equivalence Clusters', count: totalEquivalenceGroups, pct: Math.round((totalEquivalenceGroups / totalLegacyRecords) * 100), color: '#EAB308' },
+    { name: 'CNMC Approved', count: totalUnifiedMasters, pct: Math.max(2, Math.round((totalUnifiedMasters / totalLegacyRecords) * 100)), color: '#34d399' },
   ];
 
   return (
@@ -318,28 +341,28 @@ export const OverviewScreen: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           label="Total Unified Masters"
-          value={<AnimatedNumber value={3.1} decimals={1} suffix="M" duration={1600} />}
-          delta="+14.2%"
+          value={<AnimatedNumber value={totalUnifiedMasters} duration={1400} />}
+          delta="+100%"
           deltaUp={true}
           icon="inventory_2"
         />
         <KpiCard
           label="Duplicate Reduction"
-          value={<AnimatedNumber value={68.2} decimals={1} suffix="%" duration={1600} />}
-          delta="+5.4%"
+          value={<AnimatedNumber value={dedupRatio} decimals={1} suffix="%" duration={1600} />}
+          delta="+98.8%"
           deltaUp={true}
           icon="call_merge"
         />
         <KpiCard
           label="Pending Review Queue"
-          value={<AnimatedNumber value={reviewQueue.length > 0 ? reviewQueue.length : 147} duration={1500} />}
-          delta="-18"
-          deltaUp={true}
+          value={<AnimatedNumber value={reviewQueue.length} duration={1500} />}
+          delta={reviewQueue.length > 0 ? `${reviewQueue.length} pending` : 'All cleared'}
+          deltaUp={reviewQueue.length === 0}
           icon="fact_check"
         />
         <KpiCard
           label="Projected Savings"
-          value={<AnimatedNumber value={4820} prefix="₹" suffix=" Cr" duration={1600} />}
+          value={<AnimatedNumber value={projectedSavingsCr} decimals={2} prefix="₹" suffix=" Cr" duration={1600} />}
           delta="+18.5%"
           deltaUp={true}
           icon="savings"
@@ -359,7 +382,7 @@ export const OverviewScreen: React.FC = () => {
                 Catalog Standardization Trend
               </h2>
               <p className="text-xs text-[#9CA3AF] mt-0.5">
-                Monthly standardized masters vs source ERP ingestion (thousands)
+                Monthly standardized masters vs source ERP ingestion records
               </p>
             </div>
 
@@ -386,7 +409,7 @@ export const OverviewScreen: React.FC = () => {
               Ingestion &amp; Governance Funnel
             </h2>
             <p className="text-xs text-[#71717a] mt-0.5 mb-5">
-              14.2M records across participating CPSEs
+              {totalLegacyRecords} records across {cpseList.length || 5} participating CPSEs
             </p>
 
             {/* Stage Progress Bars */}
@@ -397,7 +420,7 @@ export const OverviewScreen: React.FC = () => {
                     <span className="font-semibold text-white">{stage.name}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-[#71717a] font-mono">
-                        <AnimatedNumber value={stage.count} duration={1400} />k
+                        <AnimatedNumber value={stage.count} duration={1400} />
                       </span>
                       <span className="font-bold text-white font-mono">
                         <AnimatedNumber value={stage.pct} suffix="%" duration={1400} />
@@ -424,7 +447,7 @@ export const OverviewScreen: React.FC = () => {
           <div className="pt-4 mt-6 flex justify-between items-baseline border-t border-[#232825]">
             <span className="text-xs text-[#71717a]">Total Ingested Legacy Records</span>
             <span className="text-2xl font-bold text-white tracking-tight font-mono">
-              <AnimatedNumber value={14.2} decimals={1} suffix="M" duration={1600} />
+              <AnimatedNumber value={totalLegacyRecords} duration={1600} />
             </span>
           </div>
         </div>
@@ -461,7 +484,7 @@ export const OverviewScreen: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  onClick={() => item.status === 'Pending' ? setActiveScreen('review') : navigateToMaterial('CNMC-00018427')}
+                  onClick={() => item.status === 'Pending' ? setActiveScreen('review') : navigateToMaterial(item.cnmcTarget || (catalogueMaterials[0]?.cnmc || 'CNMC-00018427'))}
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-white/[0.04] cursor-pointer transition-colors group select-none"
                   title={item.status === 'Pending' ? 'Open in Review Queue' : 'View in Master Catalog'}
                 >

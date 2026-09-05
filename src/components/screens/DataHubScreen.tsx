@@ -12,6 +12,7 @@ const SpotlightCard: React.FC<{
   onSync: (id: string, name: string) => void;
   onClick: (cpse: CPSE) => void;
 }> = ({ cpse, index, syncingId, onSync, onClick }) => {
+  const { viewPendingReviewsForCpse, viewCatalogueForCpse } = useApp();
   const cardRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
 
@@ -122,17 +123,50 @@ const SpotlightCard: React.FC<{
 
         {/* Stats Grid */}
         <div className="rounded-lg p-3 bg-[#070908] border border-[#232825] space-y-2 text-xs font-mono">
-          {[
-            { label: 'ERP System', val: cpse.sourceSystem, color: 'text-white' },
-            { label: 'Local Item Codes', val: cpse.totalRecords.toLocaleString(), color: 'text-[#9CA3AF]' },
-            { label: 'Harmonized CNMC', val: cpse.mappedRecords.toLocaleString(), color: 'text-[#10B981]' },
-            { label: 'Pending Queue', val: cpse.pendingRecords.toLocaleString(), color: 'text-[#EAB308]' },
-          ].map(row => (
-            <div key={row.label} className="flex justify-between items-center">
-              <span className="text-[#6B7280] font-sans text-[11px]">{row.label}</span>
-              <span className={`font-semibold ${row.color}`}>{row.val}</span>
-            </div>
-          ))}
+          <div className="flex justify-between items-center">
+            <span className="text-[#6B7280] font-sans text-[11px]">ERP System</span>
+            <span className="font-semibold text-white">{cpse.sourceSystem}</span>
+          </div>
+          <div
+            onClick={(e) => { e.stopPropagation(); onClick(cpse); }}
+            className="flex justify-between items-center cursor-pointer hover:bg-white/5 px-1.5 py-1 rounded transition-colors"
+            title="Inspect CPSE details modal"
+          >
+            <span className="text-[#6B7280] font-sans text-[11px] flex items-center gap-1">
+              Local Item Codes
+              <span className="material-symbols-outlined text-[12px] opacity-60">info</span>
+            </span>
+            <span className="font-semibold text-[#9CA3AF] underline decoration-dashed decoration-1 underline-offset-2">
+              {cpse.totalRecords.toLocaleString()}
+            </span>
+          </div>
+          <div
+            onClick={(e) => { e.stopPropagation(); viewCatalogueForCpse(cpse.name); }}
+            className="flex justify-between items-center cursor-pointer hover:bg-[#10B981]/10 px-1.5 py-1 rounded transition-colors group"
+            title={`Browse approved catalogue entries for ${cpse.name}`}
+          >
+            <span className="text-[#6B7280] font-sans text-[11px] flex items-center gap-1 group-hover:text-[#10B981]">
+              Harmonized CNMC
+              <span className="material-symbols-outlined text-[12px] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+            </span>
+            <span className="font-semibold text-[#10B981] group-hover:underline">
+              {cpse.mappedRecords.toLocaleString()}
+            </span>
+          </div>
+          <div
+            onClick={(e) => { e.stopPropagation(); viewPendingReviewsForCpse(cpse.name); }}
+            className="flex justify-between items-center cursor-pointer hover:bg-[#EAB308]/10 px-1.5 py-1 rounded transition-colors group"
+            title={`Jump directly to pending review queue for ${cpse.name}`}
+          >
+            <span className="text-[#6B7280] font-sans text-[11px] flex items-center gap-1 group-hover:text-[#EAB308]">
+              Pending Queue
+              <span className="material-symbols-outlined text-[12px] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+            </span>
+            <span className="font-semibold text-[#EAB308] group-hover:underline flex items-center gap-1">
+              {cpse.pendingRecords.toLocaleString()}
+              <span className="text-[10px] px-1 py-0.2 rounded bg-[#EAB308]/20 text-[#EAB308]">view</span>
+            </span>
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -206,6 +240,8 @@ const CPSEDetailPopup: React.FC<{
   syncingId: string | null;
   onSync: (id: string, name: string) => void;
 }> = ({ cpse, onClose, syncingId, onSync }) => {
+  const { viewPendingReviewsForCpse, viewCatalogueForCpse, setActiveScreen } = useApp();
+
   const cpseColor =
     cpse.name.includes('ONGC') ? '#991B1B' :
     cpse.name.includes('IOCL') ? '#EA580C' :
@@ -268,29 +304,92 @@ const CPSEDetailPopup: React.FC<{
           </button>
         </div>
 
-        {/* Stats 2×2 grid */}
+        {/* Stats 2×2 grid - Fully Clickable Actions */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           {[
-            { label: 'Total Records', val: cpse.totalRecords.toLocaleString(), color: '#F3F4F6', icon: 'database' },
-            { label: 'Harmonized', val: cpse.mappedRecords.toLocaleString(), color: '#10B981', icon: 'check_circle' },
-            { label: 'Pending Review', val: cpse.pendingRecords.toLocaleString(), color: '#EAB308', icon: 'pending' },
-            { label: 'Coverage', val: `${cpse.coveragePercentage}%`, color: '#10B981', icon: 'analytics' },
+            {
+              label: 'Total Records',
+              val: cpse.totalRecords.toLocaleString(),
+              color: '#F3F4F6',
+              icon: 'database',
+              hint: 'View in Master Catalog →',
+              action: () => {
+                onClose();
+                viewCatalogueForCpse(cpse.name);
+              }
+            },
+            {
+              label: 'Harmonized',
+              val: cpse.mappedRecords.toLocaleString(),
+              color: '#10B981',
+              icon: 'check_circle',
+              hint: 'Inspect Approved CNMCs →',
+              action: () => {
+                onClose();
+                viewCatalogueForCpse(cpse.name);
+              }
+            },
+            {
+              label: 'Pending Review',
+              val: cpse.pendingRecords.toLocaleString(),
+              color: '#EAB308',
+              icon: 'pending',
+              hint: 'Open Pending Queue →',
+              badge: 'Action Required',
+              action: () => {
+                onClose();
+                viewPendingReviewsForCpse(cpse.name);
+              }
+            },
+            {
+              label: 'Coverage',
+              val: `${cpse.coveragePercentage}%`,
+              color: '#10B981',
+              icon: 'analytics',
+              hint: 'View Analytics & Spend →',
+              action: () => {
+                onClose();
+                setActiveScreen('analytics');
+              }
+            },
           ].map((stat, i) => (
-            <motion.div
+            <motion.button
+              type="button"
               key={stat.label}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05, duration: 0.25 }}
-              className="bg-[#070908] border border-[#232825] rounded-xl p-4"
+              onClick={stat.action}
+              className="bg-[#070908] border border-[#232825] hover:border-[#38423C] rounded-xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] group cursor-pointer relative overflow-hidden"
+              style={{
+                boxShadow: stat.label === 'Pending Review' ? '0 0 20px rgba(234,179,8,0.08)' : undefined
+              }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined text-[16px] text-[#6B7280]">{stat.icon}</span>
-                <span className="text-[11px] text-[#6B7280] font-sans uppercase tracking-wide">{stat.label}</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-[#6B7280] group-hover:text-white transition-colors">
+                    {stat.icon}
+                  </span>
+                  <span className="text-[11px] text-[#6B7280] group-hover:text-[#F3F4F6] font-sans uppercase tracking-wide transition-colors">
+                    {stat.label}
+                  </span>
+                </div>
+                <span className="material-symbols-outlined text-[14px] text-[#6B7280] opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+                  arrow_forward
+                </span>
               </div>
               <div className="text-2xl font-bold font-mono" style={{ color: stat.color }}>
                 {stat.val}
               </div>
-            </motion.div>
+              <div className="text-[11px] text-[#9CA3AF] mt-2 flex items-center justify-between font-sans">
+                <span className="group-hover:text-white transition-colors font-medium">{stat.hint}</span>
+                {stat.badge && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#EAB308]/20 text-[#EAB308] font-mono font-semibold">
+                    {stat.badge}
+                  </span>
+                )}
+              </div>
+            </motion.button>
           ))}
         </div>
 
@@ -322,19 +421,29 @@ const CPSEDetailPopup: React.FC<{
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-medium text-[#9CA3AF] bg-[#070908] border border-[#232825] hover:border-[#38423C] transition-all"
+              className="px-3.5 py-2 rounded-lg text-xs font-medium text-[#9CA3AF] bg-[#070908] border border-[#232825] hover:border-[#38423C] transition-all"
             >
               Close
             </button>
             <button
+              onClick={() => {
+                onClose();
+                viewPendingReviewsForCpse(cpse.name);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-black bg-[#EAB308] hover:brightness-110 transition-all shadow-sm cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[15px]">rate_review</span>
+              <span>Review {cpse.pendingRecords} Pending</span>
+            </button>
+            <button
               disabled={syncingId === cpse.id}
               onClick={() => onSync(cpse.id, cpse.name)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-[#000000] bg-[#10B981] hover:brightness-110 transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-[#000000] bg-[#10B981] hover:brightness-110 transition-all disabled:opacity-50 cursor-pointer"
             >
               <span className={`material-symbols-outlined text-[14px] ${syncingId === cpse.id ? 'animate-spin' : ''}`}>
                 sync
               </span>
-              {syncingId === cpse.id ? 'Syncing...' : 'Trigger Sync'}
+              {syncingId === cpse.id ? 'Syncing...' : 'Sync'}
             </button>
           </div>
         </div>
@@ -412,19 +521,21 @@ export const DataHubScreen: React.FC = () => {
 
         <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
           <div>
-            <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">6</div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">{cpseList.length}</div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">CPSEs Connected</div>
-            <div className="text-[11px] text-[#6B7280] leading-snug">Active adapters</div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">Active DB adapters</div>
           </div>
           <div>
-            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">99.8%</div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">100%</div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">Pipeline Health</div>
-            <div className="text-[11px] text-[#6B7280] leading-snug">Zero ingest lag</div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">All nodes online</div>
           </div>
           <div>
-            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">14.2M</div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
+              {cpseList.reduce((acc, c) => acc + (c.totalRecords || 0), 0).toLocaleString()}
+            </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">Total Ingested</div>
-            <div className="text-[11px] text-[#6B7280] leading-snug">Catalog records</div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">SQLite materials</div>
           </div>
         </div>
       </div>

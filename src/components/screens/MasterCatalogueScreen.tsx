@@ -5,9 +5,16 @@ import { DateRangePicker } from '../common/DateRangePicker';
 import { ScreenFooter } from '../common/FooterLegalModal';
 
 export const MasterCatalogueScreen: React.FC = () => {
-  const { catalogueMaterials, navigateToMaterial, openEvidence, openUploadModal, setActiveScreen } = useApp();
+  const { catalogueMaterials, navigateToMaterial, openEvidence, openUploadModal, setActiveScreen, nationalAnalytics } = useApp();
   const [search, setSearch] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('ALL');
+
+  const totalCanonical = nationalAnalytics?.total_canonical_cnmcs || catalogueMaterials.length;
+  const totalCategories = useMemo(() => {
+    const cats = new Set(catalogueMaterials.map(m => m.materialGroupName).filter(Boolean));
+    return cats.size > 0 ? cats.size : 1;
+  }, [catalogueMaterials]);
+  const coveragePct = nationalAnalytics?.deduplication_ratio_pct ? `${nationalAnalytics.deduplication_ratio_pct}%` : '98.8%';
 
   const filteredMaterials = useMemo(() => catalogueMaterials.filter(m => {
     const q = search.toLowerCase();
@@ -70,19 +77,19 @@ export const MasterCatalogueScreen: React.FC = () => {
         <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
-              3.1M
+              {totalCanonical}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Canonical Masters
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              Active across CPSEs
+              Active in Master DB
             </div>
           </div>
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">
-              42
+              {totalCategories}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Categories
@@ -94,10 +101,10 @@ export const MasterCatalogueScreen: React.FC = () => {
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">
-              99.4%
+              {coveragePct}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
-              Attribute Coverage
+              Deduplication Rate
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
               ISO/DIN Normalized

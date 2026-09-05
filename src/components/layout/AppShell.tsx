@@ -51,7 +51,7 @@ export const AppShell: React.FC = () => {
           id: 'review',
           label: 'Review Queue',
           icon: 'fact_check',
-          badge: reviewQueue.length || 5,
+          badge: reviewQueue.length,
         },
         { id: 'rationalization', label: 'Rationalization', icon: 'hub' },
       ],

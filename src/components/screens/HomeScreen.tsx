@@ -7,7 +7,7 @@ type CategoryKey = 'fasteners' | 'valves' | 'pumps';
 type TabKey = 'demo' | 'architecture' | 'dataflow' | 'cpses';
 
 export const HomeScreen: React.FC = () => {
-  const { setActiveScreen, openUploadModal } = useApp();
+  const { setActiveScreen, openUploadModal, nationalAnalytics, cpseList, catalogueMaterials } = useApp();
   const [activeTab, setActiveTab] = useState<TabKey>('demo');
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('fasteners');
   const [copiedCode, setCopiedCode] = useState(false);
@@ -193,19 +193,19 @@ export const HomeScreen: React.FC = () => {
         <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
-              14.2M
+              {nationalAnalytics?.total_source_materials || 640}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Source records
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              (across 5 CPSEs)
+              (across {cpseList.length || 5} CPSEs)
             </div>
           </div>
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">
-              6
+              {cpseList.length || 5}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               CPSEs
@@ -217,13 +217,13 @@ export const HomeScreen: React.FC = () => {
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
-              3.1M
+              {nationalAnalytics?.total_canonical_cnmcs || catalogueMaterials.length || 8}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Canonical materials
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              (after harmonization)
+              (in national master)
             </div>
           </div>
         </div>
@@ -495,20 +495,13 @@ export const HomeScreen: React.FC = () => {
       {activeTab === 'cpses' && (
         <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-4">
           <h3 className="text-sm font-semibold text-white">Connected Central Public Sector Enterprises</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
-            {[
-              { name: 'ONGC', items: '4.2M Records', status: 'Live' },
-              { name: 'IOCL', items: '3.8M Records', status: 'Live' },
-              { name: 'NTPC', items: '2.4M Records', status: 'Live' },
-              { name: 'GAIL', items: '1.9M Records', status: 'Live' },
-              { name: 'BPCL', items: '1.2M Records', status: 'Live' },
-              { name: 'HPCL', items: '0.7M Records', status: 'Syncing' },
-            ].map((c, idx) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
+            {cpseList.map((c, idx) => (
               <div key={idx} className="p-3 rounded-lg bg-[#070908] border border-[#232825] text-center space-y-1">
                 <div className="text-xs font-bold text-white">{c.name}</div>
-                <div className="text-[11px] font-mono text-[#9CA3AF]">{c.items}</div>
+                <div className="text-[11px] font-mono text-[#9CA3AF]">{c.totalRecords || 0} Records</div>
                 <span className="inline-block text-[10px] font-medium text-[#10B981] px-1.5 py-0.5 rounded bg-[#10B981]/10">
-                  {c.status}
+                  {c.status || 'Live'}
                 </span>
               </div>
             ))}

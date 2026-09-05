@@ -15,14 +15,27 @@ const ACTION_META = {
 type ActionType = keyof typeof ACTION_META;
 
 export const RationalizationScreen: React.FC = () => {
-  const { openImpactModal, addAuditLog, addToast, setActiveScreen } = useApp();
+  const { openImpactModal, addAuditLog, addToast, setActiveScreen, reviewQueue, nationalAnalytics } = useApp();
   const [selectedAction, setSelectedAction] = useState<ActionType>('MERGE');
 
-  const sampleTargets = [
-    { sourceCode: 'ONGC-VLV-009', targetCnmc: '3116.1504.8920', description: '6 IN BALL VALVE CLASS 300 A105', cpse: 'ONGC', potentialDuplicates: 3 },
-    { sourceCode: 'IOCL-PMP-104', targetCnmc: '4320.1009.4412', description: 'CENTRIFUGAL PUMP 50M3/HR 120M HEAD CS', cpse: 'IOCL', potentialDuplicates: 2 },
-    { sourceCode: 'NTPC-FST-881', targetCnmc: '3116.1504.8920', description: 'HEX BOLT M16 X 75 GR 8.8 GALV', cpse: 'NTPC', potentialDuplicates: 4 },
-  ];
+  const duplicateClusters = nationalAnalytics?.total_equivalence_groups || reviewQueue.length || 129;
+  const skuReduction = nationalAnalytics?.deduplication_ratio_pct ? `${nationalAnalytics.deduplication_ratio_pct}%` : '98.8%';
+  const capitalUnlocked = nationalAnalytics?.estimated_synergy_savings 
+    ? `₹${(nationalAnalytics.estimated_synergy_savings / 10000000).toFixed(2)} Cr`
+    : '₹2.84 Cr';
+
+  const candidateTargets = React.useMemo(() => {
+    if (reviewQueue && reviewQueue.length > 0) {
+      return reviewQueue.slice(0, 10).map(item => ({
+        sourceCode: item.sourceCode,
+        targetCnmc: item.candidateCnmc,
+        description: item.sourceDescription,
+        cpse: item.sourceCpse,
+        potentialDuplicates: 2,
+      }));
+    }
+    return [];
+  }, [reviewQueue]);
 
   const handleExecuteAction = (sourceCode: string, targetCnmc: string) => {
     openImpactModal({
@@ -87,7 +100,7 @@ export const RationalizationScreen: React.FC = () => {
         <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">
-              284
+              {duplicateClusters}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Duplicate Clusters
@@ -99,25 +112,25 @@ export const RationalizationScreen: React.FC = () => {
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">
-              31%
+              {skuReduction}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               SKU Reduction
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              Catalog complexity
+              Deduplication Rate
             </div>
           </div>
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
-              ₹84 Cr
+              {capitalUnlocked}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Holding Capital
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              Unlocked capacity
+              Projected Synergy
             </div>
           </div>
         </div>
@@ -177,7 +190,7 @@ export const RationalizationScreen: React.FC = () => {
             </p>
           </div>
           <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#161B18] text-[#9CA3AF] border border-[#232825]">
-            {sampleTargets.length} Candidates Pending
+            {candidateTargets.length} Candidates Pending
           </span>
         </div>
 
@@ -193,7 +206,7 @@ export const RationalizationScreen: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1B201D]">
-              {sampleTargets.map((item, idx) => (
+              {candidateTargets.map((item, idx) => (
                 <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">

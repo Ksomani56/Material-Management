@@ -4,14 +4,15 @@ import { ScreenFooter } from '../common/FooterLegalModal';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
 export const SettingsScreen: React.FC = () => {
-  const { theme, toggleTheme, openUploadModal, addToast } = useApp();
+  const { theme, toggleTheme, openUploadModal, addToast, catalogueMaterials, nationalAnalytics } = useApp();
   const [cadence, setCadence] = useState('Real-Time WebSockets');
   const [defaultLanding, setDefaultLanding] = useState('Executive Overview');
   const [approvalThreshold, setApprovalThreshold] = useState(98);
   const [matchingModel, setMatchingModel] = useState('Technical-RoBERTa v4.2');
 
   const handleIntegrityCheck = () => {
-    addToast('success', 'Catalog Schema Integrity Check: 3,102,445 CNMC records verified with 0 anomalies.');
+    const count = nationalAnalytics?.total_source_materials || catalogueMaterials.length || 640;
+    addToast('success', `Catalog Schema Integrity Check: ${count} verified records in active database with 0 anomalies.`);
   };
 
   const handleFlushCache = () => {

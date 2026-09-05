@@ -8,15 +8,31 @@ export const ReviewQueueScreen: React.FC = () => {
   const {
     reviewQueue, selectedReviewIds, toggleSelectReviewItem,
     toggleSelectAllReviewItems, approveReviewItem, bulkApproveReviewItems,
-    flagReviewItem, openEvidence, openUploadModal, setActiveScreen
+    flagReviewItem, openEvidence, openUploadModal, setActiveScreen,
+    reviewCpseFilter, setReviewCpseFilter, auditLogs
   } = useApp();
 
+  const approvedCount = useMemo(() => {
+    return auditLogs.filter(l => l.action.toLowerCase().includes('approve') || l.action.toLowerCase().includes('merge')).length;
+  }, [auditLogs]);
+
+  const avgConfidence = useMemo(() => {
+    if (!reviewQueue || reviewQueue.length === 0) return 0;
+    return Math.round(reviewQueue.reduce((acc, item) => acc + item.confidence, 0) / reviewQueue.length);
+  }, [reviewQueue]);
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCpse, setSelectedCpse] = useState('ALL');
+  const [selectedCpse, setSelectedCpse] = useState(() => reviewCpseFilter || 'ALL');
   const [selectedRelationship, setSelectedRelationship] = useState('ALL');
   const [minConfidence, setMinConfidence] = useState(70);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+
+  React.useEffect(() => {
+    if (reviewCpseFilter) {
+      setSelectedCpse(reviewCpseFilter);
+    }
+  }, [reviewCpseFilter]);
 
   const filteredItems = useMemo(() => reviewQueue.filter(item => {
     const q = searchQuery.toLowerCase();
@@ -93,7 +109,7 @@ export const ReviewQueueScreen: React.FC = () => {
         <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#EAB308] tracking-tight">
-              {reviewQueue.length || 5}
+              {reviewQueue.length}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Pending Items
@@ -105,25 +121,25 @@ export const ReviewQueueScreen: React.FC = () => {
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">
-              42
+              {approvedCount}
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
-              Approved Today
+              Approved Records
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              Catalogers active
+              Audited in ledger
             </div>
           </div>
 
           <div>
             <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
-              92%
+              {avgConfidence}%
             </div>
             <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
               Avg Confidence
             </div>
             <div className="text-[11px] text-[#6B7280] leading-snug">
-              Queue threshold
+              Semantic match
             </div>
           </div>
         </div>
