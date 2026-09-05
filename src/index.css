@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =======================================================================
+   ELECTRIC VIOLET & PURE BLACK DESIGN SYSTEM
+   Inspired by Raycast, Linear AI & Modern Tech Dark Mode
+   ======================================================================= */
+
+:root, html.dark {
+  color-scheme: dark;
+  /* Pure Pitch Black Canvas & Obsidian Cards */
+  --bg:              #000000;
+  --bg-surface:      #000000;
+  --bg-card:         #09090b;
+  --bg-sidebar:      #000000;
+  --bg-hover:        rgba(255, 255, 255, 0.05);
+  --bg-active:       rgba(139, 92, 246, 0.12);
+  --bg-input:        #0e0e12;
+
+  /* Subtle Wireframe Borders */
+  --border:          rgba(255, 255, 255, 0.08);
+  --border-subtle:   rgba(255, 255, 255, 0.04);
+  --border-active:   rgba(139, 92, 246, 0.4);
+
+  /* High-Contrast Typography */
+  --text-primary:    #ffffff;
+  --text-secondary:  #a1a1aa;
+  --text-muted:      #71717a;
+
+  /* Electric Violet Palette */
+  --violet:          #8b5cf6;
+  --violet-hover:    #7c3aed;
+  --violet-dim:      rgba(139, 92, 246, 0.12);
+  --purple:          #a855f7;
+  --purple-dim:      rgba(168, 85, 247, 0.12);
+  --lavender:        #c4b5fd;
+
+  /* Universal Status Indicators */
+  --success:         #10b981;
+  --success-dim:     rgba(16, 185, 129, 0.12);
+  --warning:         #f59e0b;
+  --warning-dim:     rgba(245, 158, 11, 0.12);
+  --error:           #f43f5e;
+  --error-dim:       rgba(244, 63, 94, 0.12);
+
+  /* Aliases mapped to Electric Violet */
+  --blue:            #8b5cf6;
+  --blue-dim:        rgba(139, 92, 246, 0.12);
+  --indigo:          #a855f7;
+  --indigo-dim:      rgba(168, 85, 247, 0.12);
+  --cyan:            #8b5cf6;
+  --cyan-dim:        rgba(139, 92, 246, 0.12);
+  --emerald:         #10b981;
+  --emerald-dim:     rgba(16, 185, 129, 0.12);
+
+  --shadow-card:     0 1px 3px rgba(0,0,0,0.8);
+  --shadow-elevated: 0 10px 30px -10px rgba(0,0,0,0.9);
+}
+
+/* Light mode fallback */
+html.light {
+  color-scheme: light;
+  --bg:              #f8fafc;
+  --bg-surface:      #ffffff;
+  --bg-card:         #ffffff;
+  --bg-sidebar:      #ffffff;
+  --bg-hover:        rgba(0, 0, 0, 0.04);
+  --bg-active:       rgba(124, 58, 237, 0.08);
+  --bg-input:        #f1f5f9;
+  --border:          rgba(0, 0, 0, 0.08);
+  --border-subtle:   rgba(0, 0, 0, 0.04);
+  --border-active:   rgba(124, 58, 237, 0.3);
+  --text-primary:    #09090b;
+  --text-secondary:  #64748b;
+  --text-muted:      #94a3b8;
+  --violet:          #7c3aed;
+  --violet-hover:    #6d28d9;
+  --violet-dim:      rgba(124, 58, 237, 0.10);
+  --purple:          #9333ea;
+  --purple-dim:      rgba(147, 51, 234, 0.10);
+  --lavender:        #8b5cf6;
+  --success:         #059669;
+  --success-dim:     rgba(5, 150, 105, 0.10);
+  --warning:         #d97706;
+  --warning-dim:     rgba(217, 119, 6, 0.10);
+  --error:           #e11d48;
+  --error-dim:       rgba(225, 29, 72, 0.10);
+  --blue:            #7c3aed;
+  --blue-dim:        rgba(124, 58, 237, 0.10);
+  --indigo:          #9333ea;
+  --indigo-dim:      rgba(147, 51, 234, 0.10);
+  --cyan:            #7c3aed;
+  --cyan-dim:        rgba(124, 58, 237, 0.10);
+  --emerald:         #059669;
+  --emerald-dim:     rgba(5, 150, 105, 0.10);
+}
+
+/* ---------- BASE TYPOGRAPHY (SCALED FOR PERFECT LEGIBILITY) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px; /* Scaled from 14px */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  background: var(--bg);
+}
+
+/* Material symbols adjustments */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  vertical-align: middle;
+  line-height: 1;
+}
+.material-symbols-outlined.icon-fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* Monospace font */
+.mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+/* Card hover */
+.card-hover {
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+.card-hover:hover {
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Accordion max-height transition */
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 200ms ease, opacity 200ms ease;
+}
+.accordion-content.open {
+  max-height: 400px;
+  opacity: 1;
+}
+.accordion-content.closed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slideInRight 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Text Shimmer Animation */
+@keyframes textShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

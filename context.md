@@ -71,6 +71,13 @@ $$\text{Score} = (0.25 \cdot \text{Lexical}) + (0.35 \cdot \text{VectorCosine}) 
 | **Low** | $0.40 - 0.64$ | `RELATED` | Search candidate only; no auto-grouping |
 | **Sub-threshold** | $< 0.40$ | Distinct | Kept local / separate |
 
+### 3.3 Custom Fine-Tuned Material Embeddings (`backend/models/custom-material-embedder`)
+- **Base Architecture:** `SentenceTransformer` (384-dimensional dense vectors + `faiss.IndexFlatIP`).
+- **Domain Fine-Tuning Data:** 10,019 pairs (`data/training/material_pairs.csv` & `material_triplets.jsonl` containing 19 steward-verified governance pairs + 10,000 domain synthetic pairs).
+- **Loss Function & Training:** `CosineSimilarityLoss` for 2 epochs, batch size 32.
+- **Evaluation Performance:** Pearson Cosine Correlation: **0.9676**, Spearman Correlation: **0.8660**, Final Loss: **0.0787**.
+- **Hard-Negative Discrimination:** Pressure rating conflict (`150#` vs `600#`) dropped from generic $>0.85$ down to **0.2292**, eliminating false positive groupings on hazardous specification mismatches.
+
 ---
 
 ## 4. Entity Relational Models & Schema Summary
@@ -109,7 +116,7 @@ erDiagram
 | **Matching** | `POST` | `/api/matching/run` | Trigger cross-CPSE AI matching | — |
 | **Matching** | `GET` | `/api/matching/groups` | Fetch generated equivalence groups | Query: `status`, `min_confidence` |
 | **Matching** | `POST` | `/api/matching/compare-live` | Live multi-signal record comparison & conflict check | Body: `{text1, text2, uom1, uom2}` |
-| **Matching** | `GET` | `/api/matching/vector-index-status` | FAISS index status & vector count | Returns vector count, dimension, index type |
+| **Matching** | `GET` | `/api/matching/vector-index-status` | FAISS index status & vector count | Returns vector count, dimension, model name |
 | **CPSE** | `POST` | `/api/cpse/materials/harmonize-live` | Live attribute extraction & UNSPSC classifier | Body: `{description, uom}` |
 | **Dataset** | `POST` | `/api/dataset/benchmark/load-500` | Ingest & index 500-item industrial proxy | Returns rows loaded & indexed |
 | **Governance** | `POST` | `/api/governance/equivalence-groups/{id}/review` | Submit human review decision | Body: `{actor, action, reason, target_cnmc}` |
@@ -132,18 +139,19 @@ erDiagram
 
 ## 7. Live System State Snapshot
 
-*(Automatically updated via `python scripts/context_summarizer.py` at 2026-09-04 16:29:39)*
+*(Automatically updated via `python scripts/context_summarizer.py` at 2026-09-05 21:45:23)*
 
 | Metric | Current Value | Notes |
 | :--- | :--- | :--- |
 | **Database File** | `national_material_master.db` | Local SQLite / SQLAlchemy |
-| **Enrolled CPSEs** | **5** | ONGC, IOCL, GAIL |
-| **Source Material Records** | **640** | Source records preserved immutably |
-| **Generated Equivalence Groups** | **129** | Cross-catalog clusters identified by AI |
-| **Canonical Minted CNMCs** | **8** | Unique national unified codes |
-| **Active Approved Mappings** | **17** | CPSE local codes cross-mapped to CNMCs |
-| **Pending/Exported Migration Records** | **21** | Ready for SAP BAPI export |
-| **Audit Events Logged** | **41** | Full provenance and steward justifications |
+| **Enrolled CPSEs** | **5** | ONGC, IOCL, GAIL, BPCL, HPCL |
+| **Source Material Records** | **724** | Source records preserved immutably |
+| **Generated Equivalence Groups** | **144** | Cross-catalog clusters identified by AI |
+| **Canonical Minted CNMCs** | **10** | Unique national unified codes |
+| **Active Approved Mappings** | **21** | CPSE local codes cross-mapped to CNMCs |
+| **Pending/Exported Migration Records** | **33** | Ready for SAP BAPI export |
+| **Audit Events Logged** | **65** | Full provenance and steward justifications |
+| **Active Embedding Model** | `custom-material-embedder` | Fine-tuned SentenceTransformer (Pearson: 0.9676) |
 | **Test Suite Status** | **20/20 PASSED across 8 test modules (100%)** | Verified via `pytest backend/tests -v` |
 
 
@@ -156,10 +164,12 @@ erDiagram
 | **`context.md`** | **THIS FILE:** Central high-density project context summarizer |
 | **`run.py`** | Zero-config runner (`python run.py` launches backend on `:8000`) |
 | **`backend/app/main.py`** | FastAPI app initialization, middleware, routes, frontend static mount |
-| **`backend/app/core/config.py`** | Thresholds, weights, database URI, naming patterns |
+| **`backend/app/core/config.py`** | Thresholds, weights, database URI, naming patterns, model auto-detection |
 | **`backend/app/models/`** | Relational database models (CPSE, Materials, Canonical, Mappings, Audit) |
-| **`backend/app/services/`** | Core business logic (Normalization, Attribute Extraction, Matching, CNMC, Governance, Analytics) |
+| **`backend/app/services/`** | Core business logic (Vector Search, Normalization, Attribute Extraction, Matching, CNMC, Governance, Analytics) |
+| **`backend/models/custom-material-embedder/`** | Fine-tuned domain SentenceTransformer model weights & tokenizer |
+| **`data/training/`** | 10,019 labeled training pairs (`material_pairs.csv`) and triplets (`material_triplets.jsonl`) |
 | **`backend/app/adapters/`** | Inbound CSV/Excel parser & Outbound ERP/SAP migration formatter |
 | **`backend/sample_data/`** | Real benchmark catalogs for ONGC, IOCL, GAIL |
 | **`frontend/`** | Modern responsive Governance Console (HTML5 + CSS + Vanilla JS) |
-| **`scripts/`** | Maintenance and context summarization automation scripts |
+| **`scripts/`** | Dataset generation, embedding training, evaluation, and context summarizer scripts |

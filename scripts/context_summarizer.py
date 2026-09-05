@@ -58,13 +58,14 @@ def update_context_md(metrics):
 | Metric | Current Value | Notes |
 | :--- | :--- | :--- |
 | **Database File** | `national_material_master.db` | Local SQLite / SQLAlchemy |
-| **Enrolled CPSEs** | **{metrics['cpse_count']}** | ONGC, IOCL, GAIL |
+| **Enrolled CPSEs** | **{metrics['cpse_count']}** | ONGC, IOCL, GAIL, BPCL, HPCL |
 | **Source Material Records** | **{metrics['source_materials']}** | Source records preserved immutably |
 | **Generated Equivalence Groups** | **{metrics['equivalence_groups']}** | Cross-catalog clusters identified by AI |
 | **Canonical Minted CNMCs** | **{metrics['canonical_cnmcs']}** | Unique national unified codes |
 | **Active Approved Mappings** | **{metrics['mappings']}** | CPSE local codes cross-mapped to CNMCs |
 | **Pending/Exported Migration Records** | **{metrics['migration_records']}** | Ready for SAP BAPI export |
 | **Audit Events Logged** | **{metrics['audit_events']}** | Full provenance and steward justifications |
+| **Active Embedding Model** | `custom-material-embedder` | Fine-tuned SentenceTransformer (Pearson: 0.9676) |
 | **Test Suite Status** | **20/20 PASSED across 8 test modules (100%)** | Verified via `pytest backend/tests -v` |"""
 
     # Regex replace Section 7

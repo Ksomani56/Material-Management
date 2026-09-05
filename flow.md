@@ -29,12 +29,12 @@ flowchart TD
     end
 
     subgraph S3["3. Hybrid AI Matching & Vector Retrieval Engine"]
-        H1 --> V_EMB["VectorSearchService<br/>(all-MiniLM-L6-v2 Embeddings)"]
+        H1 --> V_EMB["VectorSearchService<br/>(Fine-Tuned custom-material-embedder)"]
         V_EMB --> V_IDX[("FAISS Vector Index<br/>faiss.IndexFlatIP (384-dim)")]
         V_IDX --> V_KNN["KNN Candidate Retrieval (Top-K=10)"]
         V_KNN --> I1["Hybrid Multi-Signal Scoring Engine"]
         I1 --> J1["Lexical Overlap (Jaccard / Token)"]
-        I1 --> K1["Dense Semantic Vector Cosine Similarity"]
+        I1 --> K1["Fine-Tuned Dense Semantic Vector Cosine Similarity"]
         I1 --> L1["Attribute Exact & Compatible Matcher"]
         
         J1 & K1 & L1 --> M1{"Critical Attribute Conflict?<br/>(e.g., 150# vs 600#, SS304 vs SS316)"}
@@ -88,7 +88,7 @@ graph LR
     end
 
     subgraph SVC["Domain Service Layer"]
-        S_VEC["VectorSearchService (all-MiniLM-L6-v2 + FAISS)"]
+        S_VEC["VectorSearchService (custom-material-embedder + FAISS)"]
         S_NORM["NormalizationService"]
         S_ATTR["AttributeExtractor"]
         S_MATCH["MatchingEngine"]
@@ -233,21 +233,32 @@ c:\sahityaa\SIH 2026\
 ├── national_material_master.db           # SQLite database file
 │
 ├── scripts/
+│   ├── generate_training_dataset.py      # Generates 10k+ labeled domain pairs from governance + industrial templates
+│   ├── train_material_embeddings.py      # Fine-tunes SentenceTransformer with CosineSimilarityLoss
+│   ├── test_trained_model.py             # Verification script for equivalent vs hard-negative pairs
 │   └── context_summarizer.py             # CLI utility to sync live DB metrics into context.md
+│
+├── data/
+│   └── training/                         # 10,019 pairs (material_pairs.csv) and triplets (material_triplets.jsonl)
 │
 ├── backend/
 │   ├── requirements.txt                  # Python dependencies
 │   ├── sample_data/                      # Benchmark catalogs (ONGC, IOCL, GAIL CSVs)
+│   ├── models/
+│   │   └── custom-material-embedder/     # Fine-tuned domain SentenceTransformer weights & tokenizer
 │   ├── tests/                            # Pytest suite
+│   │   ├── test_benchmark_dataset.py     # Benchmark dataset and vector index stats tests
 │   │   ├── test_e2e.py                   # Full end-to-end platform flow test
-│   │   ├── test_ingestion.py             # CSV/Excel parsing and schema tests
-│   │   ├── test_matching.py              # Matching engine & contradiction tests
+│   │   ├── test_erp_export.py            # SAP migration payload format tests
 │   │   ├── test_governance.py            # Steward decision and review tests
-│   │   └── test_erp_export.py            # SAP migration payload format tests
+│   │   ├── test_ingestion.py             # CSV/Excel parsing and schema tests
+│   │   ├── test_live_endpoints.py        # Live harmonize & compare sandbox test cases
+│   │   ├── test_matching.py              # Matching engine & contradiction tests
+│   │   └── test_vector_search.py         # VectorSearchService & FAISS KNN retrieval tests
 │   └── app/
 │       ├── main.py                       # FastAPI initialization, routing & static mounts
 │       ├── core/
-│       │   ├── config.py                 # System configuration, weights, and constants
+│       │   ├── config.py                 # System configuration, weights, model auto-detection
 │       │   └── database.py               # SQLAlchemy engine, session maker, base model
 │       ├── models/                       # Relational database models
 │       │   ├── enums.py                  # System enumeration types
@@ -263,9 +274,11 @@ c:\sahityaa\SIH 2026\
 │       │   ├── ingestion/                # CSV/Excel parser & validation logic
 │       │   └── erp/                      # SAP/ERP export formatter (CSV/Excel/JSON)
 │       ├── services/                     # Business domain engines
+│       │   ├── vector_search.py          # Custom material embedder + FAISS IndexFlatIP
 │       │   ├── normalization.py          # UOM standardizer & engineering abbreviations
 │       │   ├── attribute_extractor.py    # Dimension, rating, schedule & alloy parser
 │       │   ├── matching_engine.py        # Hybrid lexical + semantic vector matcher
+│       │   ├── dataset_generator.py      # 500-row industrial MRO proxy generator
 │       │   ├── cnmc_generator.py         # Collision-safe atomic sequence allocator
 │       │   ├── taxonomy_service.py       # UNSPSC classification mapper
 │       │   ├── governance_service.py     # Review workflow & audit transaction logger
@@ -276,6 +289,7 @@ c:\sahityaa\SIH 2026\
 │           ├── governance.py             # Review decision submission & audit trail queries
 │           ├── canonical.py              # Canonical CNMC search and inspection
 │           ├── erp_export.py             # SAP migration payload downloads
+│           ├── dataset.py                # Industrial benchmark loader
 │           └── analytics.py              # Dashboard summary metrics
 │
 └── frontend/                             # Single-page Governance Console

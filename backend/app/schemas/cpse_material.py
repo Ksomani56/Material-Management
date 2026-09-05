@@ -40,6 +40,34 @@ class CPSEResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class CPSEConnectorResponse(BaseModel):
+    id: str
+    name: str
+    code: str
+    description: Optional[str] = None
+    fullName: str
+    sector: str
+    sourceSystem: str
+    totalRecords: int
+    mappedRecords: int
+    pendingRecords: int
+    coveragePercentage: float
+    status: str
+    lastSync: str
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class CPSEMappingSummaryResponse(BaseModel):
+    cpse: str
+    localCode: str
+    localDescription: str
+    relationship: str
+    status: str
+    lastUpdated: str
+    mappedBy: Optional[str] = None
+
 class CPSEMaterialResponse(BaseModel):
     id: str
     cpse_id: str
@@ -76,6 +104,7 @@ class CanonicalMaterialResponse(BaseModel):
     approved_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    mappings: List[CPSEMappingSummaryResponse] = []
 
     class Config:
         from_attributes = True
@@ -125,6 +154,17 @@ class EquivalenceReviewRequest(BaseModel):
     reason: str
     custom_cnmc: Optional[str] = None
     target_relationship: Optional[RelationshipType] = None
+
+class BulkEquivalenceReviewRequest(BaseModel):
+    group_ids: List[str]
+    actor: str = "NATIONAL_MASTER_STEWARD"
+    action: RationalizationAction = RationalizationAction.MERGE
+    reason: str = "Bulk approved via Review Queue"
+
+class BulkEquivalenceReviewResponse(BaseModel):
+    approved_count: int
+    processed_group_ids: List[str]
+    message: str
 
 class SAPMigrationRow(BaseModel):
     CPSE_ID: str

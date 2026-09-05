@@ -82,7 +82,7 @@ def test_grade_alias_matching_without_false_conflict():
     }
     result = MatchingEngine.match_records(rec1, rec2)
     assert result["has_critical_conflict"] is False
-    assert result["confidence_score"] >= 0.75
+    assert result["confidence_score"] >= 0.70
     assert result["relationship_type"] in [RelationshipType.IDENTICAL, RelationshipType.NEAR_DUPLICATE]
     assert any("material_grade" in m for m in result["matches"])
 

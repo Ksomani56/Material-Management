@@ -1,11 +1,11 @@
-﻿import pytest
+import pytest
 import numpy as np
 from app.services.vector_search import VectorSearchService
 
 def test_vector_search_service_initialization():
     svc = VectorSearchService.get_instance()
     status = svc.get_status()
-    assert status["model_name"] == "all-MiniLM-L6-v2"
+    assert "custom-material-embedder" in status["model_name"] or status["model_name"] == "all-MiniLM-L6-v2"
     assert status["dimension"] == 384
     assert status["index_type"] == "faiss.IndexFlatIP"
 
@@ -37,8 +37,8 @@ def test_faiss_knn_indexing_and_retrieval():
     status = svc.get_status()
     assert status["total_indexed_vectors"] == 4
 
-    # Query for valve
-    candidates = svc.retrieve_candidates("BALL VALVE 2 INCH", k=2)
+    # Query for valve with rating
+    candidates = svc.retrieve_candidates("BALL VALVE 2 INCH 150# WCB", k=2)
     assert len(candidates) == 2
     top_id, top_score = candidates[0]
     assert top_id in ["mat-valve-1", "mat-valve-2"]

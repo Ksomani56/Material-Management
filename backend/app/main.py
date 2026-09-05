@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -51,8 +51,32 @@ def health_check():
         "project": settings.PROJECT_NAME
     }
 
+dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "dist"))
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
-if os.path.exists(frontend_dir):
+
+if os.path.exists(dist_dir):
+    dist_assets = os.path.join(dist_dir, "assets")
+    if os.path.exists(dist_assets):
+        app.mount("/assets", StaticFiles(directory=dist_assets), name="assets")
+
+    theme_previews = os.path.join(dist_dir, "theme-previews")
+    if os.path.exists(theme_previews):
+        app.mount("/theme-previews", StaticFiles(directory=theme_previews), name="theme_previews")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_react_spa(full_path: str):
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json") or full_path.startswith("redoc"):
+            raise HTTPException(status_code=404, detail="Endpoint not found")
+        # Check if requesting a direct file in dist
+        file_candidate = os.path.join(dist_dir, full_path)
+        if full_path and os.path.exists(file_candidate) and os.path.isfile(file_candidate):
+            return FileResponse(file_candidate)
+        index_file = os.path.join(dist_dir, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return {"message": "Vite dist/index.html not found"}
+
+elif os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
     @app.get("/", include_in_schema=False)
