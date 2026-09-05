@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { StatusBadge } from '../common/StatusBadge';
+import { DateRangePicker } from '../common/DateRangePicker';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 export const MasterCatalogueScreen: React.FC = () => {
   const { catalogueMaterials, navigateToMaterial, openEvidence, openUploadModal, setActiveScreen } = useApp();
@@ -40,10 +42,7 @@ export const MasterCatalogueScreen: React.FC = () => {
             <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">upload_file</span>
             <span>Import Catalog</span>
           </button>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF]">
-            <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
-            <span>Last 30 days</span>
-          </div>
+          <DateRangePicker />
         </div>
       </div>
 
@@ -286,16 +285,7 @@ export const MasterCatalogueScreen: React.FC = () => {
       </div>
 
       {/* 6. Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };

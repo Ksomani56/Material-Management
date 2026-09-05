@@ -126,7 +126,13 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem('app-theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch { /* noop */ }
+    return 'dark';
+  });
   const [activeScreen, setActiveScreen] = useState<ScreenType>('landing');
 
   // Sidebar
@@ -214,15 +220,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [globalSearch, setGlobalSearch] = useState<string>('');
 
-  // Sync theme to DOM
+  // Sync theme to DOM and localStorage
   useEffect(() => {
     const root = document.documentElement;
+    const body = document.body;
+    try {
+      localStorage.setItem('app-theme', theme);
+    } catch { /* noop */ }
+    root.setAttribute('data-theme', theme);
     if (theme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
+      if (body) {
+        body.classList.add('dark');
+        body.classList.remove('light');
+      }
     } else {
       root.classList.remove('dark');
       root.classList.add('light');
+      if (body) {
+        body.classList.remove('dark');
+        body.classList.add('light');
+      }
     }
   }, [theme]);
 

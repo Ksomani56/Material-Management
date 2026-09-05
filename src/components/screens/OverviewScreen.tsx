@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AnimatedNumber } from '../core/animated-number';
+import { DateRangePicker } from '../common/DateRangePicker';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 /* -----------------------------------------------------------------------
    Dual-Line Spline Area Chart matching template exactly
@@ -186,9 +188,9 @@ const AreaChart: React.FC = () => {
             left: `${(tooltip.x / W) * 100}%`,
             top: `${(Math.max(0, tooltip.y - 45) / H) * 100}%`,
             transform: 'translateX(-50%)',
-            background: '#0C0E0D',
-            border: '1px solid #232825',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow-elevated)',
           }}
         >
           <div className="font-semibold text-white mb-1.5">{tooltip.label} Standardization</div>
@@ -219,11 +221,7 @@ interface KpiCardProps {
 
 const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon }) => (
   <div
-    className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
-    style={{
-      background: '#0C0E0D',
-      border: '1px solid #232825',
-    }}
+    className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all bg-[#0C0E0D] border border-[#232825]"
   >
     {/* Top Row: Label + Icon Box */}
     <div className="flex items-center justify-between mb-3">
@@ -261,7 +259,7 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
    Overview Screen matching template 1:1
    ----------------------------------------------------------------------- */
 export const OverviewScreen: React.FC = () => {
-  const { setActiveScreen, reviewQueue, cpseList } = useApp();
+  const { setActiveScreen, reviewQueue, cpseList, navigateToMaterial } = useApp();
 
   const recentApprovals = [
     { initial: 'ON', name: 'ONGC (Hazira Plant)', sub: 'MAT-VLV-0928 • Ball Valve 50mm 150# CS Flanged', amount: '₹14,200', status: 'Approved' },
@@ -303,11 +301,7 @@ export const OverviewScreen: React.FC = () => {
           <span className="text-[#F3F4F6]">Dashboard</span>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF] cursor-pointer hover:border-[#38423C] transition-colors">
-          <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
-          <span>Last 30 days</span>
-          <span className="material-symbols-outlined text-[15px] text-[#6B7280]">expand_more</span>
-        </div>
+        <DateRangePicker />
       </div>
 
       {/* 2. Page Title Block */}
@@ -386,13 +380,7 @@ export const OverviewScreen: React.FC = () => {
         </div>
 
         {/* Governance Funnel Stages (1/3 width) */}
-        <div
-          className="col-span-12 lg:col-span-4 rounded-xl p-6 flex flex-col justify-between"
-          style={{
-            background: '#0C0E0D',
-            border: '1px solid #232825',
-          }}
-        >
+        <div className="col-span-12 lg:col-span-4 rounded-xl p-6 flex flex-col justify-between bg-[#0C0E0D] border border-[#232825]">
           <div>
             <h2 className="text-base font-semibold text-white tracking-tight">
               Ingestion &amp; Governance Funnel
@@ -417,8 +405,7 @@ export const OverviewScreen: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className="w-full h-2 rounded-full overflow-hidden"
-                    style={{ background: 'rgba(255, 255, 255, 0.06)' }}
+                    className="w-full h-2 rounded-full overflow-hidden bg-white/10"
                   >
                     <div
                       className="h-full rounded-full transition-all duration-500"
@@ -434,10 +421,7 @@ export const OverviewScreen: React.FC = () => {
           </div>
 
           {/* Bottom Total Ingested */}
-          <div
-            className="pt-4 mt-6 flex justify-between items-baseline"
-            style={{ borderTop: '1px solid #232825' }}
-          >
+          <div className="pt-4 mt-6 flex justify-between items-baseline border-t border-[#232825]">
             <span className="text-xs text-[#71717a]">Total Ingested Legacy Records</span>
             <span className="text-2xl font-bold text-white tracking-tight font-mono">
               <AnimatedNumber value={14.2} decimals={1} suffix="M" duration={1600} />
@@ -449,13 +433,7 @@ export const OverviewScreen: React.FC = () => {
       {/* 3. Bottom Row: Recent Harmonizations + CPSE Leaderboard */}
       <div className="grid grid-cols-12 gap-5">
         {/* Recent Approvals (Left 7 cols) */}
-        <div
-          className="col-span-12 lg:col-span-7 rounded-xl p-6"
-          style={{
-            background: '#0C0E0D',
-            border: '1px solid #232825',
-          }}
-        >
+        <div className="col-span-12 lg:col-span-7 rounded-xl p-6 bg-[#0C0E0D] border border-[#232825]">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-semibold text-[#F3F4F6] tracking-tight">
@@ -483,17 +461,13 @@ export const OverviewScreen: React.FC = () => {
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-white/[0.02] transition-colors"
+                  onClick={() => item.status === 'Pending' ? setActiveScreen('review') : navigateToMaterial('CNMC-00018427')}
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-white/[0.04] cursor-pointer transition-colors group select-none"
+                  title={item.status === 'Pending' ? 'Open in Review Queue' : 'View in Master Catalog'}
                 >
                   <div className="flex items-center gap-3">
                     {/* Square Dark Initial Box */}
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs font-mono text-white"
-                      style={{
-                        background: '#070908',
-                        border: '1px solid #232825',
-                      }}
-                    >
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs font-mono text-white bg-[#070908] border border-[#232825]">
                       {item.initial}
                     </div>
                     <div>
@@ -527,13 +501,7 @@ export const OverviewScreen: React.FC = () => {
         </div>
 
         {/* CPSE Leaderboard (Right 5 cols) */}
-        <div
-          className="col-span-12 lg:col-span-5 rounded-xl p-6"
-          style={{
-            background: '#0C0E0D',
-            border: '1px solid #232825',
-          }}
-        >
+        <div className="col-span-12 lg:col-span-5 rounded-xl p-6 bg-[#0C0E0D] border border-[#232825]">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-semibold text-[#F3F4F6] tracking-tight">
@@ -555,7 +523,12 @@ export const OverviewScreen: React.FC = () => {
               }[p.rank] || '#3f3f46';
 
               return (
-                <div key={p.rank} className="flex items-center justify-between">
+                <div
+                  key={p.rank}
+                  onClick={() => setActiveScreen('datahub')}
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.04] cursor-pointer transition-colors group select-none"
+                  title={`View ${p.name} Data Hub integration`}
+                >
                   <div className="flex items-center gap-3">
                     {/* Circular Teal Avatar with Rank Badge */}
                     <div className="relative">
@@ -598,16 +571,7 @@ export const OverviewScreen: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-6 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };

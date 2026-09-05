@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AuditLog } from '../../types/material';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 const STATUS_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
   approved:    { icon: 'check_circle', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
@@ -22,7 +23,7 @@ function getStatusCfg(action: string) {
 }
 
 export const GovernanceScreen: React.FC = () => {
-  const { auditLogs, setActiveScreen } = useApp();
+  const { auditLogs, setActiveScreen, addToast } = useApp();
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedActionFilter, setSelectedActionFilter] = useState('ALL');
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
@@ -215,17 +216,143 @@ export const GovernanceScreen: React.FC = () => {
         </div>
       </div>
 
+      {/* Audit Log Detail Slide-Over Drawer */}
+      {selectedLog && (
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={() => setSelectedLog(null)}
+        >
+          <div
+            className="w-full max-w-lg h-full bg-[#0C0E0D] border-l border-[#232825] shadow-2xl flex flex-col animate-slide-in-right overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drawer Header */}
+            <div className="px-6 py-4 border-b border-[#232825] bg-[#070908] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[18px]"
+                  style={{
+                    background: getStatusCfg(selectedLog.action).bg,
+                    color: getStatusCfg(selectedLog.action).color,
+                  }}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {getStatusCfg(selectedLog.action).icon}
+                  </span>
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Cryptographic Audit Entry</h3>
+                  <p className="text-[11px] text-[#A7ADA9] font-mono">
+                    ID: {selectedLog.id}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="p-1 rounded-lg text-[#9CA3AF] hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
+              {/* Event Summary Card */}
+              <div className="p-4 rounded-xl bg-[#070908] border border-[#232825] space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold text-[#6B7280]">Event Action</span>
+                  <span
+                    className="px-2 py-0.5 rounded text-[11px] font-semibold font-mono"
+                    style={{
+                      background: getStatusCfg(selectedLog.action).bg,
+                      color: getStatusCfg(selectedLog.action).color,
+                    }}
+                  >
+                    {selectedLog.action}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-[#6B7280] block mb-1">Target Entity</span>
+                  <span className="font-mono text-sm font-bold text-[#10B981] block">
+                    {selectedLog.targetEntity}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-[#6B7280] block mb-1">Description</span>
+                  <p className="text-[#F3F4F6] leading-relaxed">
+                    {selectedLog.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Actor & Authorization */}
+              <div className="p-4 rounded-xl bg-[#070908] border border-[#232825] space-y-3">
+                <span className="text-[10px] uppercase font-bold text-[#6B7280] block">
+                  Actor &amp; Stewardship
+                </span>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#161B18] border border-[#232825] flex items-center justify-center font-mono font-bold text-white text-sm">
+                    {selectedLog.user.initials}
+                  </div>
+                  <div>
+                    <div className="font-bold text-white text-sm">{selectedLog.user.name}</div>
+                    <div className="text-[11px] text-[#A7ADA9]">{selectedLog.user.role}</div>
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-[#1B201D] flex items-center justify-between text-[#9CA3AF] text-[11px]">
+                  <span>Timestamp</span>
+                  <span className="font-mono text-white">
+                    {selectedLog.timestamp ? new Date(selectedLog.timestamp).toUTCString() : 'Just now'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cryptographic Proof */}
+              <div className="p-4 rounded-xl bg-[#070908] border border-[#232825] space-y-2.5">
+                <span className="text-[10px] uppercase font-bold text-[#6B7280] block">
+                  Immutable Verification
+                </span>
+                <div className="flex items-center gap-2 text-emerald-400 font-medium">
+                  <span className="material-symbols-outlined text-[16px]">verified</span>
+                  <span>SHA-256 Ledger Hash Verified</span>
+                </div>
+                <div className="p-2.5 rounded bg-[#030403] border border-[#1B201D] font-mono text-[11px] text-[#9CA3AF] break-all select-all">
+                  sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069
+                </div>
+                <div className="flex justify-between text-[11px] text-[#6B7280]">
+                  <span>CAG Audit Mandate</span>
+                  <span className="text-white font-mono">10-Year Statutory Retention</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Drawer Footer Actions */}
+            <div className="px-6 py-3.5 border-t border-[#232825] bg-[#070908] flex items-center justify-between shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(JSON.stringify(selectedLog, null, 2));
+                  addToast('success', `Copied audit entry ${selectedLog.id} JSON`);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0C0E0D] border border-[#232825] text-[#F3F4F6] hover:border-[#38423C] transition-all"
+              >
+                <span className="material-symbols-outlined text-[15px]">content_copy</span>
+                <span>Copy JSON</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedLog(null)}
+                className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-[#10B981] text-[#000000] hover:brightness-110 transition-all shadow-sm"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 6. Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };

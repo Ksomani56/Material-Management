@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 export const HarmonizationScreen: React.FC = () => {
   const { 
@@ -10,7 +11,8 @@ export const HarmonizationScreen: React.FC = () => {
     skipHarmonization, 
     flagHarmonization, 
     addToast,
-    setActiveScreen
+    setActiveScreen,
+    openEvidence,
   } = useApp();
 
   const handleCommit = () => {
@@ -26,6 +28,39 @@ export const HarmonizationScreen: React.FC = () => {
   const handleFlag = () => {
     flagHarmonization();
     addToast('warning', `Item ${currentTask.source.localCode} flagged for technical committee.`);
+  };
+
+  const handleInspectEvidence = () => {
+    if (!currentTask) return;
+    openEvidence({
+      id: currentTask.taskId,
+      priority: 'HIGH',
+      sourceCpse: currentTask.source.cpse,
+      sourceCode: currentTask.source.localCode,
+      sourceDescription: currentTask.source.rawDescription,
+      candidateCnmc: currentTask.candidate.proposedCnmc,
+      candidateDescription: currentTask.candidate.canonicalDescription,
+      relationship: currentTask.aiAnalysis.conflict ? 'NEAR-DUPLICATE' : 'IDENTICAL',
+      confidence: currentTask.aiAnalysis.confidence,
+      age: 'Just now',
+      status: 'PENDING',
+      attributeAgreement: currentTask.aiAnalysis.confidence,
+      sourceAttributes: {
+        materialGroup: 'Mechanical & Piping',
+        baseMaterial: String(sourceSpecs.material || 'SS304'),
+        nominalSize: String(sourceSpecs.size || 'M10 x 50'),
+        pressureClass: String(sourceSpecs.standard || 'DIN 933'),
+        baseUOM: currentTask.source.uom || 'EA'
+      },
+      candidateAttributes: {
+        materialGroup: 'Mechanical & Piping',
+        baseMaterial: String(normalizedSpecs.material || 'Stainless Steel 304'),
+        nominalSize: String(normalizedSpecs.size || 'M10 x 50mm'),
+        pressureClass: 'ISO 4017 / DIN 933 Equivalent',
+        baseUOM: currentTask.source.uom || 'EA'
+      },
+      explanation: `AI Semantic Model analyzed ${currentTask.source.localCode} (${currentTask.source.cpse}) and mapped it to authoritative CNMC ${currentTask.candidate.proposedCnmc} with ${currentTask.aiAnalysis.confidence}% attribute confidence.`
+    });
   };
 
   // Safe attribute extraction
@@ -87,6 +122,13 @@ export const HarmonizationScreen: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <button 
+            onClick={handleInspectEvidence}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0C0E0D] border border-[#232825] text-[#F3F4F6] hover:border-[#38423C] transition-all flex items-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">visibility</span>
+            <span>Inspect Evidence</span>
+          </button>
           <button 
             onClick={handleSkip}
             className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0C0E0D] border border-[#232825] text-[#9CA3AF] hover:text-white hover:border-[#38423C] transition-all flex items-center gap-1.5"
@@ -299,16 +341,7 @@ export const HarmonizationScreen: React.FC = () => {
       </div>
 
       {/* 5. Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };

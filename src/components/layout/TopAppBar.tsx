@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
 export const TopAppBar: React.FC = () => {
   const {
@@ -12,37 +13,65 @@ export const TopAppBar: React.FC = () => {
 
   return (
     <header
-      className="flex items-center justify-between px-8 h-16 shrink-0 z-30 border-b border-[#232825] bg-[#000000]"
+      style={{
+        backgroundColor: 'var(--bg-surface)',
+        borderBottom: '1px solid var(--border)',
+        color: 'var(--text-primary)',
+      }}
+      className="flex items-center justify-between px-8 h-16 shrink-0 z-30"
     >
-      {/* Search Bar - Center/Left Aligned matching image */}
+      {/* Search Bar */}
       <div className="flex-1 max-w-xl">
-        <div 
+        <div
           onClick={() => setSearchOpen(true)}
           className="relative flex items-center cursor-pointer group"
         >
-          <span className="material-symbols-outlined absolute left-3.5 text-[#9CA3AF] text-[18px] group-hover:text-[#F3F4F6] transition-colors pointer-events-none">
+          <span
+            className="material-symbols-outlined absolute left-3.5 text-[18px] pointer-events-none transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+          >
             search
           </span>
           <input
             readOnly
             value={globalSearch}
             placeholder="Search materials, CNMC codes, CPSEs..."
-            className="w-full pl-10 pr-10 py-2 text-xs md:text-sm rounded-lg bg-[#0C0E0D] border border-[#232825] text-[#F3F4F6] placeholder-[#9CA3AF] outline-none group-hover:border-[#38423C] transition-all cursor-pointer font-sans"
+            style={{
+              backgroundColor: 'var(--bg-input)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
+            className="w-full pl-10 pr-10 py-2 text-xs md:text-sm rounded-lg outline-none transition-all cursor-pointer font-sans placeholder-[color:var(--text-muted)]"
           />
-          <kbd className="absolute right-3 px-1.5 py-0.5 rounded bg-[#161B18] border border-[#2A332E] text-[11px] font-mono text-[#9CA3AF] pointer-events-none">
+          <kbd
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-muted)',
+            }}
+            className="absolute right-3 px-1.5 py-0.5 rounded text-[11px] font-mono pointer-events-none"
+          >
             /
           </kbd>
         </div>
       </div>
 
-      {/* Right Controls matching image */}
+      {/* Right Controls */}
       <div className="flex items-center gap-4 ml-6">
         {/* Upload Dataset Button */}
         <button
           onClick={() => openUploadModal('ONGC')}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#F3F4F6] bg-[#0C0E0D] border border-[#232825] hover:border-[#38423C] hover:bg-[#131715] transition-all shadow-sm"
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-primary)',
+          }}
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm hover:opacity-80"
         >
-          <span className="material-symbols-outlined text-[16px] text-[#9CA3AF]">
+          <span
+            className="material-symbols-outlined text-[16px]"
+            style={{ color: 'var(--text-muted)' }}
+          >
             upload
           </span>
           <span>Upload</span>
@@ -51,17 +80,24 @@ export const TopAppBar: React.FC = () => {
         {/* Notifications */}
         <button
           onClick={() => setActiveScreen('review')}
-          className="relative p-2 rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/5 transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          className="relative p-2 rounded-lg transition-colors hover:opacity-80"
           title="Review Queue"
         >
           <span className="material-symbols-outlined text-[20px]">notifications</span>
           {reviewQueue.length > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#10B981] ring-2 ring-[#000000]" />
+            <span
+              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#10B981]"
+              style={{ boxShadow: '0 0 0 2px var(--bg-surface)' }}
+            />
           )}
         </button>
 
-        {/* User Profile Badge (Krishna Somani · CPSE User) */}
-        <div 
+        {/* Animated Dark / Light Theme Toggle */}
+        <AnimatedThemeToggle className="h-8 w-8 p-0 shrink-0" />
+
+        {/* User Profile Badge */}
+        <div
           onClick={() => setActiveScreen('settings')}
           className="flex items-center gap-3 pl-2 py-1 cursor-pointer group select-none"
         >
@@ -69,10 +105,16 @@ export const TopAppBar: React.FC = () => {
             KS
           </div>
           <div className="hidden sm:flex flex-col text-left">
-            <span className="text-xs font-semibold text-[#F3F4F6] leading-tight group-hover:text-white transition-colors">
+            <span
+              className="text-xs font-semibold leading-tight transition-colors"
+              style={{ color: 'var(--text-primary)' }}
+            >
               Krishna Somani
             </span>
-            <span className="text-[11px] text-[#9CA3AF] font-medium leading-tight">
+            <span
+              className="text-[11px] font-medium leading-tight"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               CPSE User
             </span>
           </div>

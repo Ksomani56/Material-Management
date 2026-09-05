@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AnimatedNumber } from '../core/animated-number';
+import { DateRangePicker } from '../common/DateRangePicker';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 /* -----------------------------------------------------------------------
    Mini Sparkline Component
@@ -450,11 +452,7 @@ export const AnalyticsScreen: React.FC = () => {
           <span className="text-[#F3F4F6]">Analytics & Savings</span>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF] cursor-pointer hover:border-[#38423C] transition-colors">
-          <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
-          <span>Last 30 days</span>
-          <span className="material-symbols-outlined text-[15px] text-[#6B7280]">expand_more</span>
-        </div>
+        <DateRangePicker />
       </div>
 
       {/* 2. Page Title Block */}
@@ -698,16 +696,7 @@ export const AnalyticsScreen: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-6 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };

@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { ScreenFooter } from '../common/FooterLegalModal';
+import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
 export const SettingsScreen: React.FC = () => {
   const { theme, toggleTheme, openUploadModal, addToast } = useApp();
+  const [cadence, setCadence] = useState('Real-Time WebSockets');
+  const [defaultLanding, setDefaultLanding] = useState('Executive Overview');
+  const [approvalThreshold, setApprovalThreshold] = useState(98);
+  const [matchingModel, setMatchingModel] = useState('Technical-RoBERTa v4.2');
 
   const handleIntegrityCheck = () => {
     addToast('success', 'Catalog Schema Integrity Check: 3,102,445 CNMC records verified with 0 anomalies.');
@@ -139,16 +145,12 @@ export const SettingsScreen: React.FC = () => {
                     Currently operating in {theme === 'dark' ? 'Pitch Black Industrial Dark Mode' : 'Clean Government Light Mode'}.
                   </p>
                 </div>
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all hover:brightness-110 shrink-0"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                >
-                  <span className="material-symbols-outlined text-[16px]">
-                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                <div className="flex items-center gap-3 shrink-0">
+                  <AnimatedThemeToggle className="h-9 w-9 p-0 shrink-0" />
+                  <span className="text-xs font-semibold text-[#A7ADA9]">
+                    {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
                   </span>
-                  Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode
-                </button>
+                </div>
               </div>
 
               <div
@@ -161,12 +163,19 @@ export const SettingsScreen: React.FC = () => {
                     Live synchronization interval for CPSE ingestion feeds and review queues.
                   </p>
                 </div>
-                <span
-                  className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shrink-0"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                <select
+                  value={cadence}
+                  onChange={(e) => {
+                    setCadence(e.target.value);
+                    addToast('info', `Sync cadence set to: ${e.target.value}`);
+                  }}
+                  className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shrink-0 bg-[#0C0E0D] border border-[#232825] text-[#10B981] outline-none cursor-pointer hover:border-[#38423C]"
                 >
-                  Real-Time WebSockets
-                </span>
+                  <option value="Real-Time WebSockets">Real-Time WebSockets</option>
+                  <option value="30 Seconds Poll">30 Seconds Poll</option>
+                  <option value="5 Minutes Batch">5 Minutes Batch</option>
+                  <option value="Manual Trigger">Manual Trigger Only</option>
+                </select>
               </div>
 
               <div
@@ -179,12 +188,19 @@ export const SettingsScreen: React.FC = () => {
                     Initial screen loaded on platform launch for catalog stewards.
                   </p>
                 </div>
-                <span
-                  className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shrink-0"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                <select
+                  value={defaultLanding}
+                  onChange={(e) => {
+                    setDefaultLanding(e.target.value);
+                    addToast('info', `Default view updated: ${e.target.value}`);
+                  }}
+                  className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shrink-0 bg-[#0C0E0D] border border-[#232825] text-[#F3F4F6] outline-none cursor-pointer hover:border-[#38423C]"
                 >
-                  Executive Overview
-                </span>
+                  <option value="Executive Overview">Executive Overview</option>
+                  <option value="Problem & Architecture">Problem & Architecture</option>
+                  <option value="Harmonization Workbench">Harmonization Workbench</option>
+                  <option value="Master Catalog">Master Catalog</option>
+                </select>
               </div>
             </div>
           </div>
@@ -214,12 +230,27 @@ export const SettingsScreen: React.FC = () => {
                     Matches with confidence score at or above this threshold are approved automatically.
                   </p>
                 </div>
-                <span
-                  className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg shrink-0"
-                  style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
-                >
-                  ≥ 98.0%
-                </span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <input
+                    type="range"
+                    min="90"
+                    max="100"
+                    step="1"
+                    value={approvalThreshold}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setApprovalThreshold(val);
+                      addToast('info', `Auto-approval cutoff set to ≥ ${val}.0%`);
+                    }}
+                    className="w-24 accent-[#10B981] cursor-pointer"
+                  />
+                  <span
+                    className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg shrink-0 min-w-[64px] text-center"
+                    style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                  >
+                    ≥ {approvalThreshold}.0%
+                  </span>
+                </div>
               </div>
 
               <div
@@ -232,12 +263,18 @@ export const SettingsScreen: React.FC = () => {
                     Domain-tuned semantic taxonomy engine trained on oil, gas, and power engineering records.
                   </p>
                 </div>
-                <span
-                  className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shrink-0"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                <select
+                  value={matchingModel}
+                  onChange={(e) => {
+                    setMatchingModel(e.target.value);
+                    addToast('info', `Inference engine switched to: ${e.target.value}`);
+                  }}
+                  className="text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shrink-0 bg-[#0C0E0D] border border-[#232825] text-[#22D3EE] outline-none cursor-pointer hover:border-[#38423C]"
                 >
-                  Technical-RoBERTa v4.2
-                </span>
+                  <option value="Technical-RoBERTa v4.2">Technical-RoBERTa v4.2 (Default)</option>
+                  <option value="PetroBERT-Domain v2.1">PetroBERT-Domain v2.1</option>
+                  <option value="Ensemble NLP-Spec v5.0">Ensemble NLP-Spec v5.0</option>
+                </select>
               </div>
 
               <div
@@ -461,16 +498,7 @@ export const SettingsScreen: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-6 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };
@@ -885,16 +913,7 @@ export const SupportScreen: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-6 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };

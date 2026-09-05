@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { RelationshipBadge } from '../common/RelationshipBadge';
 import { StatusBadge } from '../common/StatusBadge';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 export const MaterialDetailScreen: React.FC = () => {
   const { currentMaterial, setActiveScreen, openEvidence, addToast } = useApp();
@@ -303,16 +304,7 @@ export const MaterialDetailScreen: React.FC = () => {
       </div>
 
       {/* 5. Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </div>
   );
 };

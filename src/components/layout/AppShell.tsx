@@ -81,30 +81,48 @@ export const AppShell: React.FC = () => {
         key={item.id}
         onClick={() => setActiveScreen(item.id)}
         title={sidebarCollapsed ? item.label : undefined}
-        className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-left ${
-          sidebarCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2'
-        } ${
+        style={
           active
-            ? 'bg-[#10B981]/10 text-[#F3F4F6] font-medium border border-[#10B981]/30 shadow-sm'
-            : 'text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/5 border border-transparent'
+            ? {
+                backgroundColor: 'var(--bg-active)',
+                border: '1px solid var(--border-active)',
+                color: 'var(--primary)',
+              }
+            : {
+                backgroundColor: 'transparent',
+                border: '1px solid transparent',
+                color: 'var(--text-secondary)',
+              }
+        }
+        className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-left hover:opacity-90 ${
+          sidebarCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2'
         }`}
       >
         <span
-          className={`material-symbols-outlined text-[19px] shrink-0 ${
-            active ? 'text-[#10B981]' : 'text-[#9CA3AF]'
-          }`}
+          className="material-symbols-outlined text-[19px] shrink-0"
+          style={{ color: active ? 'var(--primary)' : 'var(--text-muted)' }}
         >
           {item.icon}
         </span>
 
         {!sidebarCollapsed && (
-          <span className="text-xs font-medium truncate flex-1 tracking-normal font-sans">
+          <span
+            className="text-xs font-medium truncate flex-1 tracking-normal font-sans"
+            style={{ color: active ? 'var(--primary)' : 'var(--text-secondary)' }}
+          >
             {item.label}
           </span>
         )}
 
         {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
-          <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#161B18] text-[#9CA3AF] border border-[#232825] shrink-0">
+          <span
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-muted)',
+            }}
+            className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full shrink-0"
+          >
             {item.badge}
           </span>
         )}
@@ -114,16 +132,24 @@ export const AppShell: React.FC = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen z-40 flex flex-col justify-between transition-all duration-200 select-none ${width} bg-[#000000] border-r border-[#232825]`}
+      style={{
+        backgroundColor: 'var(--bg-sidebar)',
+        borderRight: '1px solid var(--border)',
+      }}
+      className={`fixed top-0 left-0 h-screen z-40 flex flex-col justify-between transition-all duration-200 select-none ${width}`}
     >
       {/* Top Brand Header */}
       <div className="flex flex-col">
         <div
           onClick={() => setActiveScreen('landing')}
-          className="flex items-center gap-3 px-5 py-4 border-b border-[#232825] cursor-pointer hover:opacity-90 transition-opacity"
+          style={{ borderBottom: '1px solid var(--border)' }}
+          className="flex items-center gap-3 px-5 py-4 cursor-pointer hover:opacity-90 transition-opacity"
         >
           {/* Ashoka Lion Capital / Emblem Icon */}
-          <div className="w-8 h-8 rounded flex items-center justify-center shrink-0 text-[#E5E7EB]">
+          <div
+            className="w-8 h-8 rounded flex items-center justify-center shrink-0"
+            style={{ color: 'var(--text-primary)' }}
+          >
             <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current" aria-hidden="true">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" opacity="0.1" />
               <path d="M12 3.5c-.8 0-1.5.7-1.5 1.5v.5H9c-.6 0-1 .4-1 1v1.5c0 .6.4 1 1 1h.5v1.5H8c-.6 0-1 .4-1 1v1c0 .6.4 1 1 1h1.5v2.5H8c-.6 0-1 .4-1 1v1.5h10V16c0-.6-.4-1-1-1h-1.5v-2.5H17c.6 0 1-.4 1-1v-1c0-.6-.4-1-1-1h-1.5V9H16c.6 0 1-.4 1-1V6.5c0-.6-.4-1-1-1h-1.5V5c0-.8-.7-1.5-1.5-1.5zm-2 4h4v1h-4v-1zm0 3.5h4v1h-4v-1zm-1 3.5h6v1H9v-1z" />
@@ -132,13 +158,22 @@ export const AppShell: React.FC = () => {
 
           {!sidebarCollapsed && (
             <div className="min-w-0 flex-1">
-              <h1 className="text-xs font-bold text-[#F3F4F6] tracking-tight truncate leading-tight">
+              <h1
+                className="text-xs font-bold tracking-tight truncate leading-tight"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 National Material Master
               </h1>
-              <p className="text-[11px] text-[#9CA3AF] truncate leading-snug">
+              <p
+                className="text-[11px] truncate leading-snug"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 Government of India
               </p>
-              <p className="text-[10px] text-[#6B7280] font-mono truncate">
+              <p
+                className="text-[10px] font-mono truncate"
+                style={{ color: 'var(--text-muted)' }}
+              >
                 SIH26099 • MoPNG
               </p>
             </div>
@@ -163,13 +198,12 @@ export const AppShell: React.FC = () => {
                 {!sidebarCollapsed && (
                   <button
                     onClick={() => toggleSidebarGroup(group.id)}
-                    className="w-full flex items-center justify-between px-2.5 py-1 text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B7280] hover:text-[#F3F4F6] transition-colors group cursor-pointer"
+                    className="w-full flex items-center justify-between px-2.5 py-1 text-left text-[11px] font-semibold uppercase tracking-wider transition-colors group cursor-pointer hover:opacity-80"
+                    style={{ color: groupHasActive ? 'var(--text-primary)' : 'var(--text-muted)' }}
                   >
-                    <span className={groupHasActive ? 'text-[#F3F4F6]' : ''}>
-                      {group.label}
-                    </span>
+                    <span>{group.label}</span>
                     <span
-                      className="material-symbols-outlined text-[15px] transition-transform duration-200 text-[#6B7280] group-hover:text-[#F3F4F6]"
+                      className="material-symbols-outlined text-[15px] transition-transform duration-200"
                       style={{ transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
                     >
                       expand_more
@@ -192,12 +226,19 @@ export const AppShell: React.FC = () => {
       </div>
 
       {/* Pinned Bottom Items & Collapse toggle */}
-      <div className="p-3 border-t border-[#232825] bg-[#000000] space-y-1">
+      <div
+        style={{
+          borderTop: '1px solid var(--border)',
+          backgroundColor: 'var(--bg-sidebar)',
+        }}
+        className="p-3 space-y-1"
+      >
         {bottomItems.map(renderNavButton)}
 
         <button
           onClick={toggleSidebar}
-          className={`w-full flex items-center gap-2 rounded-lg text-xs font-medium text-[#6B7280] hover:text-[#F3F4F6] hover:bg-white/5 transition-colors ${
+          style={{ color: 'var(--text-muted)' }}
+          className={`w-full flex items-center gap-2 rounded-lg text-xs font-medium transition-colors hover:opacity-80 ${
             sidebarCollapsed ? 'justify-center p-2' : 'px-3 py-2'
           }`}
           title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}

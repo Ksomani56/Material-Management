@@ -88,14 +88,14 @@ export const LandingPage: React.FC = () => {
   const currentItem = sandboxItems[activeTab];
 
   return (
-    <div className="min-h-screen overflow-y-auto" style={{ background: '#000000', color: '#ffffff' }}>
+    <div className="min-h-screen overflow-y-auto" style={{ background: 'var(--bg)', color: 'var(--text-primary)' }}>
       {/* ── TOP NAV ── */}
       <header
         className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 h-16"
         style={{
-          background: 'rgba(0, 0, 0, 0.85)',
+          background: 'var(--bg-surface)',
           backdropFilter: 'blur(16px)',
-          borderBottom: '1px solid #232825',
+          borderBottom: '1px solid var(--border)',
         }}
       >
         <div className="flex items-center gap-3">

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { RelationshipBadge } from '../common/RelationshipBadge';
 import { ConfidenceBar } from '../common/ConfidenceBar';
+import { ScreenFooter } from '../common/FooterLegalModal';
 
 export const ReviewQueueScreen: React.FC = () => {
   const {
@@ -163,6 +164,21 @@ export const ReviewQueueScreen: React.FC = () => {
           <option value="INTERCHANGEABLE">Interchangeable</option>
           <option value="NEAR_DUPLICATE">Near-Duplicate</option>
         </select>
+
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#070908] border border-[#232825] text-xs">
+          <span className="text-[#6B7280]">Confidence:</span>
+          <select
+            value={minConfidence}
+            onChange={e => setMinConfidence(Number(e.target.value))}
+            className="bg-transparent text-[#10B981] font-mono font-semibold outline-none cursor-pointer"
+          >
+            <option value="50" className="bg-[#0C0E0D] text-white">All (&ge;50%)</option>
+            <option value="70" className="bg-[#0C0E0D] text-white">&ge;70% (Default)</option>
+            <option value="80" className="bg-[#0C0E0D] text-white">&ge;80% (High)</option>
+            <option value="90" className="bg-[#0C0E0D] text-white">&ge;90% (Strict)</option>
+            <option value="95" className="bg-[#0C0E0D] text-white">&ge;95% (Near-Certain)</option>
+          </select>
+        </div>
       </div>
 
       {/* 5. Queue Table */}
@@ -283,16 +299,7 @@ export const ReviewQueueScreen: React.FC = () => {
       </div>
 
       {/* 6. Footer */}
-      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
-        <div>
-          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
-          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
-          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
-        </div>
-      </footer>
+      <ScreenFooter />
     </main>
   );
 };
