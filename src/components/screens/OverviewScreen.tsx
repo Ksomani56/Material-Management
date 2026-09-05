@@ -98,7 +98,7 @@ const AreaChart: React.FC = () => {
               fontFamily="monospace"
               textAnchor="end"
             >
-              ${val}k
+              {val === 0 ? '0' : `${val}k`}
             </text>
           </g>
         ))}
@@ -158,8 +158,8 @@ const AreaChart: React.FC = () => {
               x: toX(i),
               y: Math.min(toY(m.revenue), toY(m.target)) - 10,
               label: m.label,
-              v1: `$${m.revenue}k`,
-              v2: `$${m.target}k`,
+              v1: `${m.revenue}k`,
+              v2: `${m.target}k`,
             })}
             onMouseLeave={() => setTooltip(null)}
             style={{ cursor: 'crosshair' }}
@@ -171,8 +171,8 @@ const AreaChart: React.FC = () => {
           if (m.label !== tooltip.label) return null;
           return (
             <g key="marker">
-              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#10B981" stroke="#0F1110" strokeWidth="2" />
-              <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#0F1110" strokeWidth="1.5" />
+              <circle cx={toX(i)} cy={toY(m.revenue)} r="5" fill="#10B981" stroke="#000000" strokeWidth="2" />
+              <circle cx={toX(i)} cy={toY(m.target)} r="4" fill="#10b981" stroke="#000000" strokeWidth="1.5" />
             </g>
           );
         })}
@@ -186,19 +186,19 @@ const AreaChart: React.FC = () => {
             left: `${(tooltip.x / W) * 100}%`,
             top: `${(Math.max(0, tooltip.y - 45) / H) * 100}%`,
             transform: 'translateX(-50%)',
-            background: '#171A18',
-            border: '1px solid #303532',
+            background: '#0C0E0D',
+            border: '1px solid #232825',
             boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
           }}
         >
-          <div className="font-semibold text-white mb-1.5">{tooltip.label}</div>
+          <div className="font-semibold text-white mb-1.5">{tooltip.label} Standardization</div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full" style={{ background: '#10B981' }} />
-            <span className="text-[#A7ADA9]">Revenue: <strong className="text-white">{tooltip.v1}</strong></span>
+            <span className="text-[#A7ADA9]">Standardized: <strong className="text-white">{tooltip.v1} records</strong></span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#10B981' }} />
-            <span className="text-[#A7ADA9]">Target: <strong className="text-white">{tooltip.v2}</strong></span>
+            <span className="w-2 h-2 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.4)' }} />
+            <span className="text-[#A7ADA9]">Source Ingested: <strong className="text-white">{tooltip.v2} records</strong></span>
           </div>
         </div>
       )}
@@ -221,8 +221,8 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
   <div
     className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
     style={{
-      background: '#09090b',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
+      background: '#0C0E0D',
+      border: '1px solid #232825',
     }}
   >
     {/* Top Row: Label + Icon Box */}
@@ -263,96 +263,121 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
 export const OverviewScreen: React.FC = () => {
   const { setActiveScreen, reviewQueue, cpseList } = useApp();
 
-  const recentDeals = [
-    { initial: 'A', name: 'Acme Corp', sub: 'Sarah Chen • 2 hours ago', amount: '$125,000', status: 'Won' },
-    { initial: 'T', name: 'TechStart Inc', sub: 'Mike Johnson • 5 hours ago', amount: '$89,500', status: 'Pending' },
-    { initial: 'G', name: 'GlobalFin', sub: 'Emily Davis • 1 day ago', amount: '$245,000', status: 'Pending' },
-    { initial: 'D', name: 'DataSync Solutions', sub: 'James Wilson • 2 days ago', amount: '$67,800', status: 'Lost' },
-    { initial: 'C', name: 'CloudBase Ltd', sub: 'Sarah Chen • 3 days ago', amount: '$178,000', status: 'Won' },
+  const recentApprovals = [
+    { initial: 'ON', name: 'ONGC (Hazira Plant)', sub: 'MAT-VLV-0928 • Ball Valve 50mm 150# CS Flanged', amount: '₹14,200', status: 'Approved' },
+    { initial: 'IO', name: 'IOCL (Panipat)', sub: 'IOCL-FST-902 • Hex Bolt M10 x 50 SS304 Full Thd', amount: '₹55', status: 'Harmonized' },
+    { initial: 'GA', name: 'GAIL (Vijaipur)', sub: 'G-201-9482 • Valve Ball Flanged 2IN Class 150', amount: '₹15,100', status: 'Approved' },
+    { initial: 'NT', name: 'NTPC (Singrauli)', sub: 'NGC-BLT-004 • Fastener Hex Head M10*50 SS-304', amount: '₹52', status: 'Pending' },
+    { initial: 'BH', name: 'BHEL (Haridwar)', sub: 'BHEL-ROT-108 • Bronze Impeller OD210 Bore32', amount: '₹39,200', status: 'Harmonized' },
   ];
 
-  const topPerformers = [
-    { rank: 1, initial: 'SC', name: 'Sarah Chen', deals: '24 deals closed', amount: '$487,500', growth: '+15%' },
-    { rank: 2, initial: 'MJ', name: 'Mike Johnson', deals: '19 deals closed', amount: '$356,200', growth: '+8%' },
-    { rank: 3, initial: 'ED', name: 'Emily Davis', deals: '17 deals closed', amount: '$312,800', growth: '+12%' },
-    { rank: 4, initial: 'JW', name: 'James Wilson', deals: '15 deals closed', amount: '$289,400', growth: '+5%' },
-    { rank: 5, initial: 'LP', name: 'Lisa Park', deals: '14 deals closed', amount: '$267,100', growth: '+9%' },
+  const cpseLeaderboard = [
+    { rank: 1, initial: 'ON', name: 'ONGC', desc: '94.2% catalog standardized', amount: '₹1,840 Cr', growth: '+15%' },
+    { rank: 2, initial: 'IO', name: 'IOCL', desc: '91.8% catalog standardized', amount: '₹1,320 Cr', growth: '+8%' },
+    { rank: 3, initial: 'GA', name: 'GAIL', desc: '88.5% catalog standardized', amount: '₹860 Cr', growth: '+12%' },
+    { rank: 4, initial: 'NT', name: 'NTPC', desc: '86.2% catalog standardized', amount: '₹520 Cr', growth: '+5%' },
+    { rank: 5, initial: 'BH', name: 'BHEL', desc: '82.4% catalog standardized', amount: '₹280 Cr', growth: '+9%' },
   ];
 
   const pipelineStages = [
-    { name: 'Lead', count: 892, pct: 45, color: '#10B981' },
-    { name: 'Qualified', count: 556, pct: 28, color: '#10b981' },
-    { name: 'Proposal', count: 357, pct: 18, color: '#EAB308' },
-    { name: 'Negotiation', count: 179, pct: 9, color: '#34d399' },
+    { name: 'Raw Ingested', count: 892, pct: 45, color: '#10B981' },
+    { name: 'Specs Extracted', count: 556, pct: 28, color: '#10b981' },
+    { name: 'Candidate Matched', count: 357, pct: 18, color: '#EAB308' },
+    { name: 'CNMC Approved', count: 179, pct: 9, color: '#34d399' },
   ];
 
   return (
     <main
-      className="flex-1 overflow-y-auto p-6 space-y-6"
-      style={{ background: '#0F1110' }}
+      className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#070908] text-[#F3F4F6]"
     >
-      {/* 1. Top Row of 4 KPI Cards */}
+      {/* 1. Breadcrumbs & Time Selector */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs font-medium text-[#9CA3AF]">
+          <span 
+            onClick={() => setActiveScreen('dashboard')} 
+            className="cursor-pointer hover:text-[#F3F4F6] transition-colors"
+          >
+            Home
+          </span>
+          <span className="text-[#6B7280]">›</span>
+          <span className="text-[#F3F4F6]">Dashboard</span>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF] cursor-pointer hover:border-[#38423C] transition-colors">
+          <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
+          <span>Last 30 days</span>
+          <span className="material-symbols-outlined text-[15px] text-[#6B7280]">expand_more</span>
+        </div>
+      </div>
+
+      {/* 2. Page Title Block */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
+          Dashboard Overview
+        </h1>
+        <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-4xl">
+          National material master harmonization progress, cross-enterprise spend, and pipeline performance across all connected CPSEs.
+        </p>
+      </div>
+
+      {/* 3. Top Row of 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
-          label="Total Revenue"
-          value={<AnimatedNumber value={2.4} decimals={1} prefix="$" suffix="M" duration={1600} />}
-          delta="+12.5%"
+          label="Total Unified Masters"
+          value={<AnimatedNumber value={3.1} decimals={1} suffix="M" duration={1600} />}
+          delta="+14.2%"
           deltaUp={true}
-          icon="attach_money"
+          icon="inventory_2"
         />
         <KpiCard
-          label="Conversion Rate"
-          value={<AnimatedNumber value={24.8} decimals={1} suffix="%" duration={1600} />}
-          delta="+3.2%"
+          label="Duplicate Reduction"
+          value={<AnimatedNumber value={68.2} decimals={1} suffix="%" duration={1600} />}
+          delta="+5.4%"
           deltaUp={true}
-          icon="trending_up"
+          icon="call_merge"
         />
         <KpiCard
-          label="Active Deals"
-          value={<AnimatedNumber value={147} duration={1500} />}
-          delta="-5"
-          deltaUp={false}
-          icon="track_changes"
+          label="Pending Review Queue"
+          value={<AnimatedNumber value={reviewQueue.length > 0 ? reviewQueue.length : 147} duration={1500} />}
+          delta="-18"
+          deltaUp={true}
+          icon="fact_check"
         />
         <KpiCard
-          label="New Leads"
-          value={<AnimatedNumber value={892} duration={1600} />}
-          delta="+18.3%"
+          label="Projected Savings"
+          value={<AnimatedNumber value={4820} prefix="₹" suffix=" Cr" duration={1600} />}
+          delta="+18.5%"
           deltaUp={true}
-          icon="group"
+          icon="savings"
         />
       </div>
 
-      {/* 2. Middle Row: Revenue Trend Area Chart + Pipeline Stages */}
+      {/* 4. Middle Row: Standardization Trend Area Chart + Ingestion Funnel */}
       <div className="grid grid-cols-12 gap-5">
-        {/* Revenue Trend Area Chart (2/3 width) */}
+        {/* Standardization Trend Area Chart (2/3 width) */}
         <div
-          className="col-span-12 lg:col-span-8 rounded-xl p-6"
-          style={{
-            background: '#171A18',
-            border: '1px solid #303532',
-          }}
+          className="col-span-12 lg:col-span-8 rounded-xl p-6 bg-[#0C0E0D] border border-[#232825]"
         >
-          {/* Header & Legend matching template */}
+          {/* Header & Legend */}
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="text-base font-semibold text-white tracking-tight">
-                Revenue Trend
+              <h2 className="text-sm font-semibold text-white tracking-tight">
+                Catalog Standardization Trend
               </h2>
-              <p className="text-xs text-[#A7ADA9] mt-0.5">
-                Monthly performance vs target
+              <p className="text-xs text-[#9CA3AF] mt-0.5">
+                Monthly standardized masters vs source ERP ingestion (thousands)
               </p>
             </div>
 
             {/* Legend */}
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10B981' }} />
-                <span className="text-[#A7ADA9]">Revenue</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
+                <span className="text-[#9CA3AF]">Standardized Masters</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10B981' }} />
-                <span className="text-[#A7ADA9]">Target</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-white/40" />
+                <span className="text-[#9CA3AF]">Source Records</span>
               </div>
             </div>
           </div>
@@ -360,23 +385,23 @@ export const OverviewScreen: React.FC = () => {
           <AreaChart />
         </div>
 
-        {/* Pipeline Stages (1/3 width) */}
+        {/* Governance Funnel Stages (1/3 width) */}
         <div
           className="col-span-12 lg:col-span-4 rounded-xl p-6 flex flex-col justify-between"
           style={{
-            background: '#171A18',
-            border: '1px solid #303532',
+            background: '#0C0E0D',
+            border: '1px solid #232825',
           }}
         >
           <div>
             <h2 className="text-base font-semibold text-white tracking-tight">
-              Pipeline Stages
+              Ingestion &amp; Governance Funnel
             </h2>
             <p className="text-xs text-[#71717a] mt-0.5 mb-5">
-              Distribution by stage
+              14.2M records across participating CPSEs
             </p>
 
-            {/* Stage Progress Bars matching template */}
+            {/* Stage Progress Bars */}
             <div className="space-y-4">
               {pipelineStages.map((stage) => (
                 <div key={stage.name}>
@@ -384,7 +409,7 @@ export const OverviewScreen: React.FC = () => {
                     <span className="font-semibold text-white">{stage.name}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-[#71717a] font-mono">
-                        <AnimatedNumber value={stage.count} duration={1400} />
+                        <AnimatedNumber value={stage.count} duration={1400} />k
                       </span>
                       <span className="font-bold text-white font-mono">
                         <AnimatedNumber value={stage.pct} suffix="%" duration={1400} />
@@ -408,52 +433,52 @@ export const OverviewScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Total Value matching template */}
+          {/* Bottom Total Ingested */}
           <div
             className="pt-4 mt-6 flex justify-between items-baseline"
-            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}
+            style={{ borderTop: '1px solid #232825' }}
           >
-            <span className="text-xs text-[#71717a]">Total Pipeline Value</span>
-            <span className="text-2xl font-bold text-white tracking-tight">
-              <AnimatedNumber value={4.8} decimals={1} prefix="$" suffix="M" duration={1600} />
+            <span className="text-xs text-[#71717a]">Total Ingested Legacy Records</span>
+            <span className="text-2xl font-bold text-white tracking-tight font-mono">
+              <AnimatedNumber value={14.2} decimals={1} suffix="M" duration={1600} />
             </span>
           </div>
         </div>
       </div>
 
-      {/* 3. Bottom Row: Recent Deals + Top Performers */}
+      {/* 3. Bottom Row: Recent Harmonizations + CPSE Leaderboard */}
       <div className="grid grid-cols-12 gap-5">
-        {/* Recent Deals (Left 7 cols) */}
+        {/* Recent Approvals (Left 7 cols) */}
         <div
           className="col-span-12 lg:col-span-7 rounded-xl p-6"
           style={{
-            background: '#171A18',
-            border: '1px solid #303532',
+            background: '#0C0E0D',
+            border: '1px solid #232825',
           }}
         >
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-semibold text-[#F3F4F6] tracking-tight">
-                Recent Deals
+                Recent Harmonization Approvals
               </h2>
-              <p className="text-xs text-[#A7ADA9] mt-0.5">Latest activity</p>
+              <p className="text-xs text-[#A7ADA9] mt-0.5">Cross-enterprise material mappings</p>
             </div>
             <button
               onClick={() => setActiveScreen('review')}
               className="text-xs font-semibold flex items-center gap-1 hover:underline"
               style={{ color: '#10B981' }}
             >
-              View all <span className="material-symbols-outlined text-[14px]">arrow_outward</span>
+              Review queue ({reviewQueue.length}) <span className="material-symbols-outlined text-[14px]">arrow_outward</span>
             </button>
           </div>
 
           <div className="space-y-3">
-            {recentDeals.map((deal, idx) => {
+            {recentApprovals.map((item, idx) => {
               const statusCfg = {
-                Won: { border: 'rgba(16, 185, 129, 0.25)', color: '#10B981', icon: 'check_circle' },
+                Approved: { border: 'rgba(16, 185, 129, 0.25)', color: '#10B981', icon: 'check_circle' },
+                Harmonized: { border: 'rgba(59, 130, 246, 0.25)', color: '#3B82F6', icon: 'verified' },
                 Pending: { border: 'rgba(234, 179, 8, 0.25)', color: '#EAB308', icon: 'schedule' },
-                Lost: { border: 'rgba(239, 68, 68, 0.25)', color: '#EF4444', icon: 'cancel' },
-              }[deal.status] || { border: 'transparent', color: '#A7ADA9', icon: 'info' };
+              }[item.status] || { border: 'transparent', color: '#A7ADA9', icon: 'info' };
 
               return (
                 <div
@@ -463,23 +488,23 @@ export const OverviewScreen: React.FC = () => {
                   <div className="flex items-center gap-3">
                     {/* Square Dark Initial Box */}
                     <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs text-white"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs font-mono text-white"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid #303532',
+                        background: '#070908',
+                        border: '1px solid #232825',
                       }}
                     >
-                      {deal.initial}
+                      {item.initial}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#F3F4F6]">{deal.name}</p>
-                      <p className="text-xs text-[#A7ADA9]">{deal.sub}</p>
+                      <p className="text-sm font-semibold text-[#F3F4F6]">{item.name}</p>
+                      <p className="text-xs text-[#A7ADA9] font-mono">{item.sub}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-bold text-[#F3F4F6] font-mono">
-                      {deal.amount}
+                      {item.amount}
                     </span>
                     <span
                       className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold"
@@ -492,7 +517,7 @@ export const OverviewScreen: React.FC = () => {
                       <span className="material-symbols-outlined text-[12px]">
                         {statusCfg.icon}
                       </span>
-                      {deal.status}
+                      {item.status}
                     </span>
                   </div>
                 </div>
@@ -501,20 +526,20 @@ export const OverviewScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Top Performers (Right 5 cols) */}
+        {/* CPSE Leaderboard (Right 5 cols) */}
         <div
           className="col-span-12 lg:col-span-5 rounded-xl p-6"
           style={{
-            background: '#171A18',
-            border: '1px solid #303532',
+            background: '#0C0E0D',
+            border: '1px solid #232825',
           }}
         >
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-semibold text-[#F3F4F6] tracking-tight">
-                Top Performers
+                CPSE Standardization Leaders
               </h2>
-              <p className="text-xs text-[#A7ADA9] mt-0.5">This month's leaders</p>
+              <p className="text-xs text-[#A7ADA9] mt-0.5">Enterprise pooling &amp; savings</p>
             </div>
             <span className="material-symbols-outlined text-[20px] text-[#EAB308]">
               emoji_events
@@ -522,11 +547,11 @@ export const OverviewScreen: React.FC = () => {
           </div>
 
           <div className="space-y-3.5">
-            {topPerformers.map((p) => {
+            {cpseLeaderboard.map((p) => {
               const rankBg = {
-                1: '#ea580c', // Orange for 1st
+                1: '#ea580c', // Gold/Orange for 1st
                 2: '#d97706', // Yellow-orange for 2nd
-                3: '#b45309', // Darker orange for 3rd
+                3: '#b45309', // Bronze for 3rd
               }[p.rank] || '#3f3f46';
 
               return (
@@ -535,7 +560,7 @@ export const OverviewScreen: React.FC = () => {
                     {/* Circular Teal Avatar with Rank Badge */}
                     <div className="relative">
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-[#0F1110] shadow-sm"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold font-mono text-[#000000] shadow-sm"
                         style={{ background: '#10B981' }}
                       >
                         {p.initial}
@@ -552,7 +577,7 @@ export const OverviewScreen: React.FC = () => {
                       <p className="text-sm font-semibold text-white leading-tight">
                         {p.name}
                       </p>
-                      <p className="text-xs text-[#71717a] mt-0.5">{p.deals}</p>
+                      <p className="text-xs text-[#71717a] mt-0.5">{p.desc}</p>
                     </div>
                   </div>
 
@@ -571,6 +596,18 @@ export const OverviewScreen: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-6 pb-2 border-t border-[#1B201D] gap-2">
+        <div>
+          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
+        </div>
+        <div className="flex items-center gap-4">
+          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
+          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
+          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
+        </div>
+      </footer>
     </main>
   );
 };

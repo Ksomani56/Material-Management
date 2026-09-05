@@ -9,23 +9,23 @@
 
 :root, html.dark {
   color-scheme: dark;
-  /* Charcoal Canvas & Panels */
-  --bg:              #0F1110;
-  --bg-surface:      #171A18;
-  --bg-card:         #171A18;
-  --bg-sidebar:      #0F1110;
+  /* Complete Black Canvas & Shade-Above-Black Panels */
+  --bg:              #000000;
+  --bg-surface:      #0C0E0D;
+  --bg-card:         #0C0E0D;
+  --bg-sidebar:      #000000;
   --bg-hover:        rgba(255, 255, 255, 0.04);
   --bg-active:       rgba(16, 185, 129, 0.12);
-  --bg-input:        #121513;
+  --bg-input:        #070908;
 
   /* Industrial Borders */
-  --border:          #303532;
-  --border-subtle:   rgba(48, 53, 50, 0.6);
+  --border:          #232825;
+  --border-subtle:   rgba(255, 255, 255, 0.06);
   --border-active:   #10B981;
 
   /* High-Contrast Typography */
   --text-primary:    #F3F4F6;
-  --text-secondary:  #A7ADA9;
+  --text-secondary:  #9CA3AF;
   --text-muted:      #6B7280;
 
   /* Primary Accent: Emerald / Teal Green */
@@ -48,8 +48,8 @@
   --blue-dim:        rgba(16, 185, 129, 0.12);
   --indigo:          #3B82F6;
   --indigo-dim:      rgba(59, 130, 246, 0.12);
-  --cyan:            #10B981;
-  --cyan-dim:        rgba(16, 185, 129, 0.12);
+  --cyan:            #22D3EE;
+  --cyan-dim:        rgba(34, 211, 238, 0.14);
   --emerald:         #10B981;
   --emerald-dim:     rgba(16, 185, 129, 0.12);
   --violet:          #10B981;

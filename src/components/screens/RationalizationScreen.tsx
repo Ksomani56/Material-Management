@@ -13,13 +13,13 @@ const ACTION_META = {
 type ActionType = keyof typeof ACTION_META;
 
 export const RationalizationScreen: React.FC = () => {
-  const { openImpactModal, addAuditLog, addToast } = useApp();
+  const { openImpactModal, addAuditLog, addToast, setActiveScreen } = useApp();
   const [selectedAction, setSelectedAction] = useState<ActionType>('MERGE');
 
   const sampleTargets = [
-    { sourceCode: 'ONGC-VLV-009', targetCnmc: 'CNMC-00018427', description: '6 IN BALL VALVE CLASS 300 A105', cpse: 'ONGC', potentialDuplicates: 3 },
-    { sourceCode: 'IOCL-PMP-104', targetCnmc: 'CNMC-883210',   description: 'CENTRIFUGAL PUMP 50M3/HR 120M HEAD CS', cpse: 'IOCL', potentialDuplicates: 2 },
-    { sourceCode: 'NTPC-FST-881', targetCnmc: 'CNMC-110482',   description: 'HEX BOLT M16 X 75 GR 8.8 GALV', cpse: 'NTPC', potentialDuplicates: 4 },
+    { sourceCode: 'ONGC-VLV-009', targetCnmc: '3116.1504.8920', description: '6 IN BALL VALVE CLASS 300 A105', cpse: 'ONGC', potentialDuplicates: 3 },
+    { sourceCode: 'IOCL-PMP-104', targetCnmc: '4320.1009.4412', description: 'CENTRIFUGAL PUMP 50M3/HR 120M HEAD CS', cpse: 'IOCL', potentialDuplicates: 2 },
+    { sourceCode: 'NTPC-FST-881', targetCnmc: '3116.1504.8920', description: 'HEX BOLT M16 X 75 GR 8.8 GALV', cpse: 'NTPC', potentialDuplicates: 4 },
   ];
 
   const handleExecuteAction = (sourceCode: string, targetCnmc: string) => {
@@ -44,18 +44,87 @@ export const RationalizationScreen: React.FC = () => {
   const meta = ACTION_META[selectedAction];
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-5" style={{ background: 'var(--bg)' }}>
-      {/* Header */}
-      <div>
-        <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-          Catalog Rationalization &amp; Migration
-        </h2>
-        <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-          Safe, staged workflow: Select action → Review candidates → Confirm impacts → Execute.
+    <main className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#070908] text-[#F3F4F6]">
+      {/* 1. Breadcrumbs & Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs font-medium text-[#9CA3AF]">
+          <span 
+            onClick={() => setActiveScreen('dashboard')} 
+            className="cursor-pointer hover:text-[#F3F4F6] transition-colors"
+          >
+            Home
+          </span>
+          <span className="text-[#6B7280]">›</span>
+          <span className="text-[#F3F4F6]">Rationalization & Migration</span>
+        </div>
+
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF]">
+          <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
+          <span>Last 30 days</span>
+        </div>
+      </div>
+
+      {/* 2. Page Title Block */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
+          Catalog Rationalization & Migration
+        </h1>
+        <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-4xl">
+          Safe, staged SKU consolidation workflow: select operational mode, review cross-enterprise merge candidates, verify dependencies, and execute.
         </p>
       </div>
 
-      {/* 6 Action type cards */}
+      {/* 3. Hero Split Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-1">
+        <div className="lg:col-span-7 space-y-2">
+          <h2 className="text-sm font-semibold text-[#F3F4F6] tracking-normal font-sans">
+            Redundant SKU Elimination
+          </h2>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed font-sans">
+            Centralized consolidation preserves ERP historical purchase orders while mapping multiple redundant local codes to a single authoritative CNMC. This eliminates duplicate safety stock and enables pooling across regional depots.
+          </p>
+        </div>
+
+        <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">
+              284
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Duplicate Clusters
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Ready for merge
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">
+              31%
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              SKU Reduction
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Catalog complexity
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
+              ₹84 Cr
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Holding Capital
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Unlocked capacity
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. 6 Action Type Selection Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {(Object.keys(ACTION_META) as ActionType[]).map(action => {
           const isSelected = selectedAction === action;
@@ -64,21 +133,21 @@ export const RationalizationScreen: React.FC = () => {
             <button
               key={action}
               onClick={() => setSelectedAction(action)}
-              className="p-4 rounded-xl text-left flex flex-col gap-2 transition-all hover:brightness-105"
-              style={{
-                background: isSelected ? 'var(--blue-dim)' : 'var(--bg-card)',
-                border: `1px solid ${isSelected ? 'var(--blue)' : 'var(--border)'}`,
-              }}
+              className={`p-3.5 rounded-xl text-left flex flex-col gap-1.5 transition-all ${
+                isSelected
+                  ? 'bg-[#10B981]/10 border border-[#10B981]'
+                  : 'bg-[#0C0E0D] border border-[#232825] hover:border-[#38423C]'
+              }`}
             >
               <div className="flex justify-between items-center">
-                <span className="font-mono text-sm font-bold" style={{ color: isSelected ? 'var(--blue)' : 'var(--text-primary)' }}>
+                <span className={`font-mono text-xs font-bold ${isSelected ? 'text-[#10B981]' : 'text-white'}`}>
                   {action}
                 </span>
-                <span className="material-symbols-outlined text-[18px]" style={{ color: isSelected ? 'var(--blue)' : 'var(--text-muted)' }}>
+                <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-[#10B981]' : 'text-[#9CA3AF]'}`}>
                   {m.icon}
                 </span>
               </div>
-              <span className="text-xs" style={{ color: isSelected ? 'var(--blue)' : 'var(--text-secondary)' }}>
+              <span className={`text-[11px] font-medium leading-tight ${isSelected ? 'text-[#F3F4F6]' : 'text-[#9CA3AF]'}`}>
                 {m.label}
               </span>
             </button>
@@ -86,86 +155,76 @@ export const RationalizationScreen: React.FC = () => {
         })}
       </div>
 
-      {/* Selected action description */}
-      <div
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
-        <div className="flex items-start gap-3">
-          <span className="material-symbols-outlined icon-fill text-[22px] mt-0.5" style={{ color: 'var(--blue)' }}>
-            {meta.icon}
-          </span>
-          <div>
-            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Operation: {selectedAction} — {meta.label}
-            </p>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>{meta.desc}</p>
-          </div>
-        </div>
-        <span
-          className="text-xs font-mono px-3 py-1.5 rounded shrink-0"
-          style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
-        >
-          Review → Confirm → Execute
+      {/* Selected Action Description Banner */}
+      <div className="p-4 rounded-xl bg-[#0C0E0D] border border-[#232825] flex items-center gap-3">
+        <span className="material-symbols-outlined text-[20px] text-[#10B981]">
+          {meta.icon}
         </span>
+        <div className="text-xs">
+          <span className="font-semibold text-white mr-2">Operation: {selectedAction} — {meta.label}:</span>
+          <span className="text-[#9CA3AF]">{meta.desc}</span>
+        </div>
       </div>
 
-      {/* Candidates table */}
-      <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+      {/* 5. Candidate Materials Table */}
+      <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl overflow-hidden">
+        <div className="p-5 border-b border-[#232825] flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Candidates Ready for {selectedAction}
+            <h3 className="text-sm font-semibold text-white font-sans">
+              Candidates for {selectedAction} Operation
             </h3>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              Review each item before applying changes to the live master
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
+              Review impact scope before executing catalog mutation
             </p>
           </div>
-          <span className="text-sm font-mono" style={{ color: 'var(--text-muted)' }}>
-            {sampleTargets.length} items queued
+          <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#161B18] text-[#9CA3AF] border border-[#232825]">
+            {sampleTargets.length} Candidates Pending
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Source Code & CPSE', 'Target CNMC', 'Description', 'Duplicates', ''].map(h => (
-                  <th key={h} className="px-5 py-3 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: 'var(--text-muted)' }}>
-                    {h}
-                  </th>
-                ))}
+              <tr className="border-b border-[#232825] text-[10px] uppercase font-semibold text-[#6B7280]">
+                <th className="px-5 py-3 font-medium">Source Item (CPSE)</th>
+                <th className="px-5 py-3 font-medium">Target National CNMC</th>
+                <th className="px-5 py-3 font-medium">Description</th>
+                <th className="px-5 py-3 font-medium text-center">Cluster Duplicates</th>
+                <th className="px-5 py-3 font-medium text-right">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {sampleTargets.map(row => (
-                <tr key={row.sourceCode} className="transition-colors hover:opacity-90"
-                  style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <tbody className="divide-y divide-[#1B201D]">
+              {sampleTargets.map((item, idx) => (
+                <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-4">
-                    <span className="text-sm font-bold font-mono block" style={{ color: 'var(--blue)' }}>{row.sourceCode}</span>
-                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{row.cpse}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-[#10B981]">
+                        {item.sourceCode}
+                      </span>
+                      <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[#161B18] text-[#9CA3AF] border border-[#232825]">
+                        {item.cpse}
+                      </span>
+                    </div>
                   </td>
-                  <td className="px-5 py-4 text-sm font-mono font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {row.targetCnmc}
+
+                  <td className="px-5 py-4 font-mono text-xs font-bold text-[#22D3EE]">
+                    {item.targetCnmc}
                   </td>
-                  <td className="px-5 py-4 text-sm max-w-xs truncate" style={{ color: 'var(--text-secondary)' }}
-                    title={row.description}>
-                    {row.description}
+
+                  <td className="px-5 py-4 text-xs text-[#F3F4F6] max-w-sm truncate">
+                    {item.description}
                   </td>
-                  <td className="px-5 py-4 text-center">
-                    <span className="px-2.5 py-1 rounded text-xs font-mono font-semibold"
-                      style={{ background: 'var(--bg-hover)', color: 'var(--warning)' }}>
-                      {row.potentialDuplicates} items
-                    </span>
+
+                  <td className="px-5 py-4 text-center font-mono font-semibold text-white">
+                    {item.potentialDuplicates} records
                   </td>
+
                   <td className="px-5 py-4 text-right">
                     <button
-                      onClick={() => handleExecuteAction(row.sourceCode, row.targetCnmc)}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-110 transition-all"
-                      style={{ background: 'var(--blue)', color: '#fff' }}
+                      onClick={() => handleExecuteAction(item.sourceCode, item.targetCnmc)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#10B981] text-[#000000] hover:brightness-110 transition-all shadow-sm"
                     >
-                      Review &amp; Confirm
+                      Execute {selectedAction}
                     </button>
                   </td>
                 </tr>
@@ -174,6 +233,18 @@ export const RationalizationScreen: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* 6. Footer */}
+      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
+        <div>
+          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
+        </div>
+        <div className="flex items-center gap-4">
+          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
+          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
+          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
+        </div>
+      </footer>
     </main>
   );
 };

@@ -7,7 +7,7 @@ export const ReviewQueueScreen: React.FC = () => {
   const {
     reviewQueue, selectedReviewIds, toggleSelectReviewItem,
     toggleSelectAllReviewItems, approveReviewItem, bulkApproveReviewItems,
-    flagReviewItem, openEvidence, openUploadModal,
+    flagReviewItem, openEvidence, openUploadModal, setActiveScreen
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,217 +33,266 @@ export const ReviewQueueScreen: React.FC = () => {
   const paginatedItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const allSelectedOnPage = paginatedItems.length > 0 && paginatedItems.every(i => selectedReviewIds.includes(i.id));
 
-  const selectStyle = {
-    background: 'var(--bg-input)',
-    border: '1px solid var(--border)',
-    color: 'var(--text-primary)',
-  };
-
   return (
-    <main className="flex-1 flex flex-col overflow-hidden p-6 gap-4" style={{ background: 'var(--bg)' }}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
-        <div>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-            Harmonization Review Queue
-          </h2>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-            Suspected duplicates and material matches requiring cataloger approval.
-          </p>
+    <main className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#070908] text-[#F3F4F6]">
+      {/* 1. Breadcrumbs & Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs font-medium text-[#9CA3AF]">
+          <span 
+            onClick={() => setActiveScreen('dashboard')} 
+            className="cursor-pointer hover:text-[#F3F4F6] transition-colors"
+          >
+            Home
+          </span>
+          <span className="text-[#6B7280]">›</span>
+          <span className="text-[#F3F4F6]">Review Queue</span>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+
+        <div className="flex items-center gap-3">
           {selectedReviewIds.length > 0 && (
             <button
               onClick={() => bulkApproveReviewItems(selectedReviewIds)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-110 transition-all"
-              style={{ background: 'var(--success)', color: '#fff' }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#10B981] text-[#000000] hover:brightness-110 transition-all shadow-sm"
             >
-              <span className="material-symbols-outlined text-[16px]">done_all</span>
-              Approve Selected ({selectedReviewIds.length})
+              <span className="material-symbols-outlined text-[15px]">done_all</span>
+              <span>Approve Selected ({selectedReviewIds.length})</span>
             </button>
           )}
           <button
             onClick={() => openUploadModal('ONGC')}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all"
-            style={{ background: 'var(--bg-card)', color: 'var(--blue)', border: '1px solid var(--border)' }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0C0E0D] border border-[#232825] text-[#F3F4F6] hover:border-[#38423C] transition-all"
           >
-            <span className="material-symbols-outlined text-[16px]">upload_file</span>
-            Import CSV/XLS
+            <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">upload_file</span>
+            <span>Import CSV/XLS</span>
           </button>
         </div>
       </div>
 
-      {/* Filter toolbar */}
-      <div className="flex flex-wrap gap-2.5 items-center p-3 rounded-xl shrink-0"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg flex-1 min-w-[200px] max-w-sm"
-          style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
-          <span className="material-symbols-outlined text-[16px]" style={{ color: 'var(--text-muted)' }}>search</span>
-          <input
-            type="text" value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search code, description or CNMC..."
-            className="bg-transparent border-none text-sm focus:ring-0 w-full outline-none"
-            style={{ color: 'var(--text-primary)' }}
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} style={{ color: 'var(--text-muted)' }} className="hover:opacity-80">
-              <span className="material-symbols-outlined text-[14px]">close</span>
-            </button>
-          )}
+      {/* 2. Page Title Block */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
+          Harmonization Review Queue
+        </h1>
+        <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-4xl">
+          Suspected duplicate materials and borderline similarity recommendations requiring human-in-the-loop validation.
+        </p>
+      </div>
+
+      {/* 3. Hero Split Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-1">
+        <div className="lg:col-span-7 space-y-2">
+          <h2 className="text-sm font-semibold text-[#F3F4F6] tracking-normal font-sans">
+            Cataloger Verification Queue
+          </h2>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed font-sans">
+            Automated machine learning algorithms flag records when differences in unit of measurement, thread pitch, or alloy grade fall between 70% and 95% confidence. Approved matches are immediately indexed into the National Master.
+          </p>
         </div>
 
-        {[
-          { value: selectedCpse, onChange: (v: string) => setSelectedCpse(v), options: [
-            { value: 'ALL', label: 'All Enterprises' },
-            { value: 'ONGC', label: 'ONGC' },
-            { value: 'IOCL', label: 'IOCL' },
-            { value: 'GAIL', label: 'GAIL' },
-            { value: 'BPCL', label: 'BPCL' },
-            { value: 'NTPC', label: 'NTPC' },
-            { value: 'BHEL', label: 'BHEL' },
-          ]},
-          { value: selectedRelationship, onChange: (v: string) => setSelectedRelationship(v), options: [
-            { value: 'ALL', label: 'All Match Types' },
-            { value: 'IDENTICAL', label: 'Identical' },
-            { value: 'DUPLICATE', label: 'Duplicate' },
-            { value: 'NEAR-DUPLICATE', label: 'Near-Duplicate' },
-            { value: 'FUNCTIONALLY EQUIVALENT', label: 'Functionally Equivalent' },
-          ]},
-        ].map((sel, i) => (
-          <select key={i} value={sel.value} onChange={e => sel.onChange(e.target.value)}
-            className="px-3 py-2 rounded-lg text-sm outline-none"
-            style={selectStyle}>
-            {sel.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        ))}
+        <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#EAB308] tracking-tight">
+              {reviewQueue.length || 5}
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Pending Items
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Awaiting review
+            </div>
+          </div>
 
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
-          style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-          <span>Min: {minConfidence}%</span>
-          <input type="range" min="50" max="95" step="5" value={minConfidence}
-            onChange={e => setMinConfidence(Number(e.target.value))}
-            className="w-16 cursor-pointer accent-blue-500" />
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">
+              42
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Approved Today
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Catalogers active
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
+              92%
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Avg Confidence
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Queue threshold
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="flex-1 overflow-hidden flex flex-col rounded-xl"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <div className="overflow-auto flex-1">
-          <table className="w-full text-left whitespace-nowrap">
-            <thead className="sticky top-0 z-10" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
-              <tr>
-                <th className="px-3 py-3 w-10">
-                  <input type="checkbox" checked={allSelectedOnPage}
-                    onChange={() => toggleSelectAllReviewItems(!allSelectedOnPage)}
-                    className="rounded" style={{ accentColor: 'var(--blue)' }} />
+      {/* 4. Filter Toolbar */}
+      <div className="flex flex-wrap gap-3 items-center p-3 rounded-xl bg-[#0C0E0D] border border-[#232825]">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#070908] border border-[#232825] flex-1 min-w-[200px] max-w-sm">
+          <span className="material-symbols-outlined text-[16px] text-[#9CA3AF]">search</span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search code or description..."
+            className="bg-transparent border-none text-xs text-[#F3F4F6] placeholder-[#9CA3AF] outline-none w-full"
+          />
+        </div>
+
+        <select
+          value={selectedCpse}
+          onChange={e => setSelectedCpse(e.target.value)}
+          className="px-3 py-1.5 rounded-lg text-xs bg-[#070908] border border-[#232825] text-[#F3F4F6] outline-none"
+        >
+          <option value="ALL">All CPSEs</option>
+          <option value="ONGC">ONGC</option>
+          <option value="IOCL">IOCL</option>
+          <option value="GAIL">GAIL</option>
+          <option value="NTPC">NTPC</option>
+        </select>
+
+        <select
+          value={selectedRelationship}
+          onChange={e => setSelectedRelationship(e.target.value)}
+          className="px-3 py-1.5 rounded-lg text-xs bg-[#070908] border border-[#232825] text-[#F3F4F6] outline-none"
+        >
+          <option value="ALL">All Relationships</option>
+          <option value="IDENTICAL">Identical</option>
+          <option value="INTERCHANGEABLE">Interchangeable</option>
+          <option value="NEAR_DUPLICATE">Near-Duplicate</option>
+        </select>
+      </div>
+
+      {/* 5. Queue Table */}
+      <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-[#232825] text-[10px] uppercase font-semibold text-[#6B7280]">
+                <th className="px-5 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={allSelectedOnPage}
+                    onChange={(e) => toggleSelectAllReviewItems(e.target.checked)}
+                    className="rounded bg-[#070908] border-[#232825] text-[#10B981] focus:ring-0 cursor-pointer"
+                  />
                 </th>
-                {['Enterprise', 'Source Material', 'Recommended CNMC', 'Match Type', 'Confidence', ''].map(h => (
-                  <th key={h} className="px-3 py-3 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: 'var(--text-muted)' }}>{h}</th>
-                ))}
+                <th className="px-5 py-3 font-medium">Source Record (CPSE)</th>
+                <th className="px-5 py-3 font-medium">Target Candidate (CNMC)</th>
+                <th className="px-5 py-3 font-medium text-center">Relationship</th>
+                <th className="px-5 py-3 font-medium text-center">Confidence</th>
+                <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {paginatedItems.map(item => (
-                <tr key={item.id} className="transition-colors hover:opacity-90"
-                  style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <td className="px-3 py-4" onClick={e => e.stopPropagation()}>
-                    <input type="checkbox" checked={selectedReviewIds.includes(item.id)}
-                      onChange={() => toggleSelectReviewItem(item.id)}
-                      className="rounded" style={{ accentColor: 'var(--blue)' }} />
-                  </td>
-                  <td className="px-3 py-4">
-                    <span className="px-2.5 py-1 rounded text-sm font-bold font-mono"
-                      style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}>
-                      {item.sourceCpse}
-                    </span>
-                  </td>
-                  <td className="px-3 py-4">
-                    <div className="text-sm font-bold font-mono flex items-center gap-1.5" style={{ color: 'var(--blue)' }}>
-                      {item.sourceCode}
-                      <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>
-                        ({item.sourceUom || item.sourceAttributes?.baseUOM || 'NOS'})
-                      </span>
-                    </div>
-                    <p className="text-sm truncate max-w-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}
-                      title={item.sourceDescription}>
-                      {item.sourceDescription}
-                    </p>
-                  </td>
-                  <td className="px-3 py-4">
-                    <span className="text-sm font-semibold font-mono" style={{ color: 'var(--text-primary)' }}>
-                      {item.candidateCnmc}
-                    </span>
-                    <p className="text-sm truncate max-w-xs mt-0.5" style={{ color: 'var(--text-muted)' }}
-                      title={item.candidateDescription}>
-                      {item.candidateDescription}
-                    </p>
-                  </td>
-                  <td className="px-3 py-4 text-center">
-                    <RelationshipBadge type={item.relationship} size="sm" />
-                  </td>
-                  <td className="px-3 py-4">
-                    <div className="w-24">
-                      <ConfidenceBar confidence={item.confidence} />
-                    </div>
-                  </td>
-                  <td className="px-3 py-4 text-right" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button onClick={() => openEvidence(item)}
-                        className="p-1.5 rounded hover:opacity-80 transition-opacity"
-                        style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
-                        title="View Evidence">
-                        <span className="material-symbols-outlined text-[15px]">visibility</span>
-                      </button>
-                      <button onClick={() => flagReviewItem(item.id)}
-                        className="p-1.5 rounded hover:opacity-80 transition-opacity"
-                        style={{ color: 'var(--warning)', border: '1px solid var(--border)' }}
-                        title="Flag">
-                        <span className="material-symbols-outlined text-[15px]">flag</span>
-                      </button>
-                      <button onClick={() => approveReviewItem(item.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded text-sm font-semibold hover:brightness-110 transition-all"
-                        style={{ background: 'var(--blue)', color: '#fff' }}>
-                        <span className="material-symbols-outlined text-[14px]">check</span>
-                        Approve
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-[#1B201D]">
+              {paginatedItems.map(item => {
+                const isSelected = selectedReviewIds.includes(item.id);
+                return (
+                  <tr
+                    key={item.id}
+                    className={`hover:bg-white/[0.02] transition-colors ${
+                      isSelected ? 'bg-white/[0.03]' : ''
+                    }`}
+                  >
+                    <td className="px-5 py-4">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectReviewItem(item.id)}
+                        className="rounded bg-[#070908] border-[#232825] text-[#10B981] focus:ring-0 cursor-pointer"
+                      />
+                    </td>
+
+                    <td className="px-5 py-4 max-w-xs">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-mono text-xs font-bold text-[#10B981]">
+                          {item.sourceCode}
+                        </span>
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[#161B18] text-[#9CA3AF] border border-[#232825]">
+                          {item.sourceCpse}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#F3F4F6] truncate">{item.sourceDescription}</p>
+                    </td>
+
+                    <td className="px-5 py-4 max-w-xs">
+                      <div className="font-mono text-xs font-bold text-[#22D3EE] mb-1">
+                        {item.candidateCnmc}
+                      </div>
+                      <p className="text-xs text-[#9CA3AF] truncate">{item.candidateDescription}</p>
+                    </td>
+
+                    <td className="px-5 py-4 text-center">
+                      <RelationshipBadge type={item.relationship} size="sm" />
+                    </td>
+
+                    <td className="px-5 py-4 text-center">
+                      <div className="w-24 mx-auto">
+                        <ConfidenceBar confidence={item.confidence} />
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => flagReviewItem(item.id)}
+                          className="p-1.5 rounded-lg border border-[#232825] text-[#EAB308] hover:bg-[#EAB308]/10 transition-all"
+                          title="Flag Discrepancy"
+                        >
+                          <span className="material-symbols-outlined text-[15px]">flag</span>
+                        </button>
+                        <button
+                          onClick={() => approveReviewItem(item.id)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#10B981] text-[#000000] hover:brightness-110 transition-all shadow-sm"
+                        >
+                          Approve
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination footer */}
-        <div className="h-11 shrink-0 flex items-center justify-between px-4 text-sm"
-          style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
-          <span>
-            Showing <strong style={{ color: 'var(--text-primary)' }}>
-              {filteredItems.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
-            </strong>–<strong style={{ color: 'var(--text-primary)' }}>
-              {Math.min(currentPage * pageSize, filteredItems.length)}
-            </strong> of <strong style={{ color: 'var(--text-primary)' }}>{filteredItems.length}</strong> items
-          </span>
+        {/* Pagination Bar */}
+        <div className="px-5 py-3 border-t border-[#232825] bg-[#070908] flex items-center justify-between text-xs text-[#9CA3AF]">
+          <div>
+            Showing Page <strong className="text-white font-mono">{currentPage}</strong> of <strong className="text-white font-mono">{totalPages}</strong>
+          </div>
           <div className="flex items-center gap-2">
-            <button disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              className="px-3 py-1 rounded text-sm disabled:opacity-40 hover:opacity-80 transition-opacity"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-              ← Previous
+            <button
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+              className="p-1 rounded border border-[#232825] hover:border-[#38423C] disabled:opacity-30"
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
             </button>
-            <span className="font-mono text-sm">Page {currentPage} of {totalPages}</span>
-            <button disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              className="px-3 py-1 rounded text-sm disabled:opacity-40 hover:opacity-80 transition-opacity"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-              Next →
+            <button
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage(p => p + 1)}
+              className="p-1 rounded border border-[#232825] hover:border-[#38423C] disabled:opacity-30"
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* 6. Footer */}
+      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
+        <div>
+          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
+        </div>
+        <div className="flex items-center gap-4">
+          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
+          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
+          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
+        </div>
+      </footer>
     </main>
   );
 };

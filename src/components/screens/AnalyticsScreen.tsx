@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AnimatedNumber } from '../core/animated-number';
-import { TextShimmer } from '../core/text-shimmer';
 
 /* -----------------------------------------------------------------------
    Mini Sparkline Component
@@ -47,8 +46,8 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, badge, badgeType, spark
   <div
     className="rounded-xl p-5 flex flex-col justify-between card-hover transition-all"
     style={{
-      background: '#171A18',
-      border: '1px solid #303532',
+      background: '#0C0E0D',
+      border: '1px solid #232825',
     }}
   >
     <div className="flex items-center justify-between mb-2">
@@ -308,13 +307,13 @@ const ProcurementMultiSeriesChart: React.FC = () => {
         {/* Indicator marker dots on selected quarter */}
         {activePt && (
           <g>
-            <circle cx={activePt.x} cy={activePt.y} r="5" fill="#ffffff" stroke="#0F1110" strokeWidth="2" />
+            <circle cx={activePt.x} cy={activePt.y} r="5" fill="#ffffff" stroke="#000000" strokeWidth="2" />
             <circle
               cx={savingsPts[hoveredQuarter !== null ? hoveredQuarter : 2].x}
               cy={savingsPts[hoveredQuarter !== null ? hoveredQuarter : 2].y}
               r="5"
               fill="#10B981"
-              stroke="#0F1110"
+              stroke="#000000"
               strokeWidth="2"
             />
           </g>
@@ -329,17 +328,24 @@ const ProcurementMultiSeriesChart: React.FC = () => {
             left: `${((padL + (hoveredQuarter !== null ? hoveredQuarter : 2) * quarterWidth + quarterWidth / 2) / W) * 100}%`,
             top: '8%',
             transform: 'translateX(-50%)',
-            background: '#171A18',
-            border: '1px solid #303532',
+            background: '#0C0E0D',
+            border: '1px solid #232825',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8)',
             minWidth: '170px',
           }}
         >
           <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10">
             <span className="text-xs font-bold text-white">{activeQ.name} Procurement Detail</span>
-            <TextShimmer duration={2.2} className="text-[10px] font-mono font-bold text-[#10B981]">
-              Pooled
-            </TextShimmer>
+            <span
+              className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
+              style={{
+                background: 'rgba(16, 185, 129, 0.12)',
+                color: '#10B981',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+              }}
+            >
+              POOLED
+            </span>
           </div>
 
           <div className="space-y-1.5 text-xs font-mono">
@@ -427,37 +433,87 @@ export const AnalyticsScreen: React.FC = () => {
     },
   ];
 
+  const { setActiveScreen } = useApp();
+
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6" style={{ background: '#0F1110' }}>
-      {/* 1. Header with Breadcrumb & Quick Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">
-            National Unified Material Master - Analytics &amp; Savings
-          </h1>
-          <p className="text-xs text-[#A7ADA9] mt-0.5">
-            Inter-enterprise procurement pooling, volume discounts, and price harmonization
+    <main className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#070908] text-[#F3F4F6]">
+      {/* 1. Breadcrumbs & Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs font-medium text-[#9CA3AF]">
+          <span 
+            onClick={() => setActiveScreen('dashboard')} 
+            className="cursor-pointer hover:text-[#F3F4F6] transition-colors"
+          >
+            Home
+          </span>
+          <span className="text-[#6B7280]">›</span>
+          <span className="text-[#F3F4F6]">Analytics & Savings</span>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF] cursor-pointer hover:border-[#38423C] transition-colors">
+          <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
+          <span>Last 30 days</span>
+          <span className="material-symbols-outlined text-[15px] text-[#6B7280]">expand_more</span>
+        </div>
+      </div>
+
+      {/* 2. Page Title Block */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
+          Analytics & Savings
+        </h1>
+        <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-4xl">
+          Inter-enterprise procurement pooling, volume discounts, price disparity analysis, and harmonization dividends across participating CPSEs.
+        </p>
+      </div>
+
+      {/* 3. Hero Split Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-1">
+        <div className="lg:col-span-7 space-y-2">
+          <h2 className="text-sm font-semibold text-[#F3F4F6] tracking-normal font-sans">
+            Cross-Enterprise Spend Dispersion
+          </h2>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed font-sans">
+            By aggregating identical physical items across multiple CPSE enterprise purchase orders, pricing discrepancies between facilities are exposed. Consolidated RFQs unlock tier-1 volume discounts from manufacturers.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:bg-white/10"
-            style={{
-              background: '#171A18',
-              border: '1px solid #303532',
-            }}
-          >
-            <span className="material-symbols-outlined text-[16px]">filter_list</span>
-            Filters
-          </button>
-          <button
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#0F1110] transition-all hover:brightness-110 shadow-sm font-bold"
-            style={{ background: '#10B981' }}
-          >
-            <span className="material-symbols-outlined text-[16px]">calendar_today</span>
-            Quarters (2024)
-          </button>
+        <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">
+              ₹7.45B
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Total Spend
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Catalog coverage
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#10B981] tracking-tight">
+              ₹1.84B
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Realized Savings
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Bulk consolidation
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
+              14.5%
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Rate Variance
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Arbitrage captured
+            </div>
+          </div>
         </div>
       </div>
 
@@ -497,8 +553,8 @@ export const AnalyticsScreen: React.FC = () => {
       <div
         className="rounded-xl p-6 space-y-4"
         style={{
-          background: '#171A18',
-          border: '1px solid #303532',
+          background: '#0C0E0D',
+          border: '1px solid #232825',
         }}
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -544,8 +600,8 @@ export const AnalyticsScreen: React.FC = () => {
       <div
         className="rounded-xl overflow-hidden"
         style={{
-          background: '#171A18',
-          border: '1px solid #303532',
+          background: '#0C0E0D',
+          border: '1px solid #232825',
         }}
       >
         <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10">
@@ -561,12 +617,12 @@ export const AnalyticsScreen: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:bg-white/10 transition-colors"
-              style={{ background: '#121513', border: '1px solid #303532' }}
+              style={{ background: '#070908', border: '1px solid #232825' }}
             >
               Export CSV
             </button>
             <button
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#0F1110] hover:brightness-110 transition-all shadow-sm"
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#000000] hover:brightness-110 transition-all shadow-sm"
               style={{ background: '#10B981' }}
             >
               Add Material
@@ -576,7 +632,7 @@ export const AnalyticsScreen: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead style={{ background: '#0e0e12', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <thead style={{ background: '#070908', borderBottom: '1px solid #232825' }}>
               <tr>
                 {['Material Name', 'Category', 'Status', 'Lead CPSE Vendor', 'Last Unit Price', 'Variance'].map((h) => (
                   <th key={h} className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#71717a]">
@@ -640,6 +696,18 @@ export const AnalyticsScreen: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-6 pb-2 border-t border-[#1B201D] gap-2">
+        <div>
+          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
+        </div>
+        <div className="flex items-center gap-4">
+          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
+          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
+          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
+        </div>
+      </footer>
     </main>
   );
 };

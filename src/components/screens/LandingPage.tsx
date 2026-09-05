@@ -88,19 +88,19 @@ export const LandingPage: React.FC = () => {
   const currentItem = sandboxItems[activeTab];
 
   return (
-    <div className="min-h-screen overflow-y-auto" style={{ background: '#0F1110', color: '#ffffff' }}>
+    <div className="min-h-screen overflow-y-auto" style={{ background: '#000000', color: '#ffffff' }}>
       {/* ── TOP NAV ── */}
       <header
         className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 h-16"
         style={{
-          background: 'rgba(15, 17, 16, 0.85)',
+          background: 'rgba(0, 0, 0, 0.85)',
           backdropFilter: 'blur(16px)',
-          borderBottom: '1px solid #303532',
+          borderBottom: '1px solid #232825',
         }}
       >
         <div className="flex items-center gap-3">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#0F1110] shadow-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#000000] shadow-sm"
             style={{ background: '#10B981' }}
           >
             <span className="material-symbols-outlined icon-fill text-[18px]">
@@ -122,7 +122,7 @@ export const LandingPage: React.FC = () => {
 
         <button
           onClick={() => setActiveScreen('dashboard')}
-          className="px-4 py-2 rounded-lg text-xs font-bold hover:brightness-110 transition-all text-[#0F1110] shadow-sm"
+          className="px-4 py-2 rounded-lg text-xs font-bold hover:brightness-110 transition-all text-[#000000] shadow-sm"
           style={{ background: '#10B981' }}
         >
           Launch Dashboard →
@@ -179,7 +179,7 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-3.5 justify-center mb-16">
             <button
               onClick={() => setActiveScreen('dashboard')}
-              className="px-7 py-3 rounded-lg text-sm font-bold hover:brightness-110 transition-all text-[#0F1110] shadow-xl flex items-center justify-center gap-2"
+              className="px-7 py-3 rounded-lg text-sm font-bold hover:brightness-110 transition-all text-[#000000] shadow-xl flex items-center justify-center gap-2"
               style={{ background: '#10B981' }}
             >
               Start Now — Enter Dashboard
@@ -189,8 +189,8 @@ export const LandingPage: React.FC = () => {
               href="#demo"
               className="px-6 py-3 rounded-lg text-sm font-semibold transition-all hover:bg-white/5 text-white flex items-center justify-center gap-2"
               style={{
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid #303532',
+                background: '#070908',
+                border: '1px solid #232825',
               }}
             >
               <span className="material-symbols-outlined text-[18px]">play_circle</span>
@@ -203,15 +203,15 @@ export const LandingPage: React.FC = () => {
             id="showcase"
             className="relative z-20 rounded-2xl overflow-hidden text-left mx-auto transition-all"
             style={{
-              background: '#171A18',
-              border: '1px solid #303532',
+              background: '#0C0E0D',
+              border: '1px solid #232825',
               boxShadow: '0 25px 80px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04)',
             }}
           >
             {/* Window Titlebar */}
             <div
               className="px-4 py-3 flex items-center justify-between border-b border-white/10"
-              style={{ background: '#0e0e13' }}
+              style={{ background: '#070908' }}
             >
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
@@ -409,9 +409,9 @@ export const LandingPage: React.FC = () => {
                 onClick={() => setActiveTab(tab)}
                 className="px-4 py-2 rounded-lg text-xs font-semibold transition-all"
                 style={{
-                  background: activeTab === tab ? '#10B981' : '#171A18',
-                  color: activeTab === tab ? '#0F1110' : '#A7ADA9',
-                  border: `1px solid ${activeTab === tab ? '#10B981' : '#303532'}`,
+                  background: activeTab === tab ? '#10B981' : '#0C0E0D',
+                  color: activeTab === tab ? '#000000' : '#A7ADA9',
+                  border: `1px solid ${activeTab === tab ? '#10B981' : '#232825'}`,
                 }}
               >
                 {sandboxItems[tab].name}
@@ -424,8 +424,8 @@ export const LandingPage: React.FC = () => {
         <div
           className="rounded-2xl p-6 sm:p-8 space-y-6"
           style={{
-            background: '#171A18',
-            border: '1px solid #303532',
+            background: '#0C0E0D',
+            border: '1px solid #232825',
           }}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -521,8 +521,8 @@ export const LandingPage: React.FC = () => {
           <div
             className="p-6 rounded-2xl flex flex-col justify-between card-hover"
             style={{
-              background: '#171A18',
-              border: '1px solid #303532',
+              background: '#0C0E0D',
+              border: '1px solid #232825',
             }}
           >
             <div>
@@ -546,8 +546,8 @@ export const LandingPage: React.FC = () => {
           <div
             className="p-6 rounded-2xl flex flex-col justify-between card-hover"
             style={{
-              background: '#171A18',
-              border: '1px solid #303532',
+              background: '#0C0E0D',
+              border: '1px solid #232825',
             }}
           >
             <div>
@@ -571,8 +571,8 @@ export const LandingPage: React.FC = () => {
           <div
             className="p-6 rounded-2xl flex flex-col justify-between card-hover"
             style={{
-              background: '#171A18',
-              border: '1px solid #303532',
+              background: '#0C0E0D',
+              border: '1px solid #232825',
             }}
           >
             <div>
@@ -596,8 +596,8 @@ export const LandingPage: React.FC = () => {
           <div
             className="p-6 rounded-2xl flex flex-col justify-between card-hover"
             style={{
-              background: '#171A18',
-              border: '1px solid #303532',
+              background: '#0C0E0D',
+              border: '1px solid #232825',
             }}
           >
             <div>
@@ -623,7 +623,7 @@ export const LandingPage: React.FC = () => {
       <section
         id="impact"
         className="py-16 border-y border-white/5"
-        style={{ background: '#171A18' }}
+        style={{ background: '#0C0E0D' }}
       >
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-white">Measurable National Fiscal Impact</h2>
@@ -648,7 +648,7 @@ export const LandingPage: React.FC = () => {
           </p>
           <button
             onClick={() => setActiveScreen('dashboard')}
-            className="px-8 py-3.5 rounded-lg text-sm font-bold hover:brightness-110 transition-all text-[#0F1110] shadow-2xl"
+            className="px-8 py-3.5 rounded-lg text-sm font-bold hover:brightness-110 transition-all text-[#000000] shadow-2xl"
             style={{ background: '#10B981' }}
           >
             Launch Executive Dashboard →
@@ -659,7 +659,7 @@ export const LandingPage: React.FC = () => {
       {/* ── FOOTER ── */}
       <footer
         className="py-6 px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs border-t border-white/10"
-        style={{ background: '#0F1110', color: '#A7ADA9' }}
+        style={{ background: '#000000', color: '#A7ADA9' }}
       >
         <span>© 2024 National Unified Material Master · SIH26099 · Ministry of Petroleum &amp; Natural Gas</span>
         <div className="flex items-center gap-5">

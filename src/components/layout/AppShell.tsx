@@ -27,15 +27,12 @@ export const AppShell: React.FC = () => {
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 
+  const topItems: NavItem[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { id: 'home', label: 'Problem & Architecture', icon: 'account_tree' },
+  ];
+
   const groups: NavGroup[] = [
-    {
-      id: 'core',
-      label: 'Overview',
-      items: [
-        { id: 'dashboard', label: 'Overview', icon: 'grid_view' },
-        { id: 'home', label: 'Problem & Architecture', icon: 'hub' },
-      ],
-    },
     {
       id: 'catalog',
       label: 'Catalog Management',
@@ -49,162 +46,144 @@ export const AppShell: React.FC = () => {
       id: 'review-ops',
       label: 'Review & Operations',
       items: [
-        { id: 'harmonization', label: 'Harmonization', icon: 'compare_arrows' },
+        { id: 'harmonization', label: 'Harmonization', icon: 'tune' },
         {
           id: 'review',
           label: 'Review Queue',
           icon: 'fact_check',
-          badge: reviewQueue.length,
+          badge: reviewQueue.length || 5,
         },
-        { id: 'rationalization', label: 'Rationalization', icon: 'call_merge' },
+        { id: 'rationalization', label: 'Rationalization', icon: 'hub' },
       ],
     },
     {
-      id: 'reporting',
-      label: 'Reporting & Governance',
+      id: 'governance',
+      label: 'Analytics & Governance',
       items: [
-        { id: 'analytics', label: 'Analytics & Savings', icon: 'monitoring' },
-        { id: 'governance', label: 'Audit Trail', icon: 'gavel' },
-        { id: 'settings', label: 'Settings', icon: 'settings' },
-        { id: 'support', label: 'Documentation', icon: 'help_outline' },
+        { id: 'analytics', label: 'Analytics & Savings', icon: 'analytics' },
+        { id: 'governance', label: 'Audit History', icon: 'history' },
       ],
     },
   ];
 
-  const isActive = (id: ScreenType) => activeScreen === id;
+  const bottomItems: NavItem[] = [
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+    { id: 'support', label: 'Help & Support', icon: 'help' },
+  ];
 
-  const width = sidebarCollapsed ? 'w-16' : 'w-60';
+  const isActive = (id: ScreenType) => activeScreen === id;
+  const width = sidebarCollapsed ? 'w-16' : 'w-64';
+
+  const renderNavButton = (item: NavItem) => {
+    const active = isActive(item.id);
+    return (
+      <button
+        key={item.id}
+        onClick={() => setActiveScreen(item.id)}
+        title={sidebarCollapsed ? item.label : undefined}
+        className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-left ${
+          sidebarCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2'
+        } ${
+          active
+            ? 'bg-[#10B981]/10 text-[#F3F4F6] font-medium border border-[#10B981]/30 shadow-sm'
+            : 'text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/5 border border-transparent'
+        }`}
+      >
+        <span
+          className={`material-symbols-outlined text-[19px] shrink-0 ${
+            active ? 'text-[#10B981]' : 'text-[#9CA3AF]'
+          }`}
+        >
+          {item.icon}
+        </span>
+
+        {!sidebarCollapsed && (
+          <span className="text-xs font-medium truncate flex-1 tracking-normal font-sans">
+            {item.label}
+          </span>
+        )}
+
+        {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
+          <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#161B18] text-[#9CA3AF] border border-[#232825] shrink-0">
+            {item.badge}
+          </span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen z-40 flex flex-col justify-between transition-all duration-200 select-none ${width}`}
-      style={{
-        background: '#0F1110',
-        borderRight: '1px solid #303532',
-      }}
+      className={`fixed top-0 left-0 h-screen z-40 flex flex-col justify-between transition-all duration-200 select-none ${width} bg-[#000000] border-r border-[#232825]`}
     >
       {/* Top Brand Header */}
-      <div>
+      <div className="flex flex-col">
         <div
           onClick={() => setActiveScreen('landing')}
-          className="flex items-center gap-3 px-4 h-14 cursor-pointer hover:opacity-90 transition-opacity"
-          style={{ borderBottom: '1px solid #303532' }}
+          className="flex items-center gap-3 px-5 py-4 border-b border-[#232825] cursor-pointer hover:opacity-90 transition-opacity"
         >
-          {/* Logo icon box matching template */}
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
-            style={{
-              background: '#10B981',
-              color: '#0F1110',
-            }}
-          >
-            <span className="material-symbols-outlined icon-fill text-[20px]">
-              inventory_2
-            </span>
+          {/* Ashoka Lion Capital / Emblem Icon */}
+          <div className="w-8 h-8 rounded flex items-center justify-center shrink-0 text-[#E5E7EB]">
+            <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" opacity="0.1" />
+              <path d="M12 3.5c-.8 0-1.5.7-1.5 1.5v.5H9c-.6 0-1 .4-1 1v1.5c0 .6.4 1 1 1h.5v1.5H8c-.6 0-1 .4-1 1v1c0 .6.4 1 1 1h1.5v2.5H8c-.6 0-1 .4-1 1v1.5h10V16c0-.6-.4-1-1-1h-1.5v-2.5H17c.6 0 1-.4 1-1v-1c0-.6-.4-1-1-1h-1.5V9H16c.6 0 1-.4 1-1V6.5c0-.6-.4-1-1-1h-1.5V5c0-.8-.7-1.5-1.5-1.5zm-2 4h4v1h-4v-1zm0 3.5h4v1h-4v-1zm-1 3.5h6v1H9v-1z" />
+            </svg>
           </div>
 
           {!sidebarCollapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[#F3F4F6] tracking-tight truncate leading-tight">
-                National Master
+              <h1 className="text-xs font-bold text-[#F3F4F6] tracking-tight truncate leading-tight">
+                National Material Master
+              </h1>
+              <p className="text-[11px] text-[#9CA3AF] truncate leading-snug">
+                Government of India
               </p>
-              <p className="text-[10px] text-[#A7ADA9] truncate font-mono">
-                SIH26099 · MoPNG
+              <p className="text-[10px] text-[#6B7280] font-mono truncate">
+                SIH26099 • MoPNG
               </p>
             </div>
           )}
         </div>
 
         {/* Navigation Items */}
-        <nav className="p-2 space-y-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+        <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-190px)]">
+          {/* Top Standalone Items (Dashboard, Problem & Architecture) */}
+          <div className="space-y-1">
+            {topItems.map(renderNavButton)}
+          </div>
+
+          {/* Grouped Collapsible Categories */}
           {groups.map((group) => {
-            const open = sidebarOpenGroups.includes(group.id);
-            const groupHasActive = group.items.some((i) => isActive(i.id));
+            const isOpen = sidebarOpenGroups.includes(group.id);
+            const groupHasActive = group.items.some(i => isActive(i.id));
 
             return (
-              <div key={group.id} className="space-y-1">
-                {/* Category Header */}
+              <div key={group.id} className="space-y-1 pt-1">
+                {/* Collapsible Category Header */}
                 {!sidebarCollapsed && (
                   <button
                     onClick={() => toggleSidebarGroup(group.id)}
-                    className="w-full flex items-center justify-between px-2.5 py-1 text-left text-[11px] font-semibold uppercase tracking-wider transition-colors"
-                    style={{
-                      color: groupHasActive ? '#F3F4F6' : '#A7ADA9',
-                    }}
+                    className="w-full flex items-center justify-between px-2.5 py-1 text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B7280] hover:text-[#F3F4F6] transition-colors group cursor-pointer"
                   >
-                    <span>{group.label}</span>
+                    <span className={groupHasActive ? 'text-[#F3F4F6]' : ''}>
+                      {group.label}
+                    </span>
                     <span
-                      className="material-symbols-outlined text-[14px] transition-transform duration-200"
-                      style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      className="material-symbols-outlined text-[15px] transition-transform duration-200 text-[#6B7280] group-hover:text-[#F3F4F6]"
+                      style={{ transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
                     >
                       expand_more
                     </span>
                   </button>
                 )}
 
-                {/* Sub-items */}
+                {/* Collapsible Sub-items Container */}
                 <div
                   className={`accordion-content ${
-                    (!sidebarCollapsed && open) || sidebarCollapsed ? 'open' : 'closed'
+                    (!sidebarCollapsed && isOpen) || sidebarCollapsed ? 'open' : 'closed'
                   } space-y-0.5`}
                 >
-                  {group.items.map((item) => {
-                    const active = isActive(item.id);
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setActiveScreen(item.id)}
-                        title={sidebarCollapsed ? item.label : undefined}
-                        className="w-full flex items-center gap-3 rounded-lg transition-all duration-150"
-                        style={{
-                          padding: sidebarCollapsed ? '9px 0' : '8px 12px',
-                          justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                          background: active ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
-                          color: active ? '#F3F4F6' : '#A7ADA9',
-                          fontWeight: active ? 500 : 400,
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!active) {
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                            e.currentTarget.style.color = '#F3F4F6';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!active) {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = '#A7ADA9';
-                          }
-                        }}
-                      >
-                        <span
-                          className="material-symbols-outlined text-[19px] shrink-0"
-                          style={{
-                            color: active ? '#10B981' : '#A7ADA9',
-                          }}
-                        >
-                          {item.icon}
-                        </span>
-
-                        {!sidebarCollapsed && (
-                          <span className="text-sm truncate flex-1 text-left">
-                            {item.label}
-                          </span>
-                        )}
-
-                        {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
-                          <span
-                            className="text-[10px] font-bold px-1.5 py-0.2 rounded-full font-mono shrink-0"
-                            style={{
-                              background: 'rgba(234, 179, 8, 0.15)',
-                              color: '#EAB308',
-                            }}
-                          >
-                            {item.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {group.items.map(renderNavButton)}
                 </div>
               </div>
             );
@@ -212,20 +191,21 @@ export const AppShell: React.FC = () => {
         </nav>
       </div>
 
-      {/* Bottom Collapse Button matching template */}
-      <div
-        className="p-2 shrink-0"
-        style={{ borderTop: '1px solid #303532' }}
-      >
+      {/* Pinned Bottom Items & Collapse toggle */}
+      <div className="p-3 border-t border-[#232825] bg-[#000000] space-y-1">
+        {bottomItems.map(renderNavButton)}
+
         <button
           onClick={toggleSidebar}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#A7ADA9] hover:text-[#F3F4F6] hover:bg-white/5 transition-colors"
-          style={{ justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}
+          className={`w-full flex items-center gap-2 rounded-lg text-xs font-medium text-[#6B7280] hover:text-[#F3F4F6] hover:bg-white/5 transition-colors ${
+            sidebarCollapsed ? 'justify-center p-2' : 'px-3 py-2'
+          }`}
+          title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
           <span className="material-symbols-outlined text-[18px]">
             {sidebarCollapsed ? 'chevron_right' : 'chevron_left'}
           </span>
-          {!sidebarCollapsed && <span>Collapse</span>}
+          {!sidebarCollapsed && <span>Collapse Menu</span>}
         </button>
       </div>
     </aside>

@@ -20,7 +20,7 @@ export const EvidenceDrawer: React.FC = () => {
   const canonical = !isCandidate ? (evidenceTarget as CanonicalMaterial) : null;
 
   const title = isCandidate 
-    ? `Match Evidence: ${candidate?.sourceCode} ➔ ${candidate?.candidateCnmc}`
+    ? `Match Evidence: ${candidate?.sourceCode} → ${candidate?.candidateCnmc}`
     : `Master Profile Evidence: ${canonical?.cnmc}`;
 
   return (

@@ -1,369 +1,618 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
+type CategoryKey = 'fasteners' | 'valves' | 'pumps';
+type TabKey = 'demo' | 'architecture' | 'dataflow' | 'cpses';
+
 export const HomeScreen: React.FC = () => {
   const { setActiveScreen, openUploadModal } = useApp();
-  const [selectedExampleTab, setSelectedExampleTab] = useState<'fastener' | 'valve' | 'pump'>('fastener');
+  const [activeTab, setActiveTab] = useState<TabKey>('demo');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('fasteners');
+  const [copiedCode, setCopiedCode] = useState(false);
 
-  const examples = {
-    fastener: {
-      category: 'Fasteners & Hardware',
-      unifiedCnmc: '3116.1504.8920',
-      canonicalTitle: 'Bolt, Hex Head, M10 x 50mm, Stainless Steel 304, Fully Threaded (DIN 933)',
+  const categoryData = {
+    fasteners: {
+      label: 'Fasteners',
+      cnmc: '3116.1504.8920',
+      title: 'Bolt, Hex Head, M10 × 50mm, Stainless Steel 304, Fully Threaded (DIN 933)',
+      confidence: '98% Match Confidence',
       sources: [
-        { cpse: 'ONGC (Western Offshore)', localCode: 'MAT-10482', rawDesc: 'HEX BOLT M10 X 50 SS304', price: '₹48 / EA' },
-        { cpse: 'IOCL (Panipat Refinery)', localCode: 'IOCL-FST-902', rawDesc: 'BOLT HEX SS304 M10X50MM FULL THD', price: '₹55 / EA' },
-        { cpse: 'NTPC (Singrauli STPS)', localCode: 'NGC-BLT-004', rawDesc: 'FASTENER HEX HEAD M10*50 AISI-304', price: '₹52 / EA' }
+        {
+          cpse: 'ONGC',
+          division: 'Western Offshore',
+          logoBg: '#991B1B',
+          localCode: 'MAT-10482',
+          desc: 'HEX BOLT M10 X 50 SS304',
+          price: '₹48 / EA',
+        },
+        {
+          cpse: 'IOCL',
+          division: 'Panipat Refinery',
+          logoBg: '#EA580C',
+          localCode: 'IOCL-FST-902',
+          desc: 'BOLT HEX SS304 M10X50MM FULL THD',
+          price: '₹55 / EA',
+        },
+        {
+          cpse: 'NTPC',
+          division: 'Singrauli STPS',
+          logoBg: '#2563EB',
+          localCode: 'NGC-BLT-004',
+          desc: 'HEXAGON BOLT M10 50MM S.S. 304',
+          price: '₹52 / EA',
+        },
       ],
-      extractedAttributes: [
-        { name: 'Item Type', value: 'Hex Head Bolt' },
-        { name: 'Thread Size', value: 'M10 (Pitch 1.5mm)' },
-        { name: 'Length', value: '50 mm' },
-        { name: 'Material Grade', value: 'SS 304' },
-        { name: 'Standard', value: 'DIN 933 / ISO 4017' }
+      attributes: [
+        { attr: 'Item Type', val: 'Hex Bolt' },
+        { attr: 'Size', val: 'M10 × 50mm' },
+        { attr: 'Material', val: 'Stainless Steel 304' },
+        { attr: 'Thread', val: 'Metric, 1.5mm' },
+        { attr: 'Standard', val: 'DIN 933' },
+        { attr: 'Unit of Measure', val: 'EA' },
+        { attr: 'Category', val: 'Fasteners > Bolts > Hex Head' },
       ],
-      procurementImpact: 'Identical fastener currently procured under 3 distinct purchase orders. Consolidation enables 14% bulk purchase discount across participating CPSEs.'
     },
-    valve: {
-      category: 'Valves & Flow Control',
-      unifiedCnmc: '4014.1607.1842',
-      canonicalTitle: 'Valve, Ball: 2 IN, ASME Class 150, Flanged RF, ASTM A216 WCB Body, SS316 Trim, PTFE Seat',
+    valves: {
+      label: 'Valves',
+      cnmc: '4014.1607.1842',
+      title: 'Valve, Ball: 2 IN, ASME Class 150, Flanged RF, ASTM A216 WCB Body, SS316 Trim',
+      confidence: '99% Match Confidence',
       sources: [
-        { cpse: 'ONGC (Hazira Plant)', localCode: 'MAT-VLV-0928', rawDesc: 'BALL VALVE 50MM 150LBS CS FLANGED A216 WCB', price: '₹14,200 / EA' },
-        { cpse: 'IOCL (Paradip)', localCode: '10049281', rawDesc: 'VLV BALL 2IN 150# FLG WCB/316 PTFE', price: '₹16,500 / EA' },
-        { cpse: 'GAIL (Vijaipur)', localCode: 'G-201-9482', rawDesc: 'VALVE BALL FLGD 2 INCH CLASS 150 CS BODY SS TRIM', price: '₹15,100 / EA' }
+        {
+          cpse: 'ONGC',
+          division: 'Hazira Plant',
+          logoBg: '#991B1B',
+          localCode: 'MAT-VLV-0928',
+          desc: 'BALL VALVE 50MM 150LBS CS FLANGED A216 WCB',
+          price: '₹14,200 / EA',
+        },
+        {
+          cpse: 'IOCL',
+          division: 'Paradip',
+          logoBg: '#EA580C',
+          localCode: 'IOCL-VLV-492',
+          desc: 'VLV BALL 2IN 150# FLG WCB/316 PTFE',
+          price: '₹16,500 / EA',
+        },
+        {
+          cpse: 'GAIL',
+          division: 'Vijaipur',
+          logoBg: '#059669',
+          localCode: 'G-201-9482',
+          desc: 'VALVE BALL FLGD 2 INCH CLASS 150 CS BODY',
+          price: '₹15,100 / EA',
+        },
       ],
-      extractedAttributes: [
-        { name: 'Valve Type', value: 'Floating Ball Valve' },
-        { name: 'Nominal Size', value: '2 Inch (DN 50)' },
-        { name: 'Pressure Class', value: 'ASME Class 150' },
-        { name: 'Body Material', value: 'ASTM A216 WCB' },
-        { name: 'Seat Material', value: 'Virgin PTFE' }
+      attributes: [
+        { attr: 'Item Type', val: 'Floating Ball Valve' },
+        { attr: 'Size', val: '2 Inch (DN 50)' },
+        { attr: 'Pressure Class', val: 'ASME Class 150' },
+        { attr: 'Body Material', val: 'ASTM A216 WCB' },
+        { attr: 'Trim Material', val: 'SS 316' },
+        { attr: 'Unit of Measure', val: 'EA' },
+        { attr: 'Category', val: 'Piping > Valves > Ball Valves' },
       ],
-      procurementImpact: 'Emergency shutdown spare part interchangeable between GAIL pipeline station and IOCL refinery, cutting downtime procurement lead-time from 8 weeks to 24 hours.'
     },
-    pump: {
-      category: 'Rotating Equipment',
-      unifiedCnmc: '4320.1009.4412',
-      canonicalTitle: 'Impeller, Pump: Centrifugal, Enclosed, 210mm OD, 32mm Bore, Phosphor Bronze ASTM B584 C90500',
+    pumps: {
+      label: 'Pumps & Spares',
+      cnmc: '4320.1009.4412',
+      title: 'Impeller, Pump: Centrifugal, Enclosed, 210mm OD, Phosphor Bronze ASTM B584',
+      confidence: '96% Match Confidence',
       sources: [
-        { cpse: 'ONGC (Offshore)', localCode: 'ONGC-PMP-9102', rawDesc: 'IMPELLER CENTRIFUGAL PUMP BRONZE DIA 210MM', price: '₹38,000 / EA' },
-        { cpse: 'IOCL (Mathura)', localCode: 'IOCL-ROT-449', rawDesc: 'BRONZE IMPELLER FOR WATER PUMP OD210 BORE32', price: '₹41,500 / EA' },
-        { cpse: 'GAIL (Pata)', localCode: 'GAIL-PMP-009', rawDesc: 'IMPELLER ENCLOSED PHOS BRONZE 210MM', price: '₹39,200 / EA' }
+        {
+          cpse: 'ONGC',
+          division: 'Offshore Base',
+          logoBg: '#991B1B',
+          localCode: 'ONGC-PMP-9102',
+          desc: 'IMPELLER CENTRIFUGAL PUMP BRONZE DIA 210MM',
+          price: '₹38,000 / EA',
+        },
+        {
+          cpse: 'IOCL',
+          division: 'Mathura',
+          logoBg: '#EA580C',
+          localCode: 'IOCL-ROT-449',
+          desc: 'BRONZE IMPELLER FOR WATER PUMP OD210 BORE32',
+          price: '₹41,500 / EA',
+        },
+        {
+          cpse: 'NTPC',
+          division: 'Ramagundam',
+          logoBg: '#2563EB',
+          localCode: 'NTPC-ROT-018',
+          desc: 'IMPELLER ENCLOSED PHOS BRONZE 210MM',
+          price: '₹39,200 / EA',
+        },
       ],
-      extractedAttributes: [
-        { name: 'Component', value: 'Centrifugal Impeller' },
-        { name: 'Outer Diameter', value: '210 mm' },
-        { name: 'Bore Diameter', value: '32 mm Standard' },
-        { name: 'Alloy', value: 'Bronze C90500' },
-        { name: 'Design Standard', value: 'API 610 11th Ed' }
+      attributes: [
+        { attr: 'Component', val: 'Centrifugal Impeller' },
+        { attr: 'Outer Diameter', val: '210 mm' },
+        { attr: 'Bore Diameter', val: '32 mm Standard' },
+        { attr: 'Alloy Spec', val: 'Bronze ASTM B584 C90500' },
+        { attr: 'Design Standard', val: 'API 610 11th Ed' },
+        { attr: 'Unit of Measure', val: 'EA' },
+        { attr: 'Category', val: 'Rotating Equipment > Pumps > Spares' },
       ],
-      procurementImpact: 'Standardized spare code allows pooled inventory maintenance across 3 regional depots, reducing total spare holding costs by 32%.'
-    }
+    },
   };
 
-  const activeDemo = examples[selectedExampleTab];
+  const current = categoryData[selectedCategory];
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(current.cnmc);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6 max-w-6xl mx-auto" style={{ background: 'var(--bg)' }}>
-      {/* 1. Header & Problem Context */}
-      <section 
-        className="rounded-xl p-6 space-y-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <span 
-              className="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded"
-              style={{ background: 'var(--blue-dim)', color: 'var(--blue)' }}
-            >
-              National Unified Material Master · SIH26099
-            </span>
-            <h1 className="text-xl font-bold tracking-tight mt-2.5" style={{ color: 'var(--text-primary)' }}>
-              Cross-Enterprise Catalog Harmonization Platform
-            </h1>
-          </div>
-          <button
-            onClick={() => setActiveScreen('dashboard')}
-            className="px-4 py-2 font-semibold text-xs rounded-lg transition-all flex items-center gap-2 shrink-0 hover:brightness-110"
-            style={{ background: 'var(--blue)', color: '#fff' }}
+    <div className="flex-1 overflow-y-auto bg-[#070908] text-[#F3F4F6] px-8 py-6 space-y-6">
+      {/* 1. Breadcrumbs & Time Selector */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs font-medium text-[#9CA3AF]">
+          <span 
+            onClick={() => setActiveScreen('dashboard')} 
+            className="cursor-pointer hover:text-[#F3F4F6] transition-colors"
           >
-            Enter Dashboard
-            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            Home
+          </span>
+          <span className="text-[#6B7280]">›</span>
+          <span className="text-[#F3F4F6]">Problem & Architecture</span>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0C0E0D] border border-[#232825] text-xs text-[#9CA3AF] cursor-pointer hover:border-[#38423C] transition-colors">
+          <span className="material-symbols-outlined text-[15px] text-[#9CA3AF]">calendar_today</span>
+          <span>Last 30 days</span>
+          <span className="material-symbols-outlined text-[15px] text-[#6B7280]">expand_more</span>
+        </div>
+      </div>
+
+      {/* 2. Main Page Header */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
+          Problem & Architecture
+        </h1>
+        <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-4xl">
+          Understanding the need, approach and system architecture for a unified national material master.
+        </p>
+      </div>
+
+      {/* 3. Hero Split Row: Context vs Key Performance Metrics */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
+        {/* Left Column: Context Paragraph */}
+        <div className="lg:col-span-7 space-y-2">
+          <h2 className="text-sm font-semibold text-[#F3F4F6] tracking-normal font-sans">
+            Cross-Enterprise Material Harmonization
+          </h2>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed font-sans">
+            CPSEs maintain material records across independent ERP systems. Different naming conventions,
+            specifications and item codes for the same physical material lead to duplicate records, fragmented
+            procurement and lack of visibility. This platform unifies duplicate items under a single authoritative
+            Common National Material Code (CNMC).
+          </p>
+        </div>
+
+        {/* Right Column: 3 Metric Counters */}
+        <div className="lg:col-span-5 grid grid-cols-3 gap-4 pt-1">
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
+              14.2M
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Source records
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              (across 5 CPSEs)
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-white tracking-tight">
+              6
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              CPSEs
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              Connected
+            </div>
+          </div>
+
+          <div>
+            <div className="text-2xl lg:text-3xl font-bold font-sans text-[#22D3EE] tracking-tight">
+              3.1M
+            </div>
+            <div className="text-xs font-semibold text-[#F3F4F6] mt-1 leading-tight">
+              Canonical materials
+            </div>
+            <div className="text-[11px] text-[#6B7280] leading-snug">
+              (after harmonization)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Sub-Navigation Tabs & Category Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#232825] pt-4 gap-4">
+        {/* Tabs */}
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => setActiveTab('demo')}
+            className={`pb-3 text-xs font-semibold transition-all relative ${
+              activeTab === 'demo'
+                ? 'text-[#F3F4F6]'
+                : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
+            }`}
+          >
+            Live Harmonization Demo
+            {activeTab === 'demo' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10B981] rounded-full" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('architecture')}
+            className={`pb-3 text-xs font-semibold transition-all relative ${
+              activeTab === 'architecture'
+                ? 'text-[#F3F4F6]'
+                : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
+            }`}
+          >
+            System Architecture
+            {activeTab === 'architecture' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10B981] rounded-full" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('dataflow')}
+            className={`pb-3 text-xs font-semibold transition-all relative ${
+              activeTab === 'dataflow'
+                ? 'text-[#F3F4F6]'
+                : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
+            }`}
+          >
+            Data Flow
+            {activeTab === 'dataflow' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10B981] rounded-full" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('cpses')}
+            className={`pb-3 text-xs font-semibold transition-all relative ${
+              activeTab === 'cpses'
+                ? 'text-[#F3F4F6]'
+                : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
+            }`}
+          >
+            Supported CPSEs
+            {activeTab === 'cpses' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10B981] rounded-full" />
+            )}
           </button>
         </div>
 
-        <div 
-          className="p-4 rounded-xl space-y-2 text-xs leading-relaxed"
-          style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
-        >
-          <h2 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
-            The Public Sector Challenge
-          </h2>
-          <p style={{ color: 'var(--text-secondary)' }}>
-            Central Public Sector Enterprises (CPSEs) such as ONGC, IOCL, GAIL, and NTPC manage millions of inventory items in disconnected legacy ERP systems. Because each organization records descriptions using different internal conventions, identical physical materials are cataloged under disparate item codes. This leads to duplicate inventory holding, procurement fragmentation, and lack of inter-enterprise spare sharing.
+        {/* Right Category Select */}
+        <div className="flex items-center gap-2 pb-3">
+          <span className="text-xs text-[#9CA3AF]">Select a category</span>
+          <div className="relative">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value as CategoryKey)}
+              className="appearance-none bg-[#0C0E0D] border border-[#232825] text-xs font-medium text-[#F3F4F6] pl-3 pr-8 py-1.5 rounded-lg outline-none cursor-pointer hover:border-[#38423C] transition-colors"
+            >
+              <option value="fasteners">Fasteners</option>
+              <option value="valves">Valves</option>
+              <option value="pumps">Pumps & Spares</option>
+            </select>
+            <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-[#9CA3AF] pointer-events-none">
+              expand_more
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Core Live Harmonization Demo Card */}
+      {activeTab === 'demo' && (
+        <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Left: Source Material Records (~55%) */}
+            <div className="lg:col-span-6 space-y-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-[#F3F4F6]">
+                    Source Material Records
+                  </h3>
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#161B18] text-[#9CA3AF] border border-[#232825]">
+                    3 records (example)
+                  </span>
+                </div>
+                <p className="text-xs text-[#9CA3AF] mt-0.5">
+                  Different ERP systems, different descriptions — same material.
+                </p>
+              </div>
+
+              {/* Source Records Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="text-[10px] uppercase font-semibold text-[#6B7280] border-b border-[#232825]">
+                      <th className="pb-2.5 font-medium">CPSE</th>
+                      <th className="pb-2.5 font-medium">MATERIAL CODE</th>
+                      <th className="pb-2.5 font-medium">DESCRIPTION</th>
+                      <th className="pb-2.5 font-medium text-right">UNIT COST</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1B201D]">
+                    {current.sources.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                        {/* CPSE Column */}
+                        <td className="py-3.5 pr-3">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                              style={{ background: item.logoBg }}
+                            >
+                              {item.cpse.substring(0, 4)}
+                            </div>
+                            <div className="leading-tight">
+                              <div className="font-semibold text-white">{item.cpse}</div>
+                              <div className="text-[10px] text-[#6B7280]">({item.division})</div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Material Code */}
+                        <td className="py-3.5 pr-3 font-mono text-xs text-[#9CA3AF]">
+                          {item.localCode}
+                        </td>
+
+                        {/* Description */}
+                        <td className="py-3.5 pr-3 font-mono text-[11px] text-[#F3F4F6] max-w-xs">
+                          {item.desc}
+                        </td>
+
+                        {/* Unit Cost */}
+                        <td className="py-3.5 text-right font-mono font-medium text-white whitespace-nowrap">
+                          {item.price}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Center Transition Element (~10%) */}
+            <div className="lg:col-span-1 flex flex-col items-center justify-center text-center py-4 lg:py-0">
+              <span className="material-symbols-outlined text-2xl text-[#10B981] font-bold">
+                arrow_forward
+              </span>
+              <p className="text-[10px] font-medium text-[#9CA3AF] mt-2 max-w-[80px] leading-tight">
+                Multiple records converge to one standard
+              </p>
+            </div>
+
+            {/* Right: Unified National Material Record (~45%) */}
+            <div className="lg:col-span-5 bg-[#070908] border border-[#232825] rounded-lg p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-[#F3F4F6]">
+                  Unified National Material Record
+                </h3>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                  <span className="material-symbols-outlined text-[13px]">verified</span>
+                  {current.confidence}
+                </span>
+              </div>
+
+              {/* National Material Code (CNMC) */}
+              <div className="space-y-1">
+                <div className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
+                  National Material Code (CNMC)
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold font-mono text-[#10B981] tracking-wider">
+                    {current.cnmc}
+                  </span>
+                  <button
+                    onClick={handleCopyCode}
+                    className="p-1 rounded text-[#9CA3AF] hover:text-white transition-colors"
+                    title="Copy CNMC Code"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      {copiedCode ? 'check' : 'content_copy'}
+                    </span>
+                  </button>
+                </div>
+                <p className="text-xs font-medium text-[#F3F4F6] leading-snug">
+                  {current.title}
+                </p>
+              </div>
+
+              {/* Standardized Attributes Table */}
+              <div className="pt-2 border-t border-[#1B201D]">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-[10px] uppercase font-semibold text-[#6B7280]">
+                      <th className="pb-1.5 text-left font-medium">Attribute</th>
+                      <th className="pb-1.5 text-right font-medium">Standardized Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#161B18]">
+                    {current.attributes.map((row, i) => (
+                      <tr key={i} className="py-1">
+                        <td className="py-1.5 text-left text-[#9CA3AF]">{row.attr}</td>
+                        <td className="py-1.5 text-right font-mono font-medium text-[#F3F4F6]">
+                          {row.val}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Alternative Tabs View */}
+      {activeTab === 'architecture' && (
+        <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-4">
+          <h3 className="text-sm font-semibold text-white">Full Microservices Topology</h3>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed">
+            The national architecture uses asynchronous message brokers (Apache Kafka) to ingest delta extracts from CPSE ERP staging tables (SAP S/4HANA, Oracle ERP Cloud). A distributed inference pipeline applies specialized domain NLP and cosine vector embedding matching to cluster identical items.
           </p>
-          <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-            This platform ingests raw ERP records, extracts normalized technical attributes via domain-trained semantic analysis, and unifies duplicate items under an authoritative Common National Material Code (CNMC).
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-lg bg-[#070908] border border-[#232825] space-y-1.5">
+              <span className="text-xs font-semibold text-[#10B981]">Ingestion Microservice</span>
+              <p className="text-xs text-[#9CA3AF]">Handles schema transformation and automated deduplication across participating CPSEs.</p>
+            </div>
+            <div className="p-4 rounded-lg bg-[#070908] border border-[#232825] space-y-1.5">
+              <span className="text-xs font-semibold text-[#22D3EE]">Matching Engine</span>
+              <p className="text-xs text-[#9CA3AF]">Domain BERT + Vector Embeddings yielding 98%+ automated confidence scores.</p>
+            </div>
+            <div className="p-4 rounded-lg bg-[#070908] border border-[#232825] space-y-1.5">
+              <span className="text-xs font-semibold text-[#EAB308]">National Master Registry</span>
+              <p className="text-xs text-[#9CA3AF]">Immutable audit-logged registry with bi-directional syncing to CPSE procurements.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'dataflow' && (
+        <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-3">
+          <h3 className="text-sm font-semibold text-white">Bi-Directional Data Synchronization Flow</h3>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed">
+            1. Raw CPSE Material Master POs ingested via secure REST/SFTP endpoints.
+            <br />
+            2. Ingestion pipeline strips proprietary syntax and extracts physical properties (diameter, material, pressure rating).
+            <br />
+            3. Standardized CNMC generated and indexed in the national directory.
+            <br />
+            4. Local CPSE ERP updated with authoritative CNMC cross-reference mapping.
           </p>
         </div>
-      </section>
+      )}
 
-      {/* 2. Interactive Live Example */}
-      <section 
-        className="rounded-xl p-6 space-y-5"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
-              Live Harmonization Demonstration
-            </h2>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-              Select an item category to observe how divergent ERP descriptions converge into a single national standard.
-            </p>
-          </div>
-
-          {/* Example Selector Tabs */}
-          <div 
-            className="flex gap-1 p-1 rounded-lg text-xs font-medium"
-            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
-          >
-            {(['fastener', 'valve', 'pump'] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setSelectedExampleTab(tab)}
-                className="px-3.5 py-1.5 rounded-md transition-all font-semibold capitalize"
-                style={{
-                  background: selectedExampleTab === tab ? 'var(--blue)' : 'transparent',
-                  color: selectedExampleTab === tab ? '#fff' : 'var(--text-secondary)',
-                }}
-              >
-                {tab === 'fastener' ? 'Fasteners' : tab === 'valve' ? 'Valves' : 'Pumps & Impellers'}
-              </button>
+      {activeTab === 'cpses' && (
+        <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-4">
+          <h3 className="text-sm font-semibold text-white">Connected Central Public Sector Enterprises</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+            {[
+              { name: 'ONGC', items: '4.2M Records', status: 'Live' },
+              { name: 'IOCL', items: '3.8M Records', status: 'Live' },
+              { name: 'NTPC', items: '2.4M Records', status: 'Live' },
+              { name: 'GAIL', items: '1.9M Records', status: 'Live' },
+              { name: 'BPCL', items: '1.2M Records', status: 'Live' },
+              { name: 'HPCL', items: '0.7M Records', status: 'Syncing' },
+            ].map((c, idx) => (
+              <div key={idx} className="p-3 rounded-lg bg-[#070908] border border-[#232825] text-center space-y-1">
+                <div className="text-xs font-bold text-white">{c.name}</div>
+                <div className="text-[11px] font-mono text-[#9CA3AF]">{c.items}</div>
+                <span className="inline-block text-[10px] font-medium text-[#10B981] px-1.5 py-0.5 rounded bg-[#10B981]/10">
+                  {c.status}
+                </span>
+              </div>
             ))}
           </div>
         </div>
+      )}
 
-        {/* The 3-Step Convergence Visualizer */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* Step 1: Disparate Inputs */}
-          <div 
-            className="lg:col-span-5 p-4 rounded-xl flex flex-col justify-between space-y-3"
-            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
-          >
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  Step 1: Input Records (3 Isolated ERPs)
-                </span>
-                <span className="text-xs font-mono font-bold" style={{ color: 'var(--warning)' }}>
-                  Fragmented Codes
-                </span>
-              </div>
+      {/* 6. System Architecture (High Level) Process Pipeline */}
+      <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-5">
+        <h2 className="text-sm font-semibold text-[#F3F4F6] tracking-normal font-sans">
+          System Architecture (High Level)
+        </h2>
 
-              <div className="space-y-2.5">
-                {activeDemo.sources.map((src, idx) => (
-                  <div 
-                    key={idx} 
-                    className="p-3 rounded-lg space-y-1.5"
-                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
-                  >
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{src.cpse}</span>
-                      <span className="font-mono text-xs font-bold" style={{ color: 'var(--blue)' }}>{src.localCode}</span>
-                    </div>
-                    <p className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      "{src.rawDesc}"
-                    </p>
-                    <div 
-                      className="text-xs pt-1.5 flex justify-between"
-                      style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}
-                    >
-                      <span>ERP Purchase Unit Cost:</span>
-                      <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{src.price}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <p className="text-xs font-mono pt-2" style={{ color: 'var(--text-muted)' }}>
-              Result of uncoordinated cataloging: 3 separate RFQs, differing pricing, zero visibility.
-            </p>
-          </div>
-
-          {/* Convergence Arrow Indicator */}
-          <div className="hidden lg:flex lg:col-span-2 flex-col items-center justify-center gap-2 text-center px-2">
-            <span className="material-symbols-outlined text-3xl" style={{ color: 'var(--blue)' }}>compare_arrows</span>
-            <span className="text-xs uppercase font-bold leading-tight" style={{ color: 'var(--blue)' }}>
-              Standardization Engine
-            </span>
-            <span className="material-symbols-outlined text-xl" style={{ color: 'var(--blue)' }}>arrow_forward</span>
-          </div>
-
-          {/* Step 2: Harmonized Output */}
-          <div 
-            className="lg:col-span-5 p-4 rounded-xl flex flex-col justify-between space-y-3 relative"
-            style={{ background: 'var(--bg-hover)', border: '1px solid rgba(59,130,246,0.3)' }}
-          >
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs uppercase font-bold tracking-wider" style={{ color: 'var(--blue)' }}>
-                  Step 2: Unified Specification
-                </span>
-                <span className="text-xs font-mono font-bold flex items-center gap-1" style={{ color: 'var(--success)' }}>
-                  <span className="material-symbols-outlined text-sm">verified</span>
-                  100% Normalized
-                </span>
-              </div>
-
-              <div 
-                className="p-3.5 rounded-lg space-y-1.5"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-              >
-                <span className="text-xs uppercase font-semibold" style={{ color: 'var(--text-muted)' }}>
-                  Assigned National Code (CNMC)
-                </span>
-                <div className="font-mono text-lg font-bold" style={{ color: 'var(--blue)' }}>
-                  {activeDemo.unifiedCnmc}
-                </div>
-                <p className="text-xs font-medium leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                  {activeDemo.canonicalTitle}
-                </p>
-              </div>
-
-              <div className="mt-3 space-y-1.5">
-                <span className="text-xs uppercase font-semibold block" style={{ color: 'var(--text-muted)' }}>
-                  Extracted Technical Parameters:
-                </span>
-                <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-                  {activeDemo.extractedAttributes.map((attr, idx) => (
-                    <div 
-                      key={idx} 
-                      className="p-2 rounded"
-                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
-                    >
-                      <span className="block text-[10px] font-sans" style={{ color: 'var(--text-muted)' }}>{attr.name}</span>
-                      <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{attr.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className="p-3 rounded-lg text-xs space-y-1"
-              style={{ background: 'var(--blue-dim)', border: '1px solid rgba(59,130,246,0.2)' }}
-            >
-              <span className="font-bold block uppercase text-xs" style={{ color: 'var(--blue)' }}>Direct Financial Impact:</span>
-              <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                {activeDemo.procurementImpact}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Three-Phase Enterprise Workflow */}
-      <section 
-        className="rounded-xl p-6 space-y-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
-        <div>
-          <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
-            System Workflow Architecture
-          </h2>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-            The core lifecycle converting unstandardized records into approved national master records.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* 6 Sequential Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 items-stretch">
           {[
             {
-              step: '01',
-              title: 'Catalog Ingestion',
-              desc: 'Legacy items are onboarded via direct database connectors (SAP S/4HANA, Oracle ERP Cloud, IBM Maximo) or uploaded using Excel and CSV spreadsheets.',
-              action: 'Upload Spreadsheet',
-              onClick: () => openUploadModal('ONGC'),
+              step: '1',
+              title: 'Data Ingestion',
+              desc: 'Collect material data from CPSE ERP systems',
+              icon: 'database',
             },
             {
-              step: '02',
-              title: 'Semantic Deduplication',
-              desc: 'The NLP engine parses raw description strings, decomposes noun-modifier syntax, resolves unit variances, and scores attribute parity against existing national codes.',
-              action: 'Inspect Workbench',
-              onClick: () => setActiveScreen('harmonization'),
+              step: '2',
+              title: 'Attribute Extraction',
+              desc: 'Extract and normalize technical attributes',
+              icon: 'description',
             },
             {
-              step: '03',
-              title: 'Governance & Aliasing',
-              desc: 'Approved matches create immutable cross-references. CPSE ERPs receive forward aliases without altering internal warehouse configurations.',
-              action: 'View Audit Ledger',
-              onClick: () => setActiveScreen('governance'),
+              step: '3',
+              title: 'Semantic Matching',
+              desc: 'Identify similar items using domain rules + ML',
+              icon: 'hub',
             },
-          ].map(wf => (
-            <div 
-              key={wf.step}
-              className="p-5 rounded-xl flex flex-col justify-between space-y-3 card-hover"
-              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+            {
+              step: '4',
+              title: 'CNMC Assignment',
+              desc: 'Assign common national material code',
+              icon: 'label',
+            },
+            {
+              step: '5',
+              title: 'Human Review',
+              desc: 'Validate and approve matches',
+              icon: 'person_check',
+            },
+            {
+              step: '6',
+              title: 'Publish to Master',
+              desc: 'Update National Material Master',
+              icon: 'cloud_upload',
+            },
+          ].map((s, idx, arr) => (
+            <div
+              key={s.step}
+              className="relative p-4 rounded-lg bg-[#070908] border border-[#232825] flex flex-col justify-between space-y-3 group hover:border-[#38423C] transition-all"
             >
               <div>
-                <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs mb-3"
-                  style={{ background: 'var(--blue-dim)', color: 'var(--blue)', border: '1px solid rgba(59,130,246,0.3)' }}
-                >
-                  {wf.step}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-[#10B981] font-mono">
+                      {s.step}
+                    </span>
+                    <span className="text-xs font-semibold text-white">
+                      {s.title}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {wf.title}
-                </h3>
-                <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  {wf.desc}
+
+                <span className="material-symbols-outlined text-[20px] text-[#9CA3AF] group-hover:text-[#10B981] transition-colors">
+                  {s.icon}
+                </span>
+
+                <p className="text-[11px] text-[#9CA3AF] leading-relaxed mt-2 font-sans">
+                  {s.desc}
                 </p>
               </div>
-              <button
-                onClick={wf.onClick}
-                className="text-xs font-semibold hover:underline flex items-center gap-1 pt-3"
-                style={{ color: 'var(--blue)', borderTop: '1px solid var(--border-subtle)' }}
-              >
-                {wf.action} <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </button>
+
+              {/* Arrow on right for desktop if not last */}
+              {idx < arr.length - 1 && (
+                <div className="hidden lg:block absolute -right-2.5 top-1/2 -translate-y-1/2 z-10">
+                  <span className="material-symbols-outlined text-[14px] text-[#6B7280]">
+                    chevron_right
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* 4. Bottom Gateway */}
-      <section 
-        className="p-6 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
+      {/* 7. Footer */}
+      <footer className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#6B7280] pt-4 pb-2 border-t border-[#1B201D] gap-2">
         <div>
-          <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-            Ready to explore operational records?
-          </h3>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-            Proceed to the Executive Dashboard for nationwide metrics, or open the Central Catalog to inspect 3.1 million master records.
-          </p>
+          National Material Master &nbsp;|&nbsp; Government of India &nbsp;|&nbsp; SIH26099
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setActiveScreen('master')}
-            className="px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
-            style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-          >
-            Central Catalog
-          </button>
-          <button
-            onClick={() => setActiveScreen('dashboard')}
-            className="px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:brightness-110"
-            style={{ background: 'var(--blue)', color: '#fff' }}
-          >
-            Executive Dashboard
-          </button>
+        <div className="flex items-center gap-4">
+          <a href="#privacy" className="hover:text-[#9CA3AF] transition-colors">Privacy</a>
+          <a href="#terms" className="hover:text-[#9CA3AF] transition-colors">Terms</a>
+          <a href="#contact" className="hover:text-[#9CA3AF] transition-colors">Contact</a>
         </div>
-      </section>
-    </main>
+      </footer>
+    </div>
   );
 };
