@@ -1,34 +1,51 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-node_modules
-dist
-dist-ssr
-*.local
+# Pytest & testing caches
+.pytest_cache/
 
-# Design mockups and docs
-MD/
-stitch ui/
-"stitch ui/"
+# Virtual environments
+venv/
+.venv/
+env/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Environment variables
+.env
+
+# Word documents (SRS, PRD, docs)
+*.doc
+*.docx
+*.docm
+*.dotx
+~$*.doc*
+
+# Antigravity IDE agent files
+.agents/
+
+# Operating system files
 .DS_Store
+Thumbs.db
+desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
 *.sw?
+
+# Logs
+*.log
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+
+# Node / frontend
+node_modules/
+dist/
+.cache/
+
+# SQLite databases
+*.db

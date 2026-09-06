@@ -1,137 +1,116 @@
-# National Unified Material Master (NUMM) | SIH-26099
-
-An AI-driven National Unified Material Master Cataloging & Harmonization Platform built for Indian Central Public Sector Enterprises (CPSEs) under the Ministry of Petroleum and Natural Gas (MoPNG) and broader public sector organizations.
-
----
-
-## 🌟 Overview
-
-Large public sector enterprises (such as **ONGC, IOCL, GAIL, BPCL, HPCL, NTPC, BHEL, and SAIL**) often manage hundreds of thousands of material codes across legacy ERP systems (SAP S/4HANA, Oracle Cloud, Maximo, etc.). Variations in legacy naming conventions, abbreviations, language, and lack of standard taxonomy create massive duplicate inventory, procurement redundancies, and supply chain inefficiencies.
-
-The **National Unified Material Master** solves this challenge by:
-1. **Normalizing & Harmonizing** diverse legacy ERP item records into standardized **Common National Material Codes (CNMC)**.
-2. Providing an **Explainable AI (XAI) Tri-Pane Workbench** for real-time duplicate detection, attribute parity comparison, and confidence-scored resolution.
-3. Enabling seamless **Spreadsheet (XLS, XLSX, CSV) Ingestion** for batch onboarding of legacy CPSE catalogs.
-4. Facilitating cross-CPSE **Inventory Rationalization & Migration** with complete immutable audit and governance trails.
-5. Offering high-contrast, dual-theme support strictly aligned with **Foundry Light Master** and **National Unified Material Master** design systems.
+# AI-Driven National Unified Material Master Platform (SIH26099)
+### Ministry of Petroleum & Natural Gas · "One Nation – One Material Code"
 
 ---
 
-## 🚀 Key Features
+## 📌 Executive Architecture & Core Principle
 
-### 1. Dual-Theme Support (Light & Dark Mode)
-- **Foundry Light Palette**: Crisp, high-readability light mode with `#f8fafb` base, clean white card containers, deep teal `#00513f` accents, and subtle borders.
-- **National Unified Dark Palette**: Sleek dark aesthetic with `#131314` base, `#1f2020` elevated surfaces, and mint green `#c2ffe8` primary highlights.
-- **One-Click Toggle**: Accessible from both the top navigation header and System Settings.
+The **National Unified Material Master (NUMM)** platform enables cross-CPSE material harmonization, equivalence detection, and standardized national code allocation while preserving strict CPSE-level local traceability.
 
-### 2. XLS / XLSX / CSV Batch Ingestion & Reader
-- Drag-and-drop file upload with real-time spreadsheet parsing powered by `xlsx`.
-- Automatically normalizes legacy column headers (`local_code`, `description`, `uom`, `specs`, `category`).
-- Pre-ingestion preview modal allowing verification of row counts and sample records before importing.
-- Target destination routing: Send unverified items to the **Review Queue** for AI deduplication, or commit verified records directly to the **National Master Catalogue**.
-- One-click **Download Sample CSV** template for standard formatting.
-
-### 3. AI-Powered Tri-Pane Harmonization Workbench
-- **Source Record Pane (Left)**: Inspects legacy ERP descriptions, raw metadata, and extracted technical parameters.
-- **Proposed CNMC Master (Center)**: Displays AI-inferred canonical descriptions, standardized attributes, confidence ratings, and explainable AI rationale.
-- **Cross-CPSE Entity Network (Right)**: Visualizes identical, duplicate, and substitute materials across participating CPSEs.
-
-### 4. Interactive Review Queue & Rationalization
-- Priority-ranked backlog of suspected duplicates and near-duplicates.
-- In-line action triggers (`APPROVE`, `FLAG`, `MERGE`, `RETIRE`).
-- Interactive **Evidence Drawer** providing provenance trails, MESC/UNSPSC taxonomy classifications, and Downstream Migration Impact analysis.
-
-### 5. CPSE Data Hub & Health Analytics
-- Real-time synchronization monitor across 6 major CPSE pipelines (ONGC, IOCL, GAIL, BPCL, NTPC, BHEL).
-- KPI metrics tracking total source codes, approved masters, mapping coverage, and review backlog.
+> **Core Axiom (SRS v4.0): AI Recommends; Authorized Human Governance Approves.**
+> - **Immutable CPSE Source Data:** Raw source records (`raw_payload`, original local codes, descriptions, units) are preserved without mutation.
+> - **Canonical National Records:** Common National Material Codes (CNMCs) and Equivalence Groups follow strict governed lifecycles (`PROPOSED`, `UNDER_REVIEW`, `APPROVED`, `DEPRECATED`, `RETIRED`).
+> - **Deterministic Local AI:** Runs 100% locally without external hosted LLM dependencies.
+> - **Critical Contradiction Blocker:** High vector similarity cannot bypass critical technical attribute checks (e.g. pressure class `150#` vs `600#` or grade `SS316` vs `SS304` directly blocks identical classification and flags for human review).
+> - **SAP / ERP Integration:** Outbound export adapter generates production-ready migration artifacts.
 
 ---
 
-## 🛠️ Tech Stack
-
-- **Frontend Framework**: [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Styling**: [TailwindCSS](https://tailwindcss.com/) with semantic CSS custom properties
-- **Spreadsheet Engine**: [SheetJS (xlsx)](https://docs.sheetjs.com/)
-- **Iconography**: Google Material Symbols Outlined
-- **Typography**: IBM Plex Sans & JetBrains Mono
-
----
-
-## 📦 Getting Started
-
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Ksomani56/Material-Management.git
-   cd Material-Management
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start the local development server**:
-   ```bash
-   npm run dev
-   ```
-   The application will be accessible at `http://127.0.0.1:3000/`.
-
-4. **Build for production**:
-   ```bash
-   npm run build
-   ```
-
----
-
-## 📂 Project Structure
+## 🏛️ Directory Structure
 
 ```
-├── docs/                        # PRD and SRS specification documents
-├── src/
-│   ├── components/
-│   │   ├── common/              # Reusable UI badges, modals & bars
-│   │   │   ├── ConfidenceBar.tsx
-│   │   │   ├── DataUploadModal.tsx
-│   │   │   ├── RelationshipBadge.tsx
-│   │   │   └── StatusBadge.tsx
-│   │   ├── layout/              # TopAppBar, AppShell, EvidenceDrawer, ImpactModal
-│   │   └── screens/             # Core functional screens
-│   │       ├── OverviewScreen.tsx
-│   │       ├── HarmonizationScreen.tsx
-│   │       ├── ReviewQueueScreen.tsx
-│   │       ├── MasterCatalogueScreen.tsx
-│   │       ├── MaterialDetailScreen.tsx
-│   │       ├── RationalizationScreen.tsx
-│   │       ├── DataHubScreen.tsx
-│   │       ├── AnalyticsScreen.tsx
-│   │       ├── GovernanceScreen.tsx
-│   │       └── SettingsScreen.tsx
-│   ├── context/
-│   │   └── AppContext.tsx       # Global application state & theme provider
-│   ├── data/
-│   │   └── mockData.ts          # Curated CPSE catalog mock data
-│   ├── types/
-│   │   └── material.ts          # Complete TypeScript domain schemas
-│   ├── utils/
-│   │   └── fileParser.ts        # Excel / CSV file parsing utility
-│   ├── App.tsx                  # Root layout & screen router
-│   ├── index.css                # CSS variables & Tailwind directives
-│   └── main.tsx                 # React DOM mount point
-├── index.html                   # HTML template
-├── tailwind.config.js           # Tailwind theme configuration
-├── tsconfig.json                # TypeScript compiler config
-└── vite.config.ts               # Vite configuration (port 3000)
+├── backend/
+│   ├── app/
+│   │   ├── main.py                     # FastAPI application, CORS, static mounting
+│   │   ├── core/
+│   │   │   ├── config.py               # Settings (weights, thresholds, prefixing)
+│   │   │   └── database.py             # SQLAlchemy session and engine
+│   │   ├── models/                     # Relational domain models
+│   │   │   ├── enums.py                # RelationshipType, CNMCStatus, ReviewAction
+│   │   │   ├── cpse.py                 # CPSE entity
+│   │   │   ├── cpse_material.py        # Immutable source records & extracted attributes
+│   │   │   ├── canonical_material.py   # Governed CNMC master
+│   │   │   ├── equivalence_group.py    # AI equivalence grouping & evidence scores
+│   │   │   ├── mapping.py              # CPSEMapping & MigrationRecord
+│   │   │   ├── audit.py                # AuditEvent & ReviewDecision
+│   │   │   └── procurement.py          # Historical spend & volume records
+│   │   ├── schemas/                    # Pydantic request/response contracts
+│   │   ├── adapters/                   # Hexagonal / Adapter layer
+│   │   │   ├── ingestion/              # Tabular CSV/Excel parser & row-level validator
+│   │   │   └── erp/                    # SAP / ERP migration export adapter
+│   │   ├── services/                   # Business domain services
+│   │   │   ├── vector_search.py        # all-MiniLM-L6-v2 embeddings + FAISS IndexFlatIP
+│   │   │   ├── normalization.py        # Engineering abbreviation & UOM normalizer
+│   │   │   ├── attribute_extractor.py  # Regex/rule-based parameter extraction
+│   │   │   ├── matching_engine.py      # Hybrid lexical + FAISS KNN vector matcher
+│   │   │   ├── dataset_generator.py    # 500-row industrial MRO proxy generator
+│   │   │   ├── cnmc_generator.py       # Collision-safe atomic sequence allocator
+│   │   │   ├── taxonomy_service.py     # UNSPSC classification recommender
+│   │   │   ├── governance_service.py   # Human review decisions (MAP, MERGE, SPLIT, etc.)
+│   │   │   └── analytics_service.py    # National & CPSE KPIs & spend aggregation
+│   │   └── api/routers/                # REST API routers (cpse, matching, governance, canonical, erp, analytics, dataset)
+│   ├── sample_data/                    # Benchmark catalogs (ONGC, IOCL, GAIL + 500-row industrial_mro_500.csv)
+│   ├── tests/                          # 20 automated pytest test cases (100% passing)
+│   │   ├── test_benchmark_dataset.py
+│   │   ├── test_e2e.py
+│   │   ├── test_erp_export.py
+│   │   ├── test_governance.py
+│   │   ├── test_ingestion.py
+│   │   ├── test_live_endpoints.py      # Live harmonize & compare sandbox test cases
+│   │   ├── test_matching.py            # Contradiction, alias, and UOM tests
+│   │   └── test_vector_search.py       # all-MiniLM-L6-v2 + FAISS KNN tests
+│   └── requirements.txt
+├── frontend/                           # Responsive Governance Console
+│   ├── index.html                      # UI with responsive Grid, "How It Works" & Live Sandboxes
+│   ├── css/style.css                   # Enterprise theme, side-by-side cards, conflict alerts
+│   └── js/app.js                       # Reactive state, live upload, interactive review & sandboxes
+├── run.py                              # Unified zero-config application launcher
+└── README.md
 ```
 
 ---
 
-## 📜 License
+## 🚀 Quick Start
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### 1. Requirements
+- Python 3.10+
+- Installed packages: `fastapi`, `uvicorn`, `sqlalchemy`, `pydantic`, `pandas`, `openpyxl`, `sentence-transformers`, `faiss-cpu`, `pytest`
+
+### 2. Launch the Platform
+```bash
+python run.py
+```
+Open your browser at:
+- **Responsive Governance Console:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Interactive Swagger API Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+### 3. Run Automated Tests
+```bash
+python -m pytest backend/tests -v
+```
+*(All 20 test cases passing)*
+
+---
+
+## 🛠️ End-to-End Workflow Verification
+
+1. **Explore "How It Works" & Interactive Sandboxes:**
+   - In the sidebar, click **"💡 How It Works & Architecture"**.
+   - Test **Sandbox 1: Real-Time Attribute Extraction & UNSPSC Classification** using presets or custom text.
+   - Test **Sandbox 2: Multi-Signal Matching & Contradiction Blocker** to simulate safe consolidation vs. blocked pressure/material hazards (`150#` vs `600#`).
+2. **Ingest Catalogs:**
+   - In the **Catalog Ingestion** tab, click **"⚡ Load 500-Row Industrial Benchmark (v2 Strategy)"** to ingest realistic proxy data for ONGC, IOCL, GAIL, BPCL, and HPCL.
+   - Or upload custom CSV/Excel files. Valid rows are ingested while malformed rows are isolated into the error report.
+3. **Execute AI Matching:**
+   - In the **AI Equivalence Workbench** tab, click **"🚀 Run Cross-CPSE AI Matching"**.
+   - The engine computes lexical overlap, FAISS dense vector cosine similarity, and attribute agreement.
+   - Filter groups dynamically using the **Search Bar** and **Confidence Band Filter** (`High`, `Medium`, `Low`).
+4. **Perform Human Governance Decision:**
+   - Click **"✓ Approve & Mint CNMC"** on an equivalence group.
+   - Enter a stewardship justification (e.g., *"Technical parameters confirmed identical across catalogs"*).
+   - A collision-safe CNMC (e.g. `CNMC-VAL-2026-00001`) is atomically minted and mappings are approved.
+5. **Inspect National Registry & Audit Trail:**
+   - In the **National CNMC Registry**, view the newly minted national materials.
+   - In the **Governance & Audit Trail**, inspect the immutable chronological record of the decision.
+6. **Download SAP Migration Payload:**
+   - In the **SAP / ERP Migration Export** tab, export approved mappings in CSV, Excel, or JSON ready for SAP BAPI / RFC ingestion.
