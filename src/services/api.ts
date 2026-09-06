@@ -115,6 +115,29 @@ export interface LiveHarmonizeResult {
   vector_sample: number[];
 }
 
+export interface LiveComparePayload {
+  text1: string;
+  text2: string;
+  uom1?: string;
+  uom2?: string;
+}
+
+export interface LiveCompareResult {
+  text1: string;
+  text2: string;
+  tokens1: string[];
+  tokens2: string[];
+  lexical_jaccard_score: number;
+  semantic_vector_cosine_score: number;
+  attribute_match_score: number;
+  composite_confidence_score: number;
+  relationship_type: string;
+  has_critical_conflict: boolean;
+  agreed_attributes: string[];
+  conflicts: string[];
+  explanation: string;
+}
+
 export interface IngestionReport {
   batch_id: string;
   cpse_id: string;
@@ -409,6 +432,24 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+  }
+
+  async compareLive(payload: LiveComparePayload): Promise<LiveCompareResult> {
+    return this.request<LiveCompareResult>('/matching/compare-live', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async loadBenchmark500(): Promise<{ message: string; batch_id: string; rows_loaded: number; total_faiss_indexed: number }> {
+    return this.request<{ message: string; batch_id: string; rows_loaded: number; total_faiss_indexed: number }>('/dataset/benchmark/load-500', {
+      method: 'POST',
+    });
+  }
+
+  async getBenchmarkStats(): Promise<any> {
+    return this.request('/dataset/benchmark/stats');
   }
 
   async uploadCatalogFile(cpseId: string, file: File): Promise<IngestionReport> {

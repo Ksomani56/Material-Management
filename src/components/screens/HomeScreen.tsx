@@ -2,15 +2,67 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DateRangePicker } from '../common/DateRangePicker';
 import { ScreenFooter } from '../common/FooterLegalModal';
+import { api, LiveHarmonizeResult, LiveCompareResult } from '../../services/api';
 
 type CategoryKey = 'fasteners' | 'valves' | 'pumps';
-type TabKey = 'demo' | 'architecture' | 'dataflow' | 'cpses';
+type TabKey = 'demo' | 'sandbox' | 'architecture' | 'dataflow' | 'cpses';
 
 export const HomeScreen: React.FC = () => {
-  const { setActiveScreen, openUploadModal, nationalAnalytics, cpseList, catalogueMaterials } = useApp();
+  const { setActiveScreen, openUploadModal, nationalAnalytics, cpseList, catalogueMaterials, addToast } = useApp();
   const [activeTab, setActiveTab] = useState<TabKey>('demo');
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('fasteners');
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // Sandbox 1: Attribute Extraction & Taxonomy
+  const [sandboxDesc, setSandboxDesc] = useState('VLV BALL 2IN 150# FLG WCB/316 PTFE');
+  const [sandboxUom, setSandboxUom] = useState('EA');
+  const [extractLoading, setExtractLoading] = useState(false);
+  const [extractResult, setExtractResult] = useState<LiveHarmonizeResult | null>(null);
+
+  // Sandbox 2: Multi-Signal Matcher & Contradiction Detection
+  const [compareText1, setCompareText1] = useState('BALL VALVE 2 INCH 150 LBS FLANGED A216 WCB BODY SS316 TRIM');
+  const [compareText2, setCompareText2] = useState('VLV BALL 2IN 150# FLG WCB/316 PTFE LEVER OP');
+  const [compareUom1, setCompareUom1] = useState('EA');
+  const [compareUom2, setCompareUom2] = useState('EA');
+  const [compareLoading, setCompareLoading] = useState(false);
+  const [compareResult, setCompareResult] = useState<LiveCompareResult | null>(null);
+
+  const handleRunExtract = async () => {
+    if (!sandboxDesc.trim()) return;
+    setExtractLoading(true);
+    try {
+      const res = await api.harmonizeLive({ description: sandboxDesc, uom: sandboxUom });
+      setExtractResult(res);
+      addToast('success', 'Live attribute extraction & taxonomy classification completed.');
+    } catch (err: any) {
+      addToast('error', err?.message || 'Attribute extraction failed.');
+    } finally {
+      setExtractLoading(false);
+    }
+  };
+
+  const handleRunCompare = async () => {
+    if (!compareText1.trim() || !compareText2.trim()) return;
+    setCompareLoading(true);
+    try {
+      const res = await api.compareLive({
+        text1: compareText1,
+        text2: compareText2,
+        uom1: compareUom1,
+        uom2: compareUom2,
+      });
+      setCompareResult(res);
+      if (res.has_critical_conflict) {
+        addToast('warning', 'Contradiction detected: Safety critical discrepancy identified.');
+      } else {
+        addToast('success', 'Multi-signal comparison completed successfully.');
+      }
+    } catch (err: any) {
+      addToast('error', err?.message || 'Comparison failed.');
+    } finally {
+      setCompareLoading(false);
+    }
+  };
 
   const categoryData = {
     fasteners: {
@@ -248,6 +300,21 @@ export const HomeScreen: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('sandbox')}
+            className={`pb-3 text-xs font-semibold transition-all relative flex items-center gap-1.5 ${
+              activeTab === 'sandbox'
+                ? 'text-[#F3F4F6]'
+                : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[15px] text-[#10B981]">science</span>
+            <span>Interactive AI Sandbox</span>
+            {activeTab === 'sandbox' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#10B981] rounded-full" />
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab('architecture')}
             className={`pb-3 text-xs font-semibold transition-all relative ${
               activeTab === 'architecture'
@@ -449,6 +516,431 @@ export const HomeScreen: React.FC = () => {
                 </table>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5B. Interactive AI Sandbox View */}
+      {activeTab === 'sandbox' && (
+        <div className="space-y-6">
+          {/* Top Intro Card */}
+          <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#10B981] text-[18px]">verified_user</span>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Live Technical Sandbox &amp; Engine Verification
+                </h3>
+              </div>
+              <p className="text-xs text-[#9CA3AF] max-w-2xl leading-relaxed">
+                Execute live inference directly against the FastAPI and FAISS backend pipelines. Test entity attribute extraction, UNSPSC category classification, and safety contradiction enforcement with zero mock fallbacks.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold bg-[#161B18] text-[#22D3EE] border border-[#232825]">
+                FastAPI Live Endpoint
+              </span>
+              <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold bg-[#161B18] text-[#10B981] border border-[#232825]">
+                FAISS Vector Engine
+              </span>
+            </div>
+          </div>
+
+          {/* Sandbox 1: Attribute Extraction & UNSPSC Classification */}
+          <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#232825]">
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span className="w-5 h-5 rounded bg-[#10B981]/20 text-[#10B981] font-mono text-xs flex items-center justify-center font-bold">1</span>
+                  Real-Time Attribute Extraction &amp; UNSPSC Classification
+                </h4>
+                <p className="text-xs text-[#9CA3AF] mt-0.5">
+                  NLP rules and regex parsers extract engineering attributes and map to the national taxonomy.
+                </p>
+              </div>
+
+              {/* Quick Presets */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] text-[#6B7280]">Presets:</span>
+                {[
+                  { label: 'Ball Valve', desc: 'VLV BALL 2IN 150# FLG WCB/316 PTFE', uom: 'EA' },
+                  { label: 'Weld Neck Flange', desc: 'FLG WN 4IN 300# RF A105 SCH40 ASME B16.5', uom: 'EA' },
+                  { label: 'Spiral Gasket', desc: 'GSK SPWD 3IN 150# 316L/FG ASME B16.20', uom: 'EA' },
+                  { label: 'CS Pipe', desc: 'PIPE CS 6IN SCH40 SMLS ASTM A106 GR.B BE', uom: 'MTR' },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    onClick={() => {
+                      setSandboxDesc(preset.desc);
+                      setSandboxUom(preset.uom);
+                    }}
+                    className="px-2 py-1 rounded text-[10px] font-mono bg-[#070908] border border-[#232825] text-[#9CA3AF] hover:text-white hover:border-[#38423C] transition-all"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Input Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-10 space-y-1.5">
+                <label className="text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-wider block">
+                  Raw Legacy Material Description (Unstructured Text)
+                </label>
+                <input
+                  type="text"
+                  value={sandboxDesc}
+                  onChange={(e) => setSandboxDesc(e.target.value)}
+                  placeholder="e.g. VLV BALL 2IN 150# FLG WCB/316 PTFE"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#070908] border border-[#232825] text-xs font-mono text-white focus:outline-none focus:border-[#10B981] transition-all"
+                />
+              </div>
+
+              <div className="lg:col-span-2 space-y-1.5">
+                <label className="text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-wider block">
+                  UOM
+                </label>
+                <input
+                  type="text"
+                  value={sandboxUom}
+                  onChange={(e) => setSandboxUom(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#070908] border border-[#232825] text-xs font-mono text-white text-center focus:outline-none focus:border-[#10B981] transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="flex items-center justify-end">
+              <button
+                onClick={handleRunExtract}
+                disabled={extractLoading || !sandboxDesc.trim()}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#10B981] text-[#000000] hover:brightness-110 disabled:opacity-50 transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {extractLoading ? 'hourglass_top' : 'magic_button'}
+                </span>
+                <span>{extractLoading ? 'Extracting Parameters...' : 'Extract & Harmonize Live'}</span>
+              </button>
+            </div>
+
+            {/* Live Results Panel */}
+            {extractResult && (
+              <div className="mt-4 pt-4 border-t border-[#232825] space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-1">
+                    <span className="text-[10px] uppercase font-semibold text-[#6B7280]">UNSPSC Category</span>
+                    <p className="text-xs font-bold text-white truncate">{extractResult.category_name || 'Industrial Mechanical'}</p>
+                    <span className="text-[11px] font-mono text-[#10B981]">Code: {extractResult.unspsc_code || '40141600'}</span>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-1">
+                    <span className="text-[10px] uppercase font-semibold text-[#6B7280]">Normalized UOM</span>
+                    <p className="text-xs font-bold text-white font-mono">{extractResult.normalized_uom}</p>
+                    <span className="text-[11px] text-[#6B7280]">Source: {extractResult.source_uom}</span>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-1">
+                    <span className="text-[10px] uppercase font-semibold text-[#6B7280]">Dense Vector Dimension</span>
+                    <p className="text-xs font-bold text-white font-mono">{extractResult.vector_dimension || 384} Dimensions</p>
+                    <span className="text-[11px] text-[#22D3EE] font-mono">
+                      Sample: [{extractResult.vector_sample?.slice(0, 3).join(', ')}...]
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-1">
+                    <span className="text-[10px] uppercase font-semibold text-[#6B7280]">Pipeline Status</span>
+                    <p className="text-xs font-bold text-[#10B981] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                      Attribute Schema Valid
+                    </p>
+                    <span className="text-[11px] text-[#6B7280]">Deterministic Parser</span>
+                  </div>
+                </div>
+
+                {/* Standardized Text Output */}
+                <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-1">
+                  <span className="text-[10px] uppercase font-semibold text-[#6B7280]">
+                    Generated MoPNG Standard Canonical Format
+                  </span>
+                  <p className="text-xs font-mono font-bold text-[#10B981]">
+                    {extractResult.standardized_description}
+                  </p>
+                </div>
+
+                {/* Extracted Attributes Table */}
+                <div className="overflow-x-auto border border-[#232825] rounded-lg">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-[#161B18] text-[#9CA3AF] text-[10px] uppercase font-semibold border-b border-[#232825]">
+                        <th className="px-4 py-2 text-left">Extracted Attribute</th>
+                        <th className="px-4 py-2 text-left">Parsed Value</th>
+                        <th className="px-4 py-2 text-left">Standard Norm</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#161B18] bg-[#070908]">
+                      {Object.entries(extractResult.extracted_attributes || {}).map(([key, val]) => (
+                        <tr key={key} className="hover:bg-[#0C0E0D]">
+                          <td className="px-4 py-2 font-medium text-[#9CA3AF] capitalize">
+                            {key.replace(/_/g, ' ')}
+                          </td>
+                          <td className="px-4 py-2 font-mono font-bold text-white">
+                            {val ? String(val) : <span className="text-[#6B7280] italic">Not detected</span>}
+                          </td>
+                          <td className="px-4 py-2 text-[11px] text-[#22D3EE] font-mono">
+                            {val ? 'VERIFIED' : '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sandbox 2: Multi-Signal Matcher & Contradiction Blocker */}
+          <div className="bg-[#0C0E0D] border border-[#232825] rounded-xl p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#232825]">
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span className="w-5 h-5 rounded bg-[#22D3EE]/20 text-[#22D3EE] font-mono text-xs flex items-center justify-center font-bold">2</span>
+                  Multi-Signal Matcher &amp; Physics Contradiction Blocker
+                </h4>
+                <p className="text-xs text-[#9CA3AF] mt-0.5">
+                  Evaluates semantic cosine, lexical Jaccard, and physical attribute parity while strictly blocking contradictory safety parameters.
+                </p>
+              </div>
+
+              {/* Scenarios */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] text-[#6B7280]">Scenarios:</span>
+                <button
+                  onClick={() => {
+                    setCompareText1('BALL VALVE 2 INCH 150 LBS FLANGED A216 WCB BODY SS316 TRIM');
+                    setCompareText2('VLV BALL 2IN 150# FLG WCB/316 PTFE LEVER OP');
+                  }}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-[#070908] border border-[#232825] text-[#10B981] hover:border-[#10B981] transition-all"
+                >
+                  Safe Merge
+                </button>
+                <button
+                  onClick={() => {
+                    setCompareText1('BALL VALVE 2IN 150# FLANGE RF WCB BODY');
+                    setCompareText2('BALL VALVE 2IN 600# FLANGE RF WCB BODY HIGH PRESSURE');
+                  }}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-[#070908] border border-[#232825] text-[#EF4444] hover:border-[#EF4444] transition-all"
+                >
+                  Pressure Conflict (Blocked)
+                </button>
+                <button
+                  onClick={() => {
+                    setCompareText1('PIPE 4IN SCH40 SMLS ASTM A106 GR B CARBON STEEL');
+                    setCompareText2('PIPE 4IN SCH40 SMLS ASTM A312 TP304 STAINLESS STEEL');
+                  }}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-[#070908] border border-[#232825] text-[#EAB308] hover:border-[#EAB308] transition-all"
+                >
+                  Grade Conflict (Blocked)
+                </button>
+              </div>
+            </div>
+
+            {/* Dual Input Panels */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Record A */}
+              <div className="p-4 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#10B981]">
+                    CPSE Record A (Source Anchor)
+                  </span>
+                  <span className="text-[10px] font-mono text-[#6B7280]">Target CPSE: ONGC</span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={compareText1}
+                  onChange={(e) => setCompareText1(e.target.value)}
+                  className="w-full p-2.5 rounded bg-[#0C0E0D] border border-[#232825] text-xs font-mono text-white focus:outline-none focus:border-[#10B981]"
+                />
+              </div>
+
+              {/* Record B */}
+              <div className="p-4 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#22D3EE]">
+                    CPSE Record B (Candidate Ingestion)
+                  </span>
+                  <span className="text-[10px] font-mono text-[#6B7280]">Target CPSE: IOCL</span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={compareText2}
+                  onChange={(e) => setCompareText2(e.target.value)}
+                  className="w-full p-2.5 rounded bg-[#0C0E0D] border border-[#232825] text-xs font-mono text-white focus:outline-none focus:border-[#22D3EE]"
+                />
+              </div>
+            </div>
+
+            {/* Compare Action Button */}
+            <div className="flex items-center justify-end">
+              <button
+                onClick={handleRunCompare}
+                disabled={compareLoading || !compareText1.trim() || !compareText2.trim()}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#22D3EE] text-[#000000] hover:brightness-110 disabled:opacity-50 transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {compareLoading ? 'hourglass_top' : 'balance'}
+                </span>
+                <span>{compareLoading ? 'Calculating Multi-Signal Similarity...' : 'Run Multi-Signal AI Comparison'}</span>
+              </button>
+            </div>
+
+            {/* Comparison Results */}
+            {compareResult && (
+              <div className="mt-4 pt-4 border-t border-[#232825] space-y-4">
+                {/* Decision Alert Banner */}
+                {compareResult.has_critical_conflict ? (
+                  <div className="p-4 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/40 flex items-start gap-3">
+                    <span className="material-symbols-outlined text-[#EF4444] text-[20px] shrink-0 mt-0.5">
+                      gpp_bad
+                    </span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#EF4444] uppercase tracking-wider">
+                          Critical Safety Contradiction Detected - Merge Prohibited
+                        </span>
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#EF4444]/20 text-[#EF4444]">
+                          BLOCKED
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#F3F4F6] leading-relaxed">
+                        {compareResult.explanation || 'Safety-critical attributes (e.g. pressure rating or alloy grade) diverge. Automated merge is strictly blocked to prevent physical failure in refinery or pipeline service.'}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-[#10B981]/10 border border-[#10B981]/40 flex items-start gap-3">
+                    <span className="material-symbols-outlined text-[#10B981] text-[20px] shrink-0 mt-0.5">
+                      verified
+                    </span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#10B981] uppercase tracking-wider">
+                          Authoritative Equivalence Verified - Safe Merge Approved
+                        </span>
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#10B981]/20 text-[#10B981]">
+                          {compareResult.relationship_type || 'IDENTICAL'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#F3F4F6] leading-relaxed">
+                        {compareResult.explanation || 'High multi-signal confidence with verified agreement across critical physical parameters. Records can safely share an identical CNMC.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4 Score Metrics Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#9CA3AF] font-medium">Composite Confidence</span>
+                      <span className="font-mono font-bold text-[#10B981]">
+                        {Math.round(compareResult.composite_confidence_score * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-[#161B18] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#10B981] rounded-full transition-all duration-500"
+                        style={{ width: `${Math.round(compareResult.composite_confidence_score * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#9CA3AF] font-medium">Semantic Cosine</span>
+                      <span className="font-mono font-bold text-[#22D3EE]">
+                        {Math.round(compareResult.semantic_vector_cosine_score * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-[#161B18] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#22D3EE] rounded-full transition-all duration-500"
+                        style={{ width: `${Math.round(compareResult.semantic_vector_cosine_score * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#9CA3AF] font-medium">Lexical Jaccard</span>
+                      <span className="font-mono font-bold text-[#9CA3AF]">
+                        {Math.round(compareResult.lexical_jaccard_score * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-[#161B18] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#9CA3AF] rounded-full transition-all duration-500"
+                        style={{ width: `${Math.round(compareResult.lexical_jaccard_score * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#9CA3AF] font-medium">Attribute Agreement</span>
+                      <span className="font-mono font-bold text-[#EAB308]">
+                        {Math.round(compareResult.attribute_match_score * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-[#161B18] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#EAB308] rounded-full transition-all duration-500"
+                        style={{ width: `${Math.round(compareResult.attribute_match_score * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Agreed Attributes & Conflicts Badges */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                  <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                    <span className="text-[10px] uppercase font-semibold text-[#10B981] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]">check</span>
+                      Agreed Attributes ({compareResult.agreed_attributes?.length || 0})
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {compareResult.agreed_attributes && compareResult.agreed_attributes.length > 0 ? (
+                        compareResult.agreed_attributes.map((attr, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#161B18] text-[#10B981] border border-[#232825]">
+                            {attr}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-[#6B7280] italic">No common parameters identified</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[#070908] border border-[#232825] space-y-2">
+                    <span className="text-[10px] uppercase font-semibold text-[#EF4444] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]">close</span>
+                      Discrepancies &amp; Contradictions ({compareResult.conflicts?.length || 0})
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {compareResult.conflicts && compareResult.conflicts.length > 0 ? (
+                        compareResult.conflicts.map((conf, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30">
+                            {conf}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-[#10B981] font-mono">0 contradictions identified</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

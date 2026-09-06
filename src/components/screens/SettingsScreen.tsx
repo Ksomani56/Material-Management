@@ -2,13 +2,45 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ScreenFooter } from '../common/FooterLegalModal';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
+import { api } from '../../services/api';
 
 export const SettingsScreen: React.FC = () => {
-  const { theme, toggleTheme, openUploadModal, addToast, catalogueMaterials, nationalAnalytics } = useApp();
+  const { theme, toggleTheme, openUploadModal, addToast, catalogueMaterials, nationalAnalytics, refreshAllData } = useApp();
   const [cadence, setCadence] = useState('Real-Time WebSockets');
   const [defaultLanding, setDefaultLanding] = useState('Executive Overview');
   const [approvalThreshold, setApprovalThreshold] = useState(98);
   const [matchingModel, setMatchingModel] = useState('Technical-RoBERTa v4.2');
+
+  const [loadingBenchmark, setLoadingBenchmark] = useState(false);
+  const [benchmarkStatus, setBenchmarkStatus] = useState<{ rows: number; vectors: number } | null>(null);
+  const [runningMatching, setRunningMatching] = useState(false);
+
+  const handleLoadBenchmark = async () => {
+    setLoadingBenchmark(true);
+    try {
+      const res = await api.loadBenchmark500();
+      setBenchmarkStatus({ rows: res.rows_loaded, vectors: res.total_faiss_indexed });
+      addToast('success', `Benchmark Ingestion Complete: ${res.rows_loaded} MRO items indexed into FAISS vector space.`);
+      if (refreshAllData) await refreshAllData();
+    } catch (err: any) {
+      addToast('error', err?.message || 'Failed to load benchmark dataset');
+    } finally {
+      setLoadingBenchmark(false);
+    }
+  };
+
+  const handleRunMatchingEngine = async () => {
+    setRunningMatching(true);
+    try {
+      const res = await api.runMatchingEngine();
+      addToast('success', `Matching Engine Finished: ${res.groups_created} equivalence groups generated.`);
+      if (refreshAllData) await refreshAllData();
+    } catch (err: any) {
+      addToast('error', err?.message || 'Failed to execute matching engine');
+    } finally {
+      setRunningMatching(false);
+    }
+  };
 
   const handleIntegrityCheck = () => {
     const count = nationalAnalytics?.total_source_materials || catalogueMaterials.length || 640;
@@ -368,6 +400,93 @@ export const SettingsScreen: React.FC = () => {
                   8 Worker Threads
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Section 4: Demonstration & Benchmark Data Management */}
+          <div
+            className="rounded-xl p-6 space-y-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          >
+            <div>
+              <h2 className="text-base font-semibold text-white tracking-tight">
+                Demonstration &amp; Benchmark Data Management
+              </h2>
+              <p className="text-xs text-[#A7ADA9] mt-0.5">
+                Seed standardized CPSE catalogs, generate dense vector embeddings, and trigger cross-catalog clustering for evaluation.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {/* Load 500 benchmark */}
+              <div
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl"
+                style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-white">Load 500-Row Industrial Benchmark Dataset</p>
+                    <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#161B18] text-[#10B981] border border-[#232825]">
+                      SIH26099 v2
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#A7ADA9] mt-0.5 max-w-lg">
+                    Seeds 500 validated mechanical and instrumentation materials across ONGC, IOCL, GAIL, and BPCL, indexing 384-d embeddings into FAISS.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleLoadBenchmark}
+                  disabled={loadingBenchmark}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all hover:brightness-110 shadow-sm shrink-0 disabled:opacity-50"
+                  style={{ background: 'var(--primary)', color: '#000000' }}
+                >
+                  <span className="material-symbols-outlined text-[16px]">
+                    {loadingBenchmark ? 'hourglass_top' : 'dataset'}
+                  </span>
+                  <span>{loadingBenchmark ? 'Ingesting Benchmark...' : 'Load 500 Benchmark'}</span>
+                </button>
+              </div>
+
+              {/* Trigger Matching */}
+              <div
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl"
+                style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
+              >
+                <div>
+                  <p className="text-sm font-semibold text-white">Execute Candidate Matching Engine</p>
+                  <p className="text-xs text-[#A7ADA9] mt-0.5 max-w-lg">
+                    Runs multi-signal semantic retrieval across all ingested source materials, populating the Harmonization Workbench and Review Queue.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleRunMatchingEngine}
+                  disabled={runningMatching}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all hover:brightness-110 shadow-sm shrink-0 border border-[#22D3EE]/40 disabled:opacity-50"
+                  style={{ background: '#22D3EE', color: '#000000' }}
+                >
+                  <span className="material-symbols-outlined text-[16px]">
+                    {runningMatching ? 'hourglass_top' : 'play_circle'}
+                  </span>
+                  <span>{runningMatching ? 'Clustering Catalog...' : 'Run Matching Engine'}</span>
+                </button>
+              </div>
+
+              {/* Ingestion Report if available */}
+              {benchmarkStatus && (
+                <div className="p-3.5 rounded-lg bg-[#070908] border border-[#10B981]/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[#10B981] text-[18px]">verified</span>
+                    <span className="text-xs font-semibold text-white">
+                      Active Benchmark Index: {benchmarkStatus.rows} Rows Ingested
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono text-[#22D3EE]">
+                    {benchmarkStatus.vectors} Vectors Active
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
