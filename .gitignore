@@ -28,6 +28,24 @@ env/
 .DS_Store
 Thumbs.db
 desktop.ini
+*.suo
+*.ntvs*
+*.njsproj
+*.sw?
 
 # Logs
 *.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node / frontend
+node_modules/
+dist/
+.cache/
+
+# SQLite databases
+*.db
