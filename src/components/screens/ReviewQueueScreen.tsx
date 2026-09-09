@@ -99,14 +99,11 @@ export const ReviewQueueScreen: React.FC = () => {
     }
 
     if (justificationTarget.type === 'single-approve' && justificationTarget.itemId) {
-      approveReviewItem(justificationTarget.itemId);
-      addToast('success', `Authoritative Approval recorded for ${justificationTarget.sourceCode} -> ${justificationTarget.candidateCnmc}.`);
+      approveReviewItem(justificationTarget.itemId, customRationale);
     } else if (justificationTarget.type === 'single-flag' && justificationTarget.itemId) {
-      flagReviewItem(justificationTarget.itemId);
-      addToast('warning', `Discrepancy audit recorded for ${justificationTarget.sourceCode}.`);
+      flagReviewItem(justificationTarget.itemId, customRationale);
     } else if (justificationTarget.type === 'bulk-approve' && justificationTarget.itemIds) {
-      bulkApproveReviewItems(justificationTarget.itemIds);
-      addToast('success', `Batch approved ${justificationTarget.itemIds.length} records into the National Master.`);
+      bulkApproveReviewItems(justificationTarget.itemIds, customRationale);
     }
 
     setJustificationTarget(null);

@@ -148,6 +148,37 @@ export interface IngestionReport {
   ingested_material_ids: string[];
 }
 
+export interface TimeSeriesPoint {
+  month: string;
+  standardized: number;
+  source_ingested: number;
+}
+
+export interface TimeSeriesResponse {
+  points: TimeSeriesPoint[];
+  total_months: number;
+}
+
+export interface SystemIntegrityResult {
+  status: string;
+  total_records_checked: number;
+  anomalies_count: number;
+  anomalies: string[];
+  database_engine?: string;
+  message: string;
+}
+
+export interface CpseSyncResult {
+  status: string;
+  cpse_id: string;
+  cpse_code: string;
+  cpse_name: string;
+  records_analyzed: number;
+  records_indexed: number;
+  last_sync: string;
+  message: string;
+}
+
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${BASE_URL}${endpoint}`;
@@ -368,7 +399,7 @@ class ApiService {
 
   async reviewGroup(
     groupId: string,
-    action: 'APPROVE' | 'REJECT' | 'FLAG' | 'MERGE',
+    action: 'APPROVE' | 'REJECT' | 'FLAG' | 'MERGE' | 'MAP' | 'RETAIN' | 'RETIRE' | 'REVIEW' | 'SPLIT',
     actor = 'CHIEF_CATALOGER_CPSE',
     reason = 'Human governance review executed via Workbench',
     customCnmc?: string
@@ -376,10 +407,15 @@ class ApiService {
     const backendActionMap: Record<string, string> = {
       APPROVE: 'MERGE',
       MERGE: 'MERGE',
+      MAP: 'MAP',
       FLAG: 'REVIEW',
+      REVIEW: 'REVIEW',
       REJECT: 'RETIRE',
+      RETIRE: 'RETIRE',
+      RETAIN: 'RETAIN',
+      SPLIT: 'SPLIT',
     };
-    const mappedAction = backendActionMap[action] || 'MERGE';
+    const mappedAction = backendActionMap[action] || action;
 
     return this.request(`/governance/equivalence-groups/${groupId}/review`, {
       method: 'POST',
@@ -393,31 +429,77 @@ class ApiService {
     });
   }
 
+  async fetchMigrationRecords(format = 'json'): Promise<any[]> {
+    return this.request<any[]>(`/erp/export/migration?format=${format}`);
+  }
+
   async fetchAuditLogs(limit = 100): Promise<AuditLog[]> {
     const rawLogs = await this.request<BackendAuditEvent[]>(`/governance/audit-logs?limit=${limit}`);
 
     return rawLogs.map((log) => {
-      let desc = `${log.action} performed on ${log.object_type} (${log.object_id})`;
+      let desc = `${log.action} performed on ${log.object_type} (${log.object_id || ''})`;
+      let targetEntity = `${log.object_type}: ${(log.object_id || '').slice(0, 16)}`;
+      let parsedDetails: any = null;
+
       if (log.details) {
         if (typeof log.details === 'string') {
-          desc = log.details;
+          try {
+            parsedDetails = JSON.parse(log.details);
+          } catch {
+            desc = log.details;
+          }
         } else if (typeof log.details === 'object') {
-          desc = JSON.stringify(log.details);
+          parsedDetails = log.details;
         }
+      }
+
+      if (parsedDetails) {
+        if (parsedDetails.reason) {
+          desc = parsedDetails.reason;
+          if (parsedDetails.cnmc) {
+            desc += ` (Canonical SKU: ${parsedDetails.cnmc})`;
+            targetEntity = `CNMC: ${parsedDetails.cnmc} (Group: ${(log.object_id || '').slice(0, 8)})`;
+          }
+        } else if (parsedDetails.description) {
+          desc = parsedDetails.description;
+        } else {
+          desc = JSON.stringify(parsedDetails);
+        }
+      }
+
+      // Map raw backend action string to user-friendly label
+      let actionLabel = (log.action || '').replace(/_/g, ' ');
+      const upperAct = (log.action || '').toUpperCase();
+      if (upperAct === 'GROUP_REVIEW_MERGE' || upperAct === 'MERGE') {
+        actionLabel = 'Approved & Merged';
+      } else if (upperAct === 'GROUP_REVIEW_MAP' || upperAct === 'MAP') {
+        actionLabel = 'Approved & Mapped';
+      } else if (upperAct === 'GROUP_REVIEW_REVIEW' || upperAct === 'REVIEW') {
+        actionLabel = 'Flagged for Review';
+      } else if (upperAct === 'GROUP_REVIEW_RETIRE' || upperAct === 'RETIRE' || upperAct === 'REJECT') {
+        actionLabel = 'Rejected / Retired';
+      } else if (upperAct === 'CANONICAL_CREATE') {
+        actionLabel = 'Canonical SKU Created';
+      } else if (upperAct === 'ERP_DELTA_SYNC') {
+        actionLabel = 'ERP Delta Sync';
+      } else if (upperAct === 'CATALOG_IMPORT') {
+        actionLabel = 'Catalog Ingestion';
+      } else if (upperAct === 'BENCHMARK_DATASET_LOAD') {
+        actionLabel = 'Benchmark Dataset Ingestion';
       }
 
       return {
         id: log.id,
         timestamp: new Date(log.timestamp).toLocaleString(),
-        action: log.action.replace(/_/g, ' '),
+        action: actionLabel,
         description: desc,
         user: {
           name: log.actor || 'SYSTEM_INGESTION',
-          role: log.actor.includes('SYSTEM') ? 'Automated Pipeline' : 'National Data Steward',
-          isAi: log.actor.includes('SYSTEM') || log.actor.includes('ENGINE'),
-          initials: log.actor.slice(0, 2).toUpperCase(),
+          role: (log.actor || '').includes('SYSTEM') ? 'Automated Pipeline' : 'National Data Steward',
+          isAi: (log.actor || '').includes('SYSTEM') || (log.actor || '').includes('ENGINE'),
+          initials: (log.actor || 'SY').slice(0, 2).toUpperCase(),
         },
-        targetEntity: `${log.object_type}: ${log.object_id.slice(0, 16)}`,
+        targetEntity,
       };
     });
   }
@@ -470,6 +552,39 @@ class ApiService {
 
   async exportERP(cpseId: string, format = 'SAP_MDG_RFC'): Promise<any> {
     return this.request(`/erp/export/${encodeURIComponent(cpseId)}?export_format=${format}`);
+  }
+
+  async fetchTimeSeriesTrend(): Promise<TimeSeriesPoint[]> {
+    try {
+      const res = await this.request<TimeSeriesResponse>('/analytics/timeseries');
+      return res.points || [];
+    } catch {
+      return [];
+    }
+  }
+
+  async fetchPricingLookup(): Promise<Record<string, number>> {
+    try {
+      return await this.request<Record<string, number>>('/analytics/pricing-lookup');
+    } catch {
+      return {};
+    }
+  }
+
+  async triggerCpseSync(cpseId: string): Promise<CpseSyncResult> {
+    return this.request<CpseSyncResult>(`/cpse/${encodeURIComponent(cpseId)}/sync`, {
+      method: 'POST',
+    });
+  }
+
+  async flushCache(): Promise<{ status: string; message: string; active_vectors?: number }> {
+    return this.request<{ status: string; message: string; active_vectors?: number }>('/system/flush-cache', {
+      method: 'POST',
+    });
+  }
+
+  async checkIntegrity(): Promise<SystemIntegrityResult> {
+    return this.request<SystemIntegrityResult>('/system/integrity-check');
   }
 }
 

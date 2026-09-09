@@ -65,8 +65,8 @@ interface AppContextType {
   selectedReviewIds: string[];
   toggleSelectReviewItem: (id: string) => void;
   toggleSelectAllReviewItems: (selectAll: boolean) => void;
-  approveReviewItem: (id: string) => Promise<void>;
-  bulkApproveReviewItems: (ids: string[]) => Promise<void>;
+  approveReviewItem: (id: string, reason?: string) => Promise<void>;
+  bulkApproveReviewItems: (ids: string[], reason?: string) => Promise<void>;
   flagReviewItem: (id: string, reason?: string) => Promise<void>;
   reviewCpseFilter: string;
   setReviewCpseFilter: (cpse: string) => void;
@@ -83,11 +83,17 @@ interface AppContextType {
 
   // Rationalization & Entities
   rationalizationActions: RationalizationAction[];
+  executeRationalization: (
+    groupId: string,
+    action: 'MAP' | 'MERGE' | 'RETIRE' | 'REVIEW' | 'SPLIT' | 'RETAIN',
+    reason?: string
+  ) => Promise<void>;
   cpseList: CPSE[];
 
   // Governance & Audit
   auditLogs: AuditLog[];
   addAuditLog: (entry: Omit<AuditLog, 'id' | 'timestamp'>) => void;
+  refreshAuditLogs: () => Promise<void>;
 
   // Evidence Drawer
   evidenceDrawerOpen: boolean;
@@ -511,7 +517,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Real backend review mutations
-  const approveReviewItem = async (id: string) => {
+  const refreshAuditLogs = useCallback(async () => {
+    try {
+      const freshLogs = await api.fetchAuditLogs(100);
+      setAuditLogs(freshLogs);
+    } catch (err: any) {
+      console.warn('Failed to refresh audit logs:', err);
+    }
+  }, []);
+
+  const approveReviewItem = async (id: string, reason?: string) => {
     const item = reviewQueue.find(i => i.id === id);
     if (!item) return;
 
@@ -520,11 +535,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSelectedReviewIds(prev => prev.filter(itemId => itemId !== id));
 
     try {
-      await api.reviewGroup(id, 'APPROVE');
+      await api.reviewGroup(id, 'APPROVE', undefined, reason);
       addToast('success', `Approved ${item.sourceCode} linked to ${item.candidateCnmc}`);
       // Refresh audit logs & CPSE stats from DB
-      const freshLogs = await api.fetchAuditLogs(50);
+      const freshLogs = await api.fetchAuditLogs(100);
       setAuditLogs(freshLogs);
+      // Also update catalogue and analytics
+      Promise.all([
+        api.fetchCatalogue().then(setCatalogueMaterials).catch(() => null),
+        api.fetchNationalAnalytics().then(setNationalAnalytics).catch(() => null),
+      ]);
     } catch (err: any) {
       addToast('error', `Failed to approve in backend: ${err.message}`);
       // Revert if backend call fails
@@ -532,17 +552,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const bulkApproveReviewItems = async (ids: string[]) => {
+  const bulkApproveReviewItems = async (ids: string[], reason?: string) => {
     if (ids.length === 0) return;
 
     setReviewQueue(prev => prev.filter(i => !ids.includes(i.id)));
     setSelectedReviewIds([]);
 
     try {
-      await Promise.all(ids.map(id => api.reviewGroup(id, 'APPROVE')));
-      addToast('success', `Bulk approved ${ids.length} equivalence groups in database.`);
-      const freshLogs = await api.fetchAuditLogs(50);
+      await Promise.all(ids.map(id => api.reviewGroup(id, 'APPROVE', undefined, reason)));
+      addToast('success', `Bulk approved ${ids.length} equivalence groups into National Master.`);
+      const freshLogs = await api.fetchAuditLogs(100);
       setAuditLogs(freshLogs);
+      Promise.all([
+        api.fetchCatalogue().then(setCatalogueMaterials).catch(() => null),
+        api.fetchNationalAnalytics().then(setNationalAnalytics).catch(() => null),
+      ]);
     } catch (err: any) {
       addToast('error', `Bulk approval error: ${err.message}`);
       await refreshAllData();
@@ -558,10 +582,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       await api.reviewGroup(id, 'FLAG', undefined, reason || 'Flagged via Workbench');
       addToast('warning', `Flagged ${item.sourceCode} for technical committee review.`);
-      const freshLogs = await api.fetchAuditLogs(50);
+      const freshLogs = await api.fetchAuditLogs(100);
       setAuditLogs(freshLogs);
     } catch (err: any) {
       addToast('error', `Failed to flag item in backend: ${err.message}`);
+    }
+  };
+
+  const executeRationalization = async (
+    groupId: string,
+    action: 'MAP' | 'MERGE' | 'RETIRE' | 'REVIEW' | 'SPLIT' | 'RETAIN',
+    reason?: string
+  ) => {
+    const item = reviewQueue.find(i => i.id === groupId);
+    setReviewQueue(prev => prev.filter(i => i.id !== groupId));
+    setSelectedReviewIds(prev => prev.filter(id => id !== groupId));
+
+    try {
+      await api.reviewGroup(
+        groupId,
+        action,
+        'NATIONAL_DATA_STEWARD',
+        reason || `Rationalization operation ${action} executed via Catalog Consolidation Workbench`
+      );
+      addToast('success', `Executed ${action} on ${item?.sourceCode || 'item'} -> ${item?.candidateCnmc || 'National Master'}`);
+      const freshLogs = await api.fetchAuditLogs(100);
+      setAuditLogs(freshLogs);
+      Promise.all([
+        api.fetchCatalogue().then(setCatalogueMaterials).catch(() => null),
+        api.fetchNationalAnalytics().then(setNationalAnalytics).catch(() => null),
+      ]);
+    } catch (err: any) {
+      addToast('error', `Failed to execute ${action}: ${err.message}`);
+      await refreshAllData();
     }
   };
 
@@ -569,10 +622,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const commitHarmonization = async () => {
     const task = currentTask;
     try {
-      await api.reviewGroup(task.taskId, 'APPROVE').catch(() => null);
+      await api.reviewGroup(task.taskId, 'APPROVE', undefined, 'Steward approved via Harmonization Workbench').catch(() => null);
       addToast('success', `Harmonization committed for ${task.candidate.proposedCnmc}`);
-      const freshLogs = await api.fetchAuditLogs(50);
+      const freshLogs = await api.fetchAuditLogs(100);
       setAuditLogs(freshLogs);
+      Promise.all([
+        api.fetchCatalogue().then(setCatalogueMaterials).catch(() => null),
+        api.fetchNationalAnalytics().then(setNationalAnalytics).catch(() => null),
+      ]);
     } catch (err: any) {
       console.warn(err);
     }
@@ -647,9 +704,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         skipHarmonization,
         flagHarmonization,
         rationalizationActions,
+        executeRationalization,
         cpseList,
         auditLogs,
         addAuditLog,
+        refreshAuditLogs,
         evidenceDrawerOpen,
         evidenceTarget,
         openEvidence,

@@ -1,21 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AuditLog } from '../../types/material';
 import { ScreenFooter } from '../common/FooterLegalModal';
 
 const STATUS_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
   approved:    { icon: 'check_circle', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
+  merge:       { icon: 'check_circle', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
   harmonized:  { icon: 'check_circle', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
   flagged:     { icon: 'warning',      color: '#EAB308', bg: 'rgba(234, 179, 8, 0.12)' },
+  review:      { icon: 'rate_review',  color: '#EAB308', bg: 'rgba(234, 179, 8, 0.12)' },
   conflict:    { icon: 'warning',      color: '#EAB308', bg: 'rgba(234, 179, 8, 0.12)' },
   created:     { icon: 'add_circle',   color: '#22D3EE', bg: 'rgba(34, 211, 238, 0.12)' },
+  canonical:   { icon: 'verified',     color: '#22D3EE', bg: 'rgba(34, 211, 238, 0.12)' },
   ingestion:   { icon: 'upload',       color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.12)' },
+  sync:        { icon: 'sync',         color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.12)' },
   updated:     { icon: 'edit',         color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
   default:     { icon: 'history',      color: '#9CA3AF', bg: 'rgba(255, 255, 255, 0.05)' },
 };
 
 function getStatusCfg(action: string) {
-  const key = action.toLowerCase();
+  const key = (action || '').toLowerCase();
   for (const [k, v] of Object.entries(STATUS_CONFIG)) {
     if (key.includes(k)) return v;
   }
@@ -23,26 +27,67 @@ function getStatusCfg(action: string) {
 }
 
 export const GovernanceScreen: React.FC = () => {
-  const { auditLogs, setActiveScreen, addToast } = useApp();
+  const { auditLogs, refreshAuditLogs, setActiveScreen, addToast } = useApp();
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedActionFilter, setSelectedActionFilter] = useState('ALL');
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-refresh on mount to ensure latest state
+  useEffect(() => {
+    if (refreshAuditLogs) {
+      refreshAuditLogs();
+    }
+  }, [refreshAuditLogs]);
+
+  const handleManualRefresh = async () => {
+    if (refreshAuditLogs) {
+      setIsRefreshing(true);
+      await refreshAuditLogs();
+      setIsRefreshing(false);
+      addToast('success', 'Audit trail synced with cryptographic ledger.');
+    }
+  };
 
   const filteredLogs = useMemo(() => auditLogs.filter(log => {
     const q = filterQuery.toLowerCase();
-    const matchSearch = !q || log.action.toLowerCase().includes(q) ||
+    const matchSearch = !q ||
+      log.action.toLowerCase().includes(q) ||
       log.description.toLowerCase().includes(q) ||
       log.targetEntity.toLowerCase().includes(q) ||
-      log.user.name.toLowerCase().includes(q) || log.id.toLowerCase().includes(q);
-    const matchAction = selectedActionFilter === 'ALL' ||
-      log.action.toLowerCase().includes(selectedActionFilter.toLowerCase());
+      log.user.name.toLowerCase().includes(q) ||
+      log.id.toLowerCase().includes(q);
+
+    let matchAction = true;
+    if (selectedActionFilter === 'Approved') {
+      matchAction = log.action.toLowerCase().includes('approv') ||
+                    log.action.toLowerCase().includes('merge') ||
+                    log.action.toLowerCase().includes('map');
+    } else if (selectedActionFilter === 'Harmonized') {
+      matchAction = log.action.toLowerCase().includes('harmoniz') ||
+                    log.action.toLowerCase().includes('canonical') ||
+                    log.action.toLowerCase().includes('create');
+    } else if (selectedActionFilter === 'Ingestion') {
+      matchAction = log.action.toLowerCase().includes('ingest') ||
+                    log.action.toLowerCase().includes('import') ||
+                    log.action.toLowerCase().includes('sync') ||
+                    log.action.toLowerCase().includes('load');
+    } else if (selectedActionFilter === 'Flagged') {
+      matchAction = log.action.toLowerCase().includes('flag') ||
+                    log.action.toLowerCase().includes('review') ||
+                    log.action.toLowerCase().includes('split') ||
+                    log.action.toLowerCase().includes('reject');
+    } else if (selectedActionFilter !== 'ALL') {
+      matchAction = log.action.toLowerCase().includes(selectedActionFilter.toLowerCase());
+    }
+
     return matchSearch && matchAction;
   }), [auditLogs, filterQuery, selectedActionFilter]);
 
   const stats = {
     totalEvents:    auditLogs.length,
     aiDecisions:    auditLogs.filter(l => l.user.isAi).length,
-    humanApprovals: auditLogs.filter(l => !l.user.isAi).length,
+    humanApprovals: auditLogs.filter(l => !l.user.isAi || l.action.toLowerCase().includes('approv') || l.action.toLowerCase().includes('merge')).length,
     uniqueEntities: new Set(auditLogs.map(l => l.targetEntity)).size,
   };
 
@@ -151,6 +196,18 @@ export const GovernanceScreen: React.FC = () => {
           <option value="Ingestion">Ingestions</option>
           <option value="Flagged">Flags & Audits</option>
         </select>
+
+        <button
+          onClick={handleManualRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#161B18] border border-[#232825] text-[#F3F4F6] hover:border-[#10B981] hover:text-[#10B981] transition-all ml-auto disabled:opacity-50"
+          title="Refresh audit trail from backend database"
+        >
+          <span className={`material-symbols-outlined text-[16px] ${isRefreshing ? 'animate-spin' : ''}`}>
+            sync
+          </span>
+          <span>{isRefreshing ? 'Syncing...' : 'Sync Ledger'}</span>
+        </button>
       </div>
 
       {/* 5. Audit Log Table */}
@@ -166,51 +223,63 @@ export const GovernanceScreen: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1B201D]">
-              {filteredLogs.map(log => {
-                const cfg = getStatusCfg(log.action);
-                return (
-                  <tr
-                    key={log.id}
-                    onClick={() => setSelectedLog(log)}
-                    className="hover:bg-white/[0.02] cursor-pointer transition-colors"
-                  >
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] shrink-0"
-                          style={{ background: cfg.bg, color: cfg.color }}
-                        >
-                          <span className="material-symbols-outlined text-[15px]">{cfg.icon}</span>
-                        </span>
-                        <div>
-                          <div className="font-semibold text-white">{log.action}</div>
-                          <div className="text-xs text-[#9CA3AF] mt-0.5 line-clamp-1">{log.description}</div>
+              {filteredLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-5 py-12 text-center text-[#9CA3AF]">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-3xl text-[#6B7280]">manage_search</span>
+                      <p className="font-medium text-white">No audit records match your criteria</p>
+                      <p className="text-xs text-[#6B7280]">Try clearing your search query or selecting "All Actions".</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredLogs.map(log => {
+                  const cfg = getStatusCfg(log.action);
+                  return (
+                    <tr
+                      key={log.id}
+                      onClick={() => setSelectedLog(log)}
+                      className="hover:bg-white/[0.02] cursor-pointer transition-colors"
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] shrink-0"
+                            style={{ background: cfg.bg, color: cfg.color }}
+                          >
+                            <span className="material-symbols-outlined text-[15px]">{cfg.icon}</span>
+                          </span>
+                          <div>
+                            <div className="font-semibold text-white">{log.action}</div>
+                            <div className="text-xs text-[#9CA3AF] mt-0.5 line-clamp-1">{log.description}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-5 py-4 font-mono text-xs font-bold text-[#10B981]">
-                      {log.targetEntity}
-                    </td>
+                      <td className="px-5 py-4 font-mono text-xs font-bold text-[#10B981]">
+                        {log.targetEntity}
+                      </td>
 
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#161B18] border border-[#232825] flex items-center justify-center text-[10px] font-bold font-mono text-white">
-                          {log.user.initials}
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-[#161B18] border border-[#232825] flex items-center justify-center text-[10px] font-bold font-mono text-white">
+                            {log.user.initials}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-white text-xs">{log.user.name}</div>
+                            <div className="text-[10px] text-[#6B7280]">{log.user.role}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-semibold text-white text-xs">{log.user.name}</div>
-                          <div className="text-[10px] text-[#6B7280]">{log.user.role}</div>
-                        </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-5 py-4 text-right font-mono text-[11px] text-[#6B7280]">
-                      {log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Recent'}
-                    </td>
-                  </tr>
-                );
-              })}
+                      <td className="px-5 py-4 text-right font-mono text-[11px] text-[#6B7280]">
+                        {log.timestamp || 'Recent'}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

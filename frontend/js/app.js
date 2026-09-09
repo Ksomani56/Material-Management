@@ -550,6 +550,7 @@ document.getElementById('modal-submit-btn').addEventListener('click', async () =
     document.getElementById('review-modal').classList.remove('show');
     loadEquivalenceGroups();
     loadDashboard();
+    loadAuditLogs();
   } catch (err) {
     showToast('Failed to record review: ' + err.message, 'error');
   }
@@ -597,27 +598,54 @@ document.getElementById('cnmc-search-btn').addEventListener('click', () => {
 // Audit Trail
 async function loadAuditLogs() {
   const tbody = document.getElementById('audit-tbody');
+  if (!tbody) return;
   try {
     const res = await fetch(`${API_BASE}/governance/audit-logs?limit=50`);
     const logs = await res.json();
 
-    if (logs.length === 0) {
+    if (!Array.isArray(logs) || logs.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" class="text-center">No audit events recorded yet.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = logs.map(l => `
-      <tr>
-        <td>${new Date(l.timestamp).toLocaleString()}</td>
-        <td><strong>${l.actor}</strong></td>
-        <td><span class="badge badge-outline">${l.action}</span></td>
-        <td><code>${l.object_type}:${l.object_id.slice(0, 8)}</code></td>
-        <td>${l.rule_version || 'v4.0.0'}</td>
-        <td>${l.details || '-'}</td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = logs.map(l => {
+      let detailContent = '-';
+      if (l.details) {
+        try {
+          const parsed = typeof l.details === 'string' ? JSON.parse(l.details) : l.details;
+          if (parsed.reason) {
+            detailContent = `<strong>Rationale:</strong> ${parsed.reason}`;
+            if (parsed.cnmc) {
+              detailContent += ` <span class="badge badge-success">Target: ${parsed.cnmc}</span>`;
+            }
+          } else if (parsed.description) {
+            detailContent = parsed.description;
+          } else {
+            detailContent = typeof l.details === 'string' ? l.details : JSON.stringify(l.details);
+          }
+        } catch {
+          detailContent = l.details;
+        }
+      }
+
+      const objId = l.object_id ? String(l.object_id).slice(0, 8) : 'N/A';
+      const isApproved = (l.action || '').includes('MERGE') || (l.action || '').includes('APPROVE') || (l.action || '').includes('MAP');
+      const badgeClass = isApproved ? 'badge-success' : 'badge-outline';
+
+      return `
+        <tr>
+          <td>${new Date(l.timestamp).toLocaleString()}</td>
+          <td><strong>${l.actor || 'SYSTEM'}</strong></td>
+          <td><span class="badge ${badgeClass}">${l.action}</span></td>
+          <td><code>${l.object_type}:${objId}</code></td>
+          <td>${l.rule_version || 'v4.0.0'}</td>
+          <td>${detailContent}</td>
+        </tr>
+      `;
+    }).join('');
   } catch (err) {
-    console.error(err);
+    console.error('Failed to load audit logs:', err);
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:var(--danger)">Failed to load audit logs: ${err.message}</td></tr>`;
   }
 }
 

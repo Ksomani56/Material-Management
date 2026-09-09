@@ -15,7 +15,8 @@ from app.api.routers import (
     canonical,
     erp_export,
     analytics,
-    dataset
+    dataset,
+    system
 )
 
 Base.metadata.create_all(bind=engine)
@@ -41,6 +42,7 @@ app.include_router(canonical.router, prefix=settings.API_V1_STR)
 app.include_router(erp_export.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(dataset.router, prefix=settings.API_V1_STR)
+app.include_router(system.router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health", tags=["Health"])
 def health_check():

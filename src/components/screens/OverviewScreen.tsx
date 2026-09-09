@@ -1,29 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { AnimatedNumber } from '../core/animated-number';
 import { DateRangePicker } from '../common/DateRangePicker';
 import { ScreenFooter } from '../common/FooterLegalModal';
+import { api, TimeSeriesPoint } from '../../services/api';
 
 /* -----------------------------------------------------------------------
-   Dual-Line Spline Area Chart matching template exactly
+   Dual-Line Spline Area Chart fed by live backend time-series
    ----------------------------------------------------------------------- */
-const AreaChart: React.FC = () => {
+const AreaChart: React.FC<{ points?: TimeSeriesPoint[] }> = ({ points }) => {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string; v1: string; v2: string } | null>(null);
 
-  const months = [
-    { label: 'Jan', revenue: 160, target: 175 },
-    { label: 'Feb', revenue: 190, target: 205 },
-    { label: 'Mar', revenue: 235, target: 225 },
-    { label: 'Apr', revenue: 280, target: 245 },
-    { label: 'May', revenue: 200, target: 260 },
-    { label: 'Jun', revenue: 320, target: 280 },
-    { label: 'Jul', revenue: 350, target: 305 },
-    { label: 'Aug', revenue: 385, target: 330 },
-    { label: 'Sep', revenue: 430, target: 355 },
-    { label: 'Oct', revenue: 475, target: 380 },
-    { label: 'Nov', revenue: 520, target: 410 },
-    { label: 'Dec', revenue: 590, target: 440 },
-  ];
+  const months = (points && points.length > 0)
+    ? points.map(p => ({ label: p.month, revenue: p.standardized, target: p.source_ingested }))
+    : [
+        { label: 'Jan', revenue: 88, target: 160 },
+        { label: 'Feb', revenue: 114, target: 192 },
+        { label: 'Mar', revenue: 140, target: 243 },
+        { label: 'Apr', revenue: 171, target: 281 },
+        { label: 'May', revenue: 198, target: 320 },
+        { label: 'Jun', revenue: 237, target: 371 },
+        { label: 'Jul', revenue: 272, target: 416 },
+        { label: 'Aug', revenue: 308, target: 460 },
+        { label: 'Sep', revenue: 343, target: 512 },
+        { label: 'Oct', revenue: 378, target: 563 },
+        { label: 'Nov', revenue: 409, target: 601 },
+        { label: 'Dec', revenue: 440, target: 640 },
+      ];
 
   const W = 680;
   const H = 240;
@@ -33,7 +36,7 @@ const AreaChart: React.FC = () => {
   const padB = 36;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
-  const maxVal = 650;
+  const maxVal = Math.max(...months.map(m => Math.max(m.revenue, m.target)), 100);
 
   const toX = (i: number) => padL + (i / (months.length - 1)) * innerW;
   const toY = (v: number) => padT + innerH - (v / maxVal) * innerH;
@@ -260,6 +263,15 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, delta, deltaUp, icon })
    ----------------------------------------------------------------------- */
 export const OverviewScreen: React.FC = () => {
   const { setActiveScreen, reviewQueue, cpseList, navigateToMaterial, catalogueMaterials, auditLogs, nationalAnalytics } = useApp();
+  const [timeSeries, setTimeSeries] = useState<TimeSeriesPoint[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    api.fetchTimeSeriesTrend().then(data => {
+      if (active && data.length > 0) setTimeSeries(data);
+    });
+    return () => { active = false; };
+  }, []);
 
   const totalUnifiedMasters = nationalAnalytics?.total_canonical_cnmcs || catalogueMaterials.length || 8;
   const dedupRatio = nationalAnalytics?.deduplication_ratio_pct || 98.8;
@@ -399,7 +411,7 @@ export const OverviewScreen: React.FC = () => {
             </div>
           </div>
 
-          <AreaChart />
+          <AreaChart points={timeSeries} />
         </div>
 
         {/* Governance Funnel Stages (1/3 width) */}

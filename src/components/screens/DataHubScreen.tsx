@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motio
 import { useApp } from '../../context/AppContext';
 import { ScreenFooter } from '../common/FooterLegalModal';
 import { CPSE } from '../../types/material';
+import { api } from '../../services/api';
 
 /* ─── Mouse-tracking spotlight card ─────────────────────────── */
 const SpotlightCard: React.FC<{
@@ -454,22 +455,21 @@ const CPSEDetailPopup: React.FC<{
 
 /* ─── Main screen ────────────────────────────────────────────── */
 export const DataHubScreen: React.FC = () => {
-  const { cpseList, addAuditLog, openUploadModal, addToast, setActiveScreen } = useApp();
+  const { cpseList, addAuditLog, openUploadModal, addToast, setActiveScreen, refreshAllData } = useApp();
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [selectedCpse, setSelectedCpse] = useState<CPSE | null>(null);
 
-  const handleTriggerSync = (cpseId: string, name: string) => {
+  const handleTriggerSync = async (cpseId: string, name: string) => {
     setSyncingId(cpseId);
-    setTimeout(() => {
+    try {
+      const res = await api.triggerCpseSync(cpseId);
+      addToast('success', res.message || `Delta sync completed for ${name} (${res.records_analyzed} records).`);
+      if (refreshAllData) await refreshAllData();
+    } catch (err: any) {
+      addToast('error', err?.message || `Failed to sync ${name}`);
+    } finally {
       setSyncingId(null);
-      addToast('success', `Delta ingestion complete for ${name} — 1,240 records updated.`);
-      addAuditLog({
-        action: 'Manual Ingestion Triggered',
-        description: `Triggered delta ingestion connector for ${name} ERP. Pipeline executed successfully.`,
-        user: { name: 'A. Kumar', role: 'Administrator', initials: 'AK' },
-        targetEntity: cpseId,
-      });
-    }, 1500);
+    }
   };
 
   return (

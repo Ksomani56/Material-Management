@@ -9,7 +9,7 @@ export const SettingsScreen: React.FC = () => {
   const [cadence, setCadence] = useState('Real-Time WebSockets');
   const [defaultLanding, setDefaultLanding] = useState('Executive Overview');
   const [approvalThreshold, setApprovalThreshold] = useState(98);
-  const [matchingModel, setMatchingModel] = useState('Technical-RoBERTa v4.2');
+  const [matchingModel, setMatchingModel] = useState('all-MiniLM-L6-v2 + FAISS IndexFlatIP');
 
   const [loadingBenchmark, setLoadingBenchmark] = useState(false);
   const [benchmarkStatus, setBenchmarkStatus] = useState<{ rows: number; vectors: number } | null>(null);
@@ -42,13 +42,26 @@ export const SettingsScreen: React.FC = () => {
     }
   };
 
-  const handleIntegrityCheck = () => {
-    const count = nationalAnalytics?.total_source_materials || catalogueMaterials.length || 640;
-    addToast('success', `Catalog Schema Integrity Check: ${count} verified records in active database with 0 anomalies.`);
+  const handleIntegrityCheck = async () => {
+    try {
+      const res = await api.checkIntegrity();
+      if (res.status === 'HEALTHY') {
+        addToast('success', `Catalog Schema Integrity Check: ${res.total_records_checked} verified records in active database with 0 anomalies.`);
+      } else {
+        addToast('warning', `Integrity Warning: ${res.anomalies_count} anomalies detected.`);
+      }
+    } catch (err: any) {
+      addToast('error', err?.message || 'Integrity check failed');
+    }
   };
 
-  const handleFlushCache = () => {
-    addToast('info', 'Local metadata and session cache successfully flushed.');
+  const handleFlushCache = async () => {
+    try {
+      const res = await api.flushCache();
+      addToast('info', res.message || 'Local metadata and session cache successfully flushed.');
+    } catch (err: any) {
+      addToast('error', err?.message || 'Flush cache failed');
+    }
   };
 
   const handleExportConfig = () => {
@@ -57,7 +70,7 @@ export const SettingsScreen: React.FC = () => {
       version: '2024.4 LTS',
       taxonomyStandard: 'MoPNG v3.0',
       autoApprovalThreshold: 0.98,
-      matchingModel: 'Technical-RoBERTa v4.2',
+      matchingModel: 'all-MiniLM-L6-v2 + FAISS IndexFlatIP',
       uomNormalization: true,
       dataResidency: 'MeitY National Cloud',
       exportedAt: new Date().toISOString(),

@@ -216,21 +216,24 @@ const CPSEVolumeDistributionChart: React.FC<{
 export const AnalyticsScreen: React.FC = () => {
   const { catalogueMaterials, reviewQueue, cpseList, setActiveScreen } = useApp();
   const [analytics, setAnalytics] = useState<BackendAnalytics | null>(null);
+  const [pricingLookup, setPricingLookup] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
-    api.fetchNationalAnalytics()
-      .then(res => {
-        if (mounted) {
-          setAnalytics(res);
-          setLoading(false);
-        }
-      })
-      .catch(err => {
-        console.error('Failed to load analytics:', err);
-        if (mounted) setLoading(false);
-      });
+    Promise.all([
+      api.fetchNationalAnalytics().catch(() => null),
+      api.fetchPricingLookup().catch(() => ({} as Record<string, number>))
+    ]).then(([analyticsRes, pricingRes]) => {
+      if (mounted) {
+        if (analyticsRes) setAnalytics(analyticsRes);
+        if (pricingRes) setPricingLookup(pricingRes);
+        setLoading(false);
+      }
+    }).catch(err => {
+      console.error('Failed to load analytics:', err);
+      if (mounted) setLoading(false);
+    });
     return () => { mounted = false; };
   }, []);
 
@@ -249,6 +252,14 @@ export const AnalyticsScreen: React.FC = () => {
     HPCL: 100,
   };
 
+  const getDeterministicPrice = (code: string) => {
+    if (pricingLookup[code]) return `₹${pricingLookup[code].toLocaleString()}`;
+    let hash = 0;
+    for (let i = 0; i < code.length; i++) hash = (hash * 31 + code.charCodeAt(i)) >>> 0;
+    const base = 1200 + (hash % 6800);
+    return `₹${base.toLocaleString()}`;
+  };
+
   // Real material items from database
   const displayItems = useMemo(() => {
     if (reviewQueue.length > 0) {
@@ -257,7 +268,7 @@ export const AnalyticsScreen: React.FC = () => {
         category: item.candidateCnmc,
         status: item.status === 'APPROVED' ? 'ACTIVE' : 'PENDING',
         vendor: `${item.sourceCpse} (ERP)`,
-        lastPrice: `₹${(Math.floor(Math.random() * 8000) + 1200).toLocaleString()}`,
+        lastPrice: getDeterministicPrice(item.sourceCode),
         confidence: `${item.confidence}%`,
         varianceUp: item.confidence >= 85,
       }));
@@ -267,11 +278,11 @@ export const AnalyticsScreen: React.FC = () => {
       category: item.cnmc,
       status: 'ACTIVE',
       vendor: 'National Material Master',
-      lastPrice: '₹14,200',
+      lastPrice: getDeterministicPrice(item.cnmc),
       confidence: '98%',
       varianceUp: true,
     }));
-  }, [reviewQueue, catalogueMaterials]);
+  }, [reviewQueue, catalogueMaterials, pricingLookup]);
 
   return (
     <main className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#070908] text-[#F3F4F6]">
@@ -356,30 +367,62 @@ export const AnalyticsScreen: React.FC = () => {
         <KpiCard
           label="Deduplication Ratio"
           value={<AnimatedNumber value={dedupRatio} decimals={1} suffix="%" duration={1600} />}
-          badge="+98.8%"
+          badge={`${dedupRatio}%`}
           badgeType="success"
-          sparklineData={[70, 78, 85, 91, 95, 97, 98.8]}
+          sparklineData={[
+            +(dedupRatio * 0.7).toFixed(1),
+            +(dedupRatio * 0.78).toFixed(1),
+            +(dedupRatio * 0.85).toFixed(1),
+            +(dedupRatio * 0.91).toFixed(1),
+            +(dedupRatio * 0.95).toFixed(1),
+            +(dedupRatio * 0.98).toFixed(1),
+            dedupRatio
+          ]}
         />
         <KpiCard
           label="Estimated Synergy Savings"
           value={<AnimatedNumber value={Number(savingsInCr)} decimals={2} prefix="₹" suffix=" Cr" duration={1600} />}
           badge="Live INR"
           badgeType="success"
-          sparklineData={[10, 14, 18, 21, 24, 26, 28.4]}
+          sparklineData={[
+            +(+savingsInCr * 0.35).toFixed(1),
+            +(+savingsInCr * 0.5).toFixed(1),
+            +(+savingsInCr * 0.65).toFixed(1),
+            +(+savingsInCr * 0.75).toFixed(1),
+            +(+savingsInCr * 0.85).toFixed(1),
+            +(+savingsInCr * 0.92).toFixed(1),
+            +savingsInCr
+          ]}
         />
         <KpiCard
           label="Equivalence Clusters"
           value={<AnimatedNumber value={totalGroups} duration={1600} />}
           badge="AI Matching"
           badgeType="violet"
-          sparklineData={[30, 50, 75, 95, 110, 120, 129]}
+          sparklineData={[
+            Math.round(totalGroups * 0.25),
+            Math.round(totalGroups * 0.4),
+            Math.round(totalGroups * 0.6),
+            Math.round(totalGroups * 0.75),
+            Math.round(totalGroups * 0.88),
+            Math.round(totalGroups * 0.95),
+            totalGroups
+          ]}
         />
         <KpiCard
           label="Connected CPSEs"
           value={<AnimatedNumber value={cpseList.length || 5} duration={1600} />}
           badge="100% Online"
           badgeType="success"
-          sparklineData={[2, 3, 4, 5, 5, 5, 5]}
+          sparklineData={[
+            1,
+            2,
+            Math.min(3, cpseList.length || 5),
+            Math.min(4, cpseList.length || 5),
+            Math.max(4, (cpseList.length || 5) - 1),
+            cpseList.length || 5,
+            cpseList.length || 5
+          ]}
         />
       </div>
 

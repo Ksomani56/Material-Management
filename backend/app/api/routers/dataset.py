@@ -110,10 +110,41 @@ def load_industrial_benchmark_500(db: Session = Depends(get_db)):
         )
         db.commit()
 
+    # Automatically execute cross-catalog matching engine and establish canonical masters
+    from app.api.routers.matching import run_candidate_matching
+    from app.models.equivalence_group import EquivalenceGroup
+    from app.models.enums import GroupStatus, RationalizationAction
+
+    match_report = run_candidate_matching(db=db)
+    created_groups = match_report.get("groups_created", 0)
+
+    # Auto-approve high-confidence groups (>= 85%) into Canonical Masters
+    proposed_groups = db.query(EquivalenceGroup).filter(EquivalenceGroup.status == GroupStatus.PROPOSED).all()
+    approved_canonical_count = 0
+    for g in proposed_groups:
+        if g.confidence_score >= 0.85:
+            try:
+                GovernanceService.review_equivalence_group(
+                    db=db,
+                    group_id=g.id,
+                    actor="SYSTEM_AUTO_HARMONIZER",
+                    action=RationalizationAction.MERGE,
+                    reason="Automated benchmark high-confidence equivalence merge"
+                )
+                approved_canonical_count += 1
+            except Exception:
+                pass
+    db.commit()
+
+    total_in_db = db.query(CPSEMaterial).count()
+
     return {
-        "message": f"Successfully loaded and indexed {len(created_materials)} industrial MRO materials.",
+        "message": f"Successfully loaded {total_in_db} materials, created {created_groups} equivalence groups, and published {approved_canonical_count} canonical masters.",
         "batch_id": batch_id,
-        "rows_loaded": len(created_materials),
+        "rows_loaded": len(created_materials) or total_in_db,
+        "total_materials_in_db": total_in_db,
+        "groups_created": created_groups,
+        "canonical_masters_created": approved_canonical_count,
         "total_faiss_indexed": VectorSearchService.get_instance().get_status()["total_indexed_vectors"]
     }
 

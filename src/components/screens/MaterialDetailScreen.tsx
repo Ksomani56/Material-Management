@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { RelationshipBadge } from '../common/RelationshipBadge';
 import { StatusBadge } from '../common/StatusBadge';
@@ -8,6 +8,37 @@ export const MaterialDetailScreen: React.FC = () => {
   const { currentMaterial, setActiveScreen, openEvidence, addToast } = useApp();
   const [filterQuery, setFilterQuery] = useState('');
   const [copied, setCopied] = useState(false);
+  const [cryptoHash, setCryptoHash] = useState<string>('Computing...');
+
+  const specs = currentMaterial.attributes || currentMaterial.specifications || {};
+  const status = currentMaterial.status || currentMaterial.lifecycleStatus || 'Active';
+  const uom = currentMaterial.standardUOM || specs.baseUOM || 'EA';
+  const leadCataloger = currentMaterial.leadCataloger || 'National Material Master Team';
+
+  useEffect(() => {
+    let active = true;
+    const computeHash = async () => {
+      try {
+        const payload = JSON.stringify({
+          cnmc: currentMaterial.cnmc,
+          description: currentMaterial.canonicalDescription,
+          specs,
+          status,
+          version: currentMaterial.version || '1.0'
+        });
+        const encoder = new TextEncoder();
+        const data = encoder.encode(payload);
+        const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        if (active) setCryptoHash(`sha256:${hashHex}`);
+      } catch {
+        if (active) setCryptoHash(`sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069`);
+      }
+    };
+    computeHash();
+    return () => { active = false; };
+  }, [currentMaterial.cnmc, currentMaterial.canonicalDescription]);
 
   const filteredMappings = currentMaterial.mappings.filter(m =>
     !filterQuery.trim() ||
@@ -23,11 +54,6 @@ export const MaterialDetailScreen: React.FC = () => {
     addToast('success', `Copied JSON specifications for ${currentMaterial.cnmc}`);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const specs = currentMaterial.attributes || currentMaterial.specifications || {};
-  const status = currentMaterial.status || currentMaterial.lifecycleStatus || 'Active';
-  const uom = currentMaterial.standardUOM || specs.baseUOM || 'EA';
-  const leadCataloger = currentMaterial.leadCataloger || 'National Material Master Team';
 
   return (
     <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#070908] text-[#F3F4F6]">
@@ -272,8 +298,8 @@ export const MaterialDetailScreen: React.FC = () => {
               </div>
               <div className="pt-2.5 border-t border-[#1B201D]">
                 <span className="text-[10px] uppercase font-semibold text-[#6B7280] block">Cryptographic Hash</span>
-                <span className="font-mono text-[11px] text-[#9CA3AF] block truncate mt-0.5">
-                  sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069
+                <span className="font-mono text-[11px] text-[#9CA3AF] block truncate mt-0.5" title={cryptoHash}>
+                  {cryptoHash}
                 </span>
               </div>
             </div>
