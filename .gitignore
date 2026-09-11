@@ -20,12 +20,6 @@ env/
 *.docm
 *.dotx
 ~$*.doc*
-!public/*.docx
-!docs/*.docx
-
-# IDE files
-.vscode/
-
 
 # Antigravity IDE agent files
 .agents/
@@ -49,6 +43,12 @@ __pycache__/
 .pytest_cache/
 
 # Node / frontend
+node_modules/
+dist/
+.cache/
+
+# SQLite databases
+*.db
 node_modules/
 dist/
 .cache/
