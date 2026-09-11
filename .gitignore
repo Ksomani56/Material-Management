@@ -20,6 +20,9 @@ env/
 *.docm
 *.dotx
 ~$*.doc*
+!*NUMM_National_Unified_Material_Master_Documentation.docx
+!*SIH_Judges_Presentation_and_Defense_Guide.docx
+
 
 # Antigravity IDE agent files
 .agents/
