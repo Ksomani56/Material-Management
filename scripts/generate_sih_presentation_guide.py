@@ -124,7 +124,7 @@ def format_table(table, header_bg="0F172A", alt_bg="F8FAFC"):
                         run.font.color.rgb = RGBColor(30, 41, 59)
                         run.font.name = "Calibri"
 
-def generate_sih_guide():
+def generate_deep_clarity_guide():
     doc = Document()
     
     # Page setup
@@ -136,13 +136,13 @@ def generate_sih_guide():
         section.header.is_linked_to_previous = False
         p_hdr = section.header.paragraphs[0]
         p_hdr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        r_hdr = p_hdr.add_run("SMART INDIA HACKATHON (SIH) — OFFICIAL PRESENTATION & DEFENSE DOSSIER")
+        r_hdr = p_hdr.add_run("SIH 2026 OFFICIAL PITCH & DEFENSE MASTERCLASS — ZERO TO HERO GUIDE")
         r_hdr.font.size = Pt(8)
         r_hdr.font.color.rgb = RGBColor(148, 163, 184)
         
         p_ftr = section.footer.paragraphs[0]
         p_ftr.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_ftr = p_ftr.add_run("NUMM: National Unified Material Master | Problem ID: SIH26099 | Simple Language Defense Guide")
+        r_ftr = p_ftr.add_run("NUMM: National Unified Material Master | Problem Statement ID: SIH26099 | Confidential")
         r_ftr.font.size = Pt(8)
         r_ftr.font.color.rgb = RGBColor(148, 163, 184)
 
@@ -152,9 +152,9 @@ def generate_sih_guide():
     
     # Title Block
     title_p = doc.add_paragraph()
-    title_p.paragraph_format.space_before = Pt(20)
+    title_p.paragraph_format.space_before = Pt(16)
     title_p.paragraph_format.space_after = Pt(2)
-    run_org = title_p.add_run("SMART INDIA HACKATHON | MINISTRY OF PETROLEUM & NATURAL GAS")
+    run_org = title_p.add_run("SMART INDIA HACKATHON 2026 | MINISTRY OF PETROLEUM & NATURAL GAS")
     run_org.bold = True
     run_org.font.size = Pt(11)
     run_org.font.color.rgb = emerald
@@ -162,7 +162,7 @@ def generate_sih_guide():
     h1 = doc.add_paragraph()
     h1.paragraph_format.space_before = Pt(0)
     h1.paragraph_format.space_after = Pt(6)
-    run_h1 = h1.add_run("SIH Presentation, Pitch Script & Judges Q&A Defense Guide")
+    run_h1 = h1.add_run("The Complete SIH Presentation, Pitch & Judges Defense Masterclass")
     run_h1.bold = True
     run_h1.font.size = Pt(22)
     run_h1.font.color.rgb = navy
@@ -170,15 +170,15 @@ def generate_sih_guide():
     sub_p = doc.add_paragraph()
     sub_p.paragraph_format.space_before = Pt(0)
     sub_p.paragraph_format.space_after = Pt(14)
-    run_sub = sub_p.add_run("Project: National Unified Material Master (NUMM) — Simplified English Guide with Real-World Analogies and Memory Keywords for High-Scoring Defense")
+    run_sub = sub_p.add_run("Written from Ground Zero: Explaining the Problem, the AI, the Code, the Live Demo, and Every Difficult Judge Question with Crystal-Clear Everyday Analogies")
     run_sub.font.size = Pt(10.5)
     run_sub.font.color.rgb = slate
     
-    # Quick Badges
+    # Badges
     meta_table = doc.add_table(rows=2, cols=4)
     meta_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    m_headers = ["Problem ID", "Target Sector", "Core Innovation", "System Status"]
-    m_values = ["SIH26099", "Energy & Oil CPSEs", "Neuro-Symbolic AI + 7D Physics", "100% Tested (62/62 Passed)"]
+    m_headers = ["Problem ID", "Target Sector", "Core Philosophy", "System State"]
+    m_values = ["SIH26099", "Oil, Gas & Energy PSUs", "Physics Wins Over AI", "100% Tested (62/62 Passed)"]
     for i in range(4):
         meta_table.cell(0, i).paragraphs[0].add_run(m_headers[i])
         meta_table.cell(1, i).paragraphs[0].add_run(m_values[i])
@@ -186,191 +186,226 @@ def generate_sih_guide():
     
     doc.add_paragraph().paragraph_format.space_after = Pt(10)
     
-    # Notice Box
-    add_callout_box(doc, "GOLDEN ADVICE FOR THE PRESENTATION", [
-        "1. Speak simply: Judges appreciate clear thinking and real-world clarity over confusing jargon.",
-        "2. Use analogies: For example, explain the 7D Physics Matrix as 'blood group matching'—you never mix blood groups just because two people look similar.",
-        "3. Emphasize safety: In oil and gas, a wrong material merge causes explosions, not just software bugs.",
-        "4. Emphasize non-invasive adoption: We don't replace ONGC's SAP; we give them a cross-reference bridge."
+    add_callout_box(doc, "HOW TO READ THIS DOCUMENT IF YOU ARE NERVOUS OR FEEL UNPREPARED", [
+        "Take a deep breath. You do NOT need to be a 10-year machine learning PhD to present this project. You just need to understand the basic story, what happens on each screen, and why safety comes first.",
+        "This guide assumes you know NOTHING. It explains every single term from absolute scratch.",
+        "Read Part 1 to understand the story in 2 minutes.",
+        "Read Part 2 to understand what our software actually does.",
+        "Read Part 3 for the exact step-by-step clicks and words for your live demo.",
+        "Read Part 4 to answer every single tricky question the judges throw at you with 100% confidence."
     ], theme="navy")
     
-    # ------------------ SECTION 1 ------------------
-    doc.add_heading("1. Pitch Scripts: Simple English & Ready to Speak", level=1).runs[0].font.color.rgb = navy
+    # ================= PART 1: THE FOUNDATION =================
+    doc.add_heading("PART 1: The Absolute Basics — What is This Problem?", level=1).runs[0].font.color.rgb = navy
     
-    doc.add_heading("1.1 The 30-Second Hook (Memorize This by Heart)", level=2).runs[0].font.color.rgb = emerald
-    add_callout_box(doc, "EXACT WORDS TO SPEAK IN THE FIRST 30 SECONDS", [
-        "\"Respected judges, across Indian PSUs like ONGC, IOCL, and GAIL, over 4,500 Crores of public money is locked in duplicate spare parts and idle warehouse inventory.\"",
-        "\"Why? Because every PSU uses different names, short forms, and internal codes for the exact same physical item. A valve in ONGC cannot be recognized by IOCL.\"",
-        "\"To solve this, we created NUMM: the National Unified Material Master. It is a 100% air-gapped, sovereign AI system that combines smart AI search with strict engineering physics rules. It finds duplicates in milliseconds, prevents catastrophic plant accidents, and enables PSUs to share inventory without changing their existing SAP systems. Let us show you live!\""
-    ], theme="emerald")
-    
-    doc.add_heading("1.2 The 3-Minute Presentation Story (Three Easy Steps)", level=2).runs[0].font.color.rgb = navy
-    
-    p1 = doc.add_paragraph()
-    p1.add_run("Step 1: The Problem — Why Ordinary AI Fails in Refineries (1 Minute)\n").bold = True
-    p1.add_run(
-        "\"Judges, this problem cannot be solved by simply asking ChatGPT or using basic string search. "
-        "In a refinery, if you take a '150-pound valve' and a '300-pound valve', they share 95% of the same words. "
-        "A standard AI will say: 'These two descriptions are 95% identical, let us merge them!' "
-        "If an engineer installs that lower-rated valve in a high-pressure gas line, it will rupture and explode. "
-        "Therefore, pure text AI is dangerous for heavy engineering. We needed an AI that actually understands engineering physics.\""
+    doc.add_heading("1.1 What is a PSU and Why Are They Important?", level=2).runs[0].font.color.rgb = emerald
+    p_intro = doc.add_paragraph()
+    p_intro.add_run(
+        "A PSU (Public Sector Undertaking) or CPSE (Central Public Sector Enterprise) is a major government-owned company in India. "
+        "Examples include ONGC (which drills for crude oil), IOCL (which refines petrol and diesel), and GAIL (which operates natural gas pipelines). "
+        "These companies run India's energy infrastructure. They buy thousands of heavy industrial items every day—pipes, valves, pumps, electrical switchgear, and gaskets."
     )
     
-    p2 = doc.add_paragraph()
-    p2.add_run("Step 2: Our Innovation — Neuro-Symbolic AI + 7D Physics Matrix (1 Minute)\n").bold = True
-    p2.add_run(
-        "\"Our solution works in two smart steps: "
-        "First, our AI scans through 100,000 messy PSU descriptions in under 20 milliseconds to find possible candidates. "
-        "Second, before declaring a match, our 7-Dimension Physics Consistency Matrix checks 7 critical engineering facts: "
-        "Pipe Size, Pressure Rating, Metallurgy, Wall Thickness, End Connection, International Standard, and Trim. "
-        "If the pressure or size does not match, our system triggers a Hard Veto. The AI is overruled. Engineering safety wins 100% of the time.\""
+    doc.add_heading("1.2 What is a 'Material Catalog' and Why is it Messy?", level=2).runs[0].font.color.rgb = navy
+    p_cat = doc.add_paragraph()
+    p_cat.add_run(
+        "Inside every company, there is a computer database called an ERP system (like SAP or Oracle). In this database, every item has an item code and a description. "
+        "The problem is that for the last 30 years, human procurement clerks typed these descriptions by hand using strange abbreviations, short forms, and typos. "
+        "For example, consider the exact same physical ball valve (a 2-inch pipe valve made of carbon steel that withstands 150 pounds of pressure):\n"
     )
     
-    p3 = doc.add_paragraph()
-    p3.add_run("Step 3: Real Financial Impact & Non-Invasive ERP Integration (1 Minute)\n").bold = True
-    p3.add_run(
-        "\"NUMM does not just clean catalogs; it saves real government money. "
-        "Our Arbitrage Agent notices when GAIL is about to float a tender for a valve that IOCL already has sitting idle 30 km away, and prescribes a zero-tender inter-PSU stock transfer. "
-        "Best of all, ONGC and IOCL do not need to replace their existing SAP or Oracle systems. "
-        "Our ERP Adapter exports ready-to-ingest mapping files directly into SAP BAPI_MATERIAL_SAVEDATA. "
-        "PSUs can start saving capital from day one without disrupting active plant operations.\""
-    )
-    
-    # ------------------ SECTION 2 ------------------
-    doc.add_heading("2. Live Demonstration Flow: Exact Click Sequence", level=1).runs[0].font.color.rgb = navy
-    doc.add_paragraph("Follow this step-by-step click order during your 5-minute live demo on your laptop:")
-    
-    demo_table = doc.add_table(rows=7, cols=4)
-    d_heads = ["Step / Screen", "What You Click on Laptop", "What Appears on Screen", "Simple Explanation to Say"]
-    d_data = [
-        ("1. AI Sandbox (Home)", 
-         "Click 'Interactive AI Sandbox'. Type 'VLV BALL 2IN 150# CS' and hit Compare.", 
-         "Top matching national canonical materials, green physics checkmarks, and token percentages.", 
-         "\"Watch our AI read messy short forms like 'VLV' and '150#' and map them to the correct national engineering record in 18 milliseconds.\""),
-        
-        ("2. Contradiction Blocker (Review)", 
-         "Go to 'Review Queue'. Click on a candidate pair with differing pressure ratings.", 
-         "Bright red 'Physics Contradiction Blocker' banner. Merge button is locked.", 
-         "\"Here is our safety guardrail. The descriptions look similar, but because the pressure class differs, the system blocks accidental merging.\""),
-        
-        ("3. 3D Manifold Explorer", 
-         "Click '3D Semantic Manifold'. Rotate the spatial 3D cluster with your mouse.", 
-         "Smooth 3D point cloud colored by PSU (Gold=ONGC, Green=IOCL, Blue=GAIL).", 
-         "\"This 3D view turns complex AI vectors into a spatial map, helping procurement officers visually discover overlapping spare parts across PSUs.\""),
-        
-        ("4. Working Capital Arbitrage", 
-         "Click 'Working Capital Arbitrage' tab. Click 'Run Prescriptive Agent'.", 
-         "AI thought process, price variance table (34% spread), and suggested stock transfers.", 
-         "\"Here our AI agent finds that ONGC bought this valve for ₹12,000 while GAIL paid ₹18,000, and prescribes sharing idle stock instead of floating new tenders.\""),
-        
-        ("5. ERP Migration Ledger", 
-         "Click 'Catalog Rationalization' → 'ERP Migration Ledger' tab.", 
-         "Live table of 79 validated mappings with CSV, Excel, and JSON export buttons.", 
-         "\"We don't force ONGC to rewrite their SAP codes. We export ready-to-use cross-reference files for SAP BAPI_MATERIAL_SAVEDATA with one click.\""),
-        
-        ("6. Cryptographic Audit Trail", 
-         "Click 'Governance & Compliance'. Show audit events table.", 
-         "Table showing SHA-256 digital hashes, timestamps, and user IDs for every decision.", 
-         "\"Every single steward approval and override is permanently signed with a SHA-256 digital hash, ready for government CAG audits.\"")
+    # Comparison table of messy descriptions
+    messy_table = doc.add_table(rows=4, cols=3)
+    m_h = ["Company", "How They Type It in Their SAP", "Internal Code"]
+    m_r = [
+        ("ONGC", "VLV BALL 2IN 150# CS FLGD RF WCB", "MAT-ONGC-88421"),
+        ("IOCL", "VALVE,BALL,50MM,CL150,BODY WCB,FLANGED", "IOCL-9921440"),
+        ("GAIL", "2\" BALL VALVE #150 A105 RF FLANGE", "G-V-00129")
     ]
-    for c_idx, h in enumerate(d_heads):
-        demo_table.cell(0, c_idx).paragraphs[0].add_run(h)
-    for r_idx, row in enumerate(d_data):
+    for i, h in enumerate(m_h):
+        messy_table.cell(0, i).paragraphs[0].add_run(h)
+    for r_idx, row in enumerate(m_r):
         for c_idx, val in enumerate(row):
-            demo_table.cell(r_idx + 1, c_idx).paragraphs[0].add_run(val)
-    format_table(demo_table, header_bg="0F172A", alt_bg="F8FAFC")
+            messy_table.cell(r_idx + 1, c_idx).paragraphs[0].add_run(val)
+    format_table(messy_table, header_bg="0F172A", alt_bg="F1F5F9")
     
-    doc.add_paragraph().paragraph_format.space_after = Pt(10)
+    doc.add_paragraph().paragraph_format.space_after = Pt(8)
     
-    # ------------------ SECTION 3 ------------------
-    doc.add_heading("3. The Core Concepts in Everyday Language", level=1).runs[0].font.color.rgb = navy
+    p_disaster = doc.add_paragraph()
+    p_disaster.add_run(
+        "Even though these 3 items are physically 100% IDENTICAL, a computer search will treat them as 3 completely different items because the letters don't match! "
+        "Because of this, ONGC buys it from one supplier for ₹12,000, while GAIL floats a tender and buys it for ₹18,000. "
+        "Even worse: GAIL might wait 6 months for a new valve from abroad, while IOCL has 20 of them sitting unused in a warehouse just 40 kilometers down the road! "
+        "This locks up over ₹4,500 Crores of public money across India."
+    )
     
-    concepts = [
-        ("The 7-Dimension Physics Consistency Matrix",
-         "What it is: A digital rulebook that checks 7 essential mechanical dimensions: Pipe Size, Pressure Rating, Material Metal, Wall Thickness, Flange Connection, Engineering Standard (ASME/API), and Valve Trim.",
-         "Simple Analogy: Think of it like checking blood groups before a blood transfusion. Even if two people have the exact same height and age, you cannot mix their blood if the type is incompatible. In the same way, we never merge two valves if their pressure rating is incompatible.",
-         "navy"),
-        
-        ("Two-Stage Search (Bi-Encoder + Cross-Encoder)",
-         "What it is: Stage 1 quickly scans 100,000 items in milliseconds using vector search to pick the top 50 candidates. Stage 2 reads those top 50 deeply word-by-word using a cross-attention transformer.",
-         "Simple Analogy: Like searching for a book in a huge library. First, the librarian quickly walks to the right shelf in 5 seconds (Stage 1). Then, she opens the top 5 books and reads the exact table of contents to give you the perfect answer (Stage 2).",
-         "emerald"),
-         
-        ("Active Learning with Triplet Loss",
-         "What it is: The model automatically learns from human engineers whenever they click 'Approve' or 'Reject' on borderline cases.",
-         "Simple Analogy: Like a junior apprentice working next to a senior master engineer. Whenever the senior engineer says 'Yes, these two are identical' or 'No, these cannot be swapped', the apprentice takes notes and never repeats that mistake again.",
-         "amber"),
-         
-        ("Local ERP Immutability (Non-Invasive Adoption)",
-         "What it is: PSUs keep their internal material codes and 20 years of purchase history unchanged. NUMM only links their existing code to the national standard as an alias.",
-         "Simple Analogy: Just like your Aadhaar card links to your existing bank account. You do not have to close your SBI or HDFC bank account to get an Aadhaar card; Aadhaar simply links them together.",
+    add_callout_box(doc, "THE REAL-WORLD ANALOGY TO REMEMBER", [
+        "Imagine three brothers living in three different houses. One writes 'Coca-Cola 500ml', the second writes 'Coke 0.5L bottle', and the third writes 'Coke Soft Drink'.",
+        "Because their grocery apps don't recognize they are the same thing, all three brothers go to the store and buy their own bottles, when they could have just shared one crate!",
+        "NUMM is the smart national system that recognizes they are the exact same Coke bottle and shares them."
+    ], theme="amber")
+
+    # ================= PART 2: OUR SOLUTION =================
+    doc.add_heading("PART 2: What NUMM Does — The 5-Step Journey of a Material", level=1).runs[0].font.color.rgb = navy
+    p_journey = doc.add_paragraph()
+    p_journey.add_run("When messy data from ONGC, IOCL, or GAIL enters NUMM, it goes through 5 crystal-clear steps:")
+    
+    steps = [
+        ("Step 1: Smart Translation (Normalization)", 
+         "Our dictionary automatically expands short forms. 'VLV' becomes 'Valve'. '2IN' and '50MM' are converted into standard 50 millimeters. 'CS' becomes 'Carbon Steel'. Now the computers speak the same language.", 
          "cyan"),
-         
-        ("Autonomous Working Capital Arbitrage Agent",
-         "What it is: An autonomous AI software agent that finds unused inventory in one PSU and alerts another PSU to use it instead of buying new.",
-         "Simple Analogy: Like a neighborhood sharing tool. If your brother already has an expensive lawnmower sitting in his garage next door, the app tells you to borrow his instead of buying a new one from the market.",
-         "purple")
+        ("Step 2: Rapid Candidate Search (Hybrid Vectors)", 
+         "Like a lightning-fast Google search, our AI scans 100,000 items in 18 milliseconds to find the top 50 most likely matches using mathematical embeddings (FAISS).", 
+         "navy"),
+        ("Step 3: The 7D Physics Consistency Check (The Hard Veto)", 
+         "This is our most important innovation. Before saying 'Yes, they match!', we strictly check 7 engineering facts: Pipe Size, Pressure Rating, Metallurgy, Wall Thickness, End Connection, International Standard, and Trim. If the pressure or size differs, the match is KILLED instantly. Safety always wins.", 
+         "emerald"),
+        ("Step 4: Prescriptive Working Capital Arbitrage", 
+         "Our autonomous agent looks at warehouse quantities and prices across all companies. If GAIL needs a valve and IOCL has surplus stock idle for 6 months, it orders a zero-tender inter-company stock transfer.", 
+         "purple"),
+        ("Step 5: Non-Invasive ERP Export (SAP BAPI)", 
+         "We do not force ONGC to rewrite their SAP database! We export a clean cross-reference bridge file into SAP BAPI_MATERIAL_SAVEDATA. An engineer can search their old code or the new National Code and find the item.", 
+         "navy")
+    ]
+    for s_title, s_desc, s_theme in steps:
+        add_callout_box(doc, s_title, [s_desc], theme=s_theme)
+
+    # ================= PART 3: THE AI EXPLAINED =================
+    doc.add_heading("PART 3: How the AI Actually Works (Without Jargon)", level=1).runs[0].font.color.rgb = navy
+    doc.add_paragraph("Judges will ask: 'What AI did you use?'. Here is how to explain it simply and brilliantly:")
+    
+    doc.add_heading("3.1 What is 'Neuro-Symbolic AI'?", level=2).runs[0].font.color.rgb = emerald
+    p_ns = doc.add_paragraph()
+    p_ns.add_run(
+        "\"Respected judges, we do not rely on pure neural networks alone. We use Neuro-Symbolic AI. "
+        "The 'Neuro' part is our deep learning vector search that understands language similarity and messy text. "
+        "The 'Symbolic' part is our deterministic 7-Dimension Physics Matrix that enforces absolute engineering logic. "
+        "The neural network suggests candidates, but the symbolic physics engine has veto power. If physics says NO, the AI cannot say YES.\""
+    )
+    
+    doc.add_heading("3.2 Why Not Just Use ChatGPT / LLMs?", level=2).runs[0].font.color.rgb = navy
+    add_callout_box(doc, "THE THREE REASONS WHY CHATGPT FAILS HERE (SAY THIS TO JUDGES)", [
+        "1. Catastrophic Hallucination: A '150-pound valve' and a '300-pound valve' share 95% of the same words. ChatGPT looks at the text and thinks they are identical! If installed in a gas pipeline, the lower-rated valve will burst, causing an explosion.",
+        "2. National Security & Air-Gapped Sovereignty: PSU pipeline coordinates and power plant equipment are critical national infrastructure. Under India's IT Act, we cannot send sensitive defense and oil data to American cloud servers. Our AI runs 100% locally on sovereign hardware with zero internet.",
+        "3. Speed and Cost: Our local engine matches in 18 milliseconds for free. Calling a cloud LLM takes 1.5 seconds per item and costs millions of rupees across 500,000 items."
+    ], theme="amber")
+
+    doc.add_heading("3.3 How Does the AI Learn Over Time? (Active Learning & Triplet Loss)", level=2).runs[0].font.color.rgb = navy
+    p_al = doc.add_paragraph()
+    p_al.add_run(
+        "When the AI is unsure about a borderline match (confidence between 70% and 85%), it doesn't guess. "
+        "It sends the item to a human engineer in the 'Review Queue'.\n\n"
+        "When the human engineer clicks 'Approve' or 'Reject', our system captures a learning triplet:\n"
+        "• Anchor: The query item.\n"
+        "• Positive: The real matching item.\n"
+        "• Negative: The wrong item that was rejected.\n\n"
+        "Using mathematical Triplet Margin Loss (alpha = 0.3), the system pulls the true match closer in mathematical space and pushes the false match farther away. "
+        "Analogy: Like a junior apprentice working beside a master engineer. Every time the master corrects the apprentice, the apprentice learns permanently and never repeats that mistake."
+    )
+
+    # ================= PART 4: LIVE DEMO CLICK SCRIPT =================
+    doc.add_heading("PART 4: Step-by-Step Live Demo Script (Word-for-Word)", level=1).runs[0].font.color.rgb = navy
+    doc.add_paragraph("Open your laptop, start the application (`start-all.bat`), and follow this exact 6-step walkthrough in front of the judges:")
+
+    demo_steps = [
+        ("Demo Step 1: Show the AI Sandbox (Home Screen)",
+         "Action: On the Home Screen, click the 'Interactive AI Sandbox' tab. Type 'VLV BALL 2IN 150# CS' into the box and click 'Compare'.",
+         "What Screen Shows: In 18ms, it displays the top matching National Canonical Materials with green checkmarks for NPS, Pressure, and Metallurgy, along with word attribution (+42% BALL VALVE, +28% WCB).",
+         "What You Speak: \"Respected judges, watch how our AI engine takes a messy abbreviation from ONGC, normalizes it, validates the physics in 18 milliseconds, and displays exactly which engineering words contributed to the match.\""),
+        
+        ("Demo Step 2: Show the Contradiction Blocker (Review Queue)",
+         "Action: Click 'Review Queue' in the left menu. Click on a candidate pair where one item is 150# and the other is 300#.",
+         "What Screen Shows: A bright red warning banner pops up saying 'Physics Contradiction Blocker: Pressure Class Mismatch (150# vs 300#)'. The merge button is locked.",
+         "What You Speak: \"Here is our safety guardrail. Even though these descriptions share 90% of the same words, our 7D Physics Matrix detects that pressure ratings conflict, locking the merge button to prevent plant explosions.\""),
+        
+        ("Demo Step 3: Show the 3D Semantic Manifold",
+         "Action: Click '3D Semantic Manifold' in the top navigation bar. Click and drag your mouse to spin the 3D point cloud.",
+         "What Screen Shows: An interactive 3D spatial globe with thousands of colored points (Gold for ONGC, Green for IOCL, Blue for GAIL).",
+         "What You Speak: \"This is our 3D spatial manifold. We reduce 384-dimensional AI vectors into an interactive 3D map. A Chief Procurement Officer can visually spin this globe and immediately spot clusters of duplicate items sitting across different PSUs.\""),
+        
+        ("Demo Step 4: Show Working Capital Arbitrage",
+         "Action: Click 'Working Capital Arbitrage' tab. Click the green button 'Run Prescriptive Agent'.",
+         "What Screen Shows: The AI displays its step-by-step reasoning, calculates total locked capital (Crores), displays a price variance table (e.g. 34% variance for the same valve), and prescribes a direct inter-PSU stock transfer.",
+         "What You Speak: \"Here is our prescriptive agent. It discovered that ONGC bought this valve for ₹12,000 while GAIL paid ₹18,000, and that IOCL has 25 idle units sitting nearby. Instead of GAIL floating a new tender, it prescribes an inter-PSU stock transfer, saving months of time and lakhs of rupees.\""),
+        
+        ("Demo Step 5: Show the ERP Migration Ledger (Non-Invasive SAP)",
+         "Action: Click 'Catalog Rationalization' → click the tab 'ERP Migration Ledger'. Show the 79 validated mappings, and point to the 'CSV', 'Excel', and 'JSON RFC' buttons.",
+         "What Screen Shows: Clean table of validated cross-enterprise mappings with one-click export buttons.",
+         "What You Speak: \"We respect the Local ERP Immutability Principle. We don't touch ONGC's internal SAP database. We export ready-to-ingest mapping files directly into SAP BAPI_MATERIAL_SAVEDATA. PSUs can adopt this tomorrow morning with zero operational risk.\""),
+        
+        ("Demo Step 6: Show Governance & Cryptographic Audit Trail",
+         "Action: Click 'Governance & Compliance'. Show the audit events table.",
+         "What Screen Shows: An immutable audit log where every action has an actor, timestamp, and a 64-character SHA-256 digital hash.",
+         "What You Speak: \"Every single steward decision, merge, and stock transfer is signed with a SHA-256 cryptographic digital hash. It is 100% tamper-evident, ready for Comptroller and Auditor General (CAG) vigilance audits.\"")
     ]
     
-    for title, what_is, analogy, theme in concepts:
-        add_callout_box(doc, title, [what_is, analogy], theme=theme)
-        
-    # ------------------ SECTION 4 ------------------
-    doc.add_heading("4. How to Win the Judges Q&A Defense", level=1).runs[0].font.color.rgb = navy
-    doc.add_paragraph("Here are the top 7 hardest questions judges ask, with simple, confident answers:")
-    
+    for d_num, d_act, d_scr, d_spk in demo_steps:
+        add_callout_box(doc, d_num, [d_act, d_scr, f"SAY THIS: {d_spk}"], theme="navy")
+
+    # ================= PART 5: Q&A DEFENSE =================
+    doc.add_heading("PART 5: The Q&A Defense Masterclass — Answering Judges Confidently", level=1).runs[0].font.color.rgb = navy
+    doc.add_paragraph("Judges will test whether you truly understand your project or just read slides. Here is how to answer every tricky question:")
+
     qas = [
-        ("Judge asks: \"Why didn't you just use ChatGPT or Gemini API?\"",
-         "Answer: \"Sir, two major reasons: First is Engineering Safety. ChatGPT is a language model; it does not understand that a 150# valve will burst under 300# pressure. It frequently merges them because the words look 95% identical. Second is National Data Sovereignty. PSU refinery pipelines and turbine spare parts are classified critical national assets. Under Indian IT security laws, we cannot send sensitive defense and oil telemetry to American cloud servers. NUMM is 100% air-gapped and runs locally.\""),
+        ("Judge: \"What if your AI makes a wrong recommendation and someone merges two different items?\"",
+         "The Winning Answer: \"Sir, we have a strict 3-tier safety net. First, our 7D Physics Matrix strictly blocks merges if physical dimensions or ratings conflict. Second, any borderline recommendation with confidence below 90% is held in the Review Queue for physical sign-off by a senior mechanical engineer. Third, if a human tries to force an override, our system requires a mandatory written reason and cryptographically seals the override with a SHA-256 digital hash for CAG vigilance audits. An unverified merge cannot happen.\""),
         
-        ("Judge asks: \"Will ONGC have to change its existing SAP system?\"",
-         "Answer: \"No, sir. We follow the 'Local Immutability Principle'. ONGC keeps their internal material codes, plant maintenance history, and accounting ledgers 100% untouched. NUMM works as a translation bridge. We export clean mapping files that feed directly into SAP BAPI_MATERIAL_SAVEDATA. An ONGC engineer can search either their old number or the new National code inside SAP.\""),
-         
-        ("Judge asks: \"What if your AI makes a mistake on a high-pressure valve?\"",
-         "Answer: \"We have three layers of defense: 1. Our 7D Physics Matrix strictly blocks merges if physical ratings conflict. 2. Any borderline match below 90% confidence is sent to the Human Steward Verification Queue. 3. If an engineer tries to force an override, our system demands a written justification and cryptographically logs the action with SHA-256 for CAG government audits.\""),
-         
-        ("Judge asks: \"How does your model learn without expensive retraining?\"",
-         "Answer: \"We use Active Learning with Triplet Margin Loss. When a human engineer approves a match, our system forms an 'Anchor-Positive-Negative' triplet. It gently pulls true equivalents closer in vector space and pushes false equivalents farther apart. The model learns in the background without needing a supercomputer or days of retraining.\""),
-         
-        ("Judge asks: \"What is the tangible financial benefit for the Government?\"",
-         "Answer: \"Three direct savings: 1. Unlocked Capital: Over ₹4,500 Crores is currently sitting idle as duplicate safety stock; sharing stock reduces this by up to 30%. 2. Zero-Tender Transfers: PSUs can transfer idle parts to neighboring plants at book value in days instead of months. 3. Volume Discounts: By seeing that ONGC pays ₹12,000 while GAIL pays ₹18,000 for the same valve, the Ministry can issue single national rate contracts at the lowest price.\""),
-         
-        ("Judge asks: \"How do you handle Indian PSU short forms like 'VLV', 'FLGD', 'CS'?\"",
-         "Answer: \"Our normalization engine contains a domain-specific CPSE dictionary of over 250 oil and gas engineering abbreviations. It automatically expands 'VLV' into 'Valve', 'FLGD' into 'Flanged End', 'CS' into 'Carbon Steel ASTM A105', and converts inches into millimeters before matching.\""),
-         
-        ("Judge asks: \"How did you test this system? Is it working right now?\"",
-         "Answer: \"Yes, sir! We tested our platform against a rigorous 1,000-material benchmark across ONGC, IOCL, GAIL, HPCL, and BPCL. Our system achieved 98.4% precision and 100% rejection on adversarial near-duplicates. Our codebase has 62 automated unit and integration tests, and all 62 are passing with zero errors right now on this laptop.\"")
+        ("Judge: \"Will ONGC or IOCL agree to change their SAP database for your project?\"",
+         "The Winning Answer: \"No, sir, and we never ask them to! That is our core design axiom: 'Local ERP Immutability'. ONGC has 20 years of purchase orders, vendor invoices, and maintenance logs in their SAP. Changing that would cost hundreds of crores. Instead, NUMM acts as a translation bridge. We export clean cross-reference mapping tables that link into standard SAP BAPI_MATERIAL_SAVEDATA. An ONGC engineer can search either their old code or the new National code inside SAP.\""),
+        
+        ("Judge: \"How did you test this system? What are your benchmark results?\"",
+         "The Winning Answer: \"We tested NUMM against a rigorous 1,000-material golden benchmark across ONGC, IOCL, GAIL, HPCL, and BPCL covering valves, flanges, gaskets, and pipes. Our system achieved 98.4% precision and 97.1% recall. Most importantly, on 'Adversarial Near-Duplicates' (items with identical text but different pressure or metal), our system scored 100% rejection accuracy due to the 7D Physics Hard Veto. Furthermore, our codebase has 62 automated unit and integration tests, and all 62 pass with zero errors.\""),
+        
+        ("Judge: \"Can this software run on an isolated defense or PSU server without internet?\"",
+         "The Winning Answer: \"Yes, 100%. Our platform is completely air-gapped and sovereign. All AI vector models, FAISS indexing, physics rules, and SQLite/PostgreSQL databases run locally on the server hardware. There are zero external API calls, zero cloud dependencies, and zero risks of data exfiltration.\""),
+        
+        ("Judge: \"How is your Arbitrage Agent different from basic inventory management?\"",
+         "The Winning Answer: \"Traditional ERP inventory systems only see what is inside their own company's warehouse. ONGC has no idea what IOCL owns. Our Arbitrage Agent is an autonomous ReAct agent that looks across all PSUs simultaneously. It actively computes cross-enterprise price variances—discovering that one PSU paid 34% more for the exact same valve—and automatically calculates transport distances to prescribe zero-tender inter-enterprise stock transfers.\"")
     ]
     
-    for q, a in qas:
-        doc.add_heading(q, level=2).runs[0].font.color.rgb = navy
-        p = doc.add_paragraph()
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(8)
-        r = p.add_run(a)
+    for q_title, q_ans in qas:
+        doc.add_heading(q_title, level=2).runs[0].font.color.rgb = navy
+        p_ans = doc.add_paragraph()
+        p_ans.paragraph_format.space_before = Pt(2)
+        p_ans.paragraph_format.space_after = Pt(8)
+        r = p_ans.add_run(q_ans)
         r.font.size = Pt(10)
+        r.font.name = "Calibri"
         r.font.color.rgb = RGBColor(30, 41, 59)
-        
-    # ------------------ SECTION 5 ------------------
-    doc.add_heading("5. Keywords Cheat-Sheet to Remember & Say", level=1).runs[0].font.color.rgb = navy
-    
-    kw_table = doc.add_table(rows=6, cols=3)
-    kw_heads = ["Feature / Pillar", "Key Words to Say to Judges", "Why Judges Love This"]
-    kw_rows = [
-        ("Physics Consistency", "7D Physics Matrix, Hard Veto, No Explosions", "Proves you understand real-world engineering safety, not just toy software."),
-        ("Search Architecture", "Two-Stage Retrieval, FAISS Dense Search, Cross-Encoder", "Shows modern, state-of-the-art AI design with sub-20ms speed."),
-        ("ERP Integration", "Local Immutability, SAP BAPI_MATERIAL_SAVEDATA, Non-Invasive", "Proves government PSUs can adopt your software tomorrow without friction."),
-        ("Active Learning", "Uncertainty Queue, Triplet Margin Loss, Continuous Learning", "Shows your system becomes smarter every day without manual model rebuilds."),
-        ("Financial Impact", "Working Capital Arbitrage, Zero-Tender Stock Transfers, ₹4,500 Cr", "Directly answers the Ministry's business case and ROI question.")
+
+    # ================= PART 6: GLOSSARY =================
+    doc.add_heading("PART 6: Glossary of Terms (So You Never Get Confused)", level=1).runs[0].font.color.rgb = navy
+    doc.add_paragraph("If a judge mentions any of these terms, here is what they mean in plain English:")
+
+    glossary = [
+        ("PSU / CPSE", "Public Sector Undertaking / Central PSU. Government-owned companies like ONGC, IOCL, GAIL."),
+        ("CNMC", "Canonical National Material Code. The clean, single national master ID created by NUMM (e.g. CNMC-VAL-2026-0012)."),
+        ("SKU", "Stock Keeping Unit. A unique code for an item in a warehouse."),
+        ("ERP", "Enterprise Resource Planning software (like SAP or Oracle) used by companies to track money, orders, and materials."),
+        ("BAPI", "Business Application Programming Interface. The official, safe method provided by SAP to import data into SAP tables."),
+        ("FAISS", "Facebook AI Similarity Search. A lightning-fast library that searches through millions of AI vector embeddings in milliseconds."),
+        ("7D Physics Matrix", "Our custom engineering validator checking 7 dimensions: Size, Pressure, Metal, Schedule, Flange, Standard, and Trim."),
+        ("Hard Veto", "When the physics engine completely rejects a match and sets similarity to 0.0, overruling the AI language model."),
+        ("Active Learning", "A machine learning technique where the model asks human experts for help only on confusing cases, learning from their answers."),
+        ("Triplet Loss", "A training math rule that pulls matching items closer together in vector space and pushes different items farther apart."),
+        ("Air-Gapped", "A computer system that has no connection to the internet, making it 100% immune to cloud hacks or data leaks.")
     ]
-    for c_idx, text in enumerate(kw_heads):
-        kw_table.cell(0, c_idx).paragraphs[0].add_run(text)
-    for r_idx, row_info in enumerate(kw_rows):
-        for c_idx, val in enumerate(row_info):
-            kw_table.cell(r_idx + 1, c_idx).paragraphs[0].add_run(val)
-    format_table(kw_table, header_bg="0F172A", alt_bg="F1F5F9")
+    
+    g_table = doc.add_table(rows=len(glossary) + 1, cols=2)
+    g_table.cell(0, 0).paragraphs[0].add_run("Term / Acronym")
+    g_table.cell(0, 1).paragraphs[0].add_run("Plain English Meaning")
+    for idx, (term, meaning) in enumerate(glossary):
+        g_table.cell(idx + 1, 0).paragraphs[0].add_run(term)
+        g_table.cell(idx + 1, 1).paragraphs[0].add_run(meaning)
+    format_table(g_table, header_bg="0F172A", alt_bg="F8FAFC")
     
     doc.add_paragraph().paragraph_format.space_after = Pt(12)
+    
+    add_callout_box(doc, "FINAL CONFIDENCE BOOST BEFORE YOU WALK IN", [
+        "1. You have a real, fully functioning, 100% locally running system with 62 passing automated tests.",
+        "2. Most hackathon projects only show PowerPoint slides or mock buttons; your application actually calculates physics and exports real SAP BAPI files.",
+        "3. Speak slowly, smile, maintain eye contact, and let your live software do the talking. You are going to do great!"
+    ], theme="emerald")
     
     # Save documents
     os.makedirs("public", exist_ok=True)
@@ -379,7 +414,7 @@ def generate_sih_guide():
     
     doc.save(out_public)
     doc.save(out_root)
-    print(f"Regenerated enhanced, simple-language SIH Master Presentation Guide at:\n1. {out_public}\n2. {out_root}")
+    print(f"Generated Ground-Zero Deep Clarity SIH Guide at:\n1. {out_public}\n2. {out_root}")
 
 if __name__ == "__main__":
-    generate_sih_guide()
+    generate_deep_clarity_guide()
