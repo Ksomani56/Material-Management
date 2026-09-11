@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.enums import (
     RelationshipType,
     CNMCLifecycleStatus,
@@ -37,8 +37,7 @@ class CPSEResponse(BaseModel):
     description: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CPSEMaterialResponse(BaseModel):
     id: str
@@ -60,8 +59,7 @@ class CPSEMaterialResponse(BaseModel):
     batch_id: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CanonicalMaterialResponse(BaseModel):
     id: str
@@ -77,8 +75,7 @@ class CanonicalMaterialResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MemberDetailResponse(BaseModel):
     id: str
@@ -110,8 +107,7 @@ class EquivalenceGroupResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MappingReviewRequest(BaseModel):
     actor: str = "NATIONAL_MASTER_STEWARD"
@@ -150,8 +146,7 @@ class AuditEventResponse(BaseModel):
     details: Optional[str] = None
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class NationalAnalyticsSummary(BaseModel):
     total_cpse_count: int
@@ -202,10 +197,17 @@ class LiveCompareResponse(BaseModel):
     lexical_jaccard_score: float
     semantic_vector_cosine_score: float
     attribute_match_score: float
+    uom_compatibility_score: Optional[float] = 1.0
+    raw_composite_score: Optional[float] = None
     composite_confidence_score: float
     relationship_type: RelationshipType
     has_critical_conflict: bool
+    deterministic_safety_hazard: bool = False
     agreed_attributes: List[str]
     conflicts: List[str]
     explanation: str
+    engineering_rationale: Optional[str] = None
+    calibrated_probability: Optional[float] = None
+    epistemic_uncertainty: Optional[float] = None
+    steward_action_recommendation: Optional[str] = None
 

@@ -136,6 +136,10 @@ export interface LiveCompareResult {
   agreed_attributes: string[];
   conflicts: string[];
   explanation: string;
+  engineering_rationale?: string;
+  calibrated_probability?: number;
+  epistemic_uncertainty?: number;
+  steward_action_recommendation?: string;
 }
 
 export interface IngestionReport {
@@ -586,6 +590,144 @@ class ApiService {
   async checkIntegrity(): Promise<SystemIntegrityResult> {
     return this.request<SystemIntegrityResult>('/system/integrity-check');
   }
+
+  /* --- Capital Arbitrage & Inter-CPSE Transfer Agent --- */
+
+  async fetchArbitrageSummary(): Promise<ArbitrageSummary> {
+    return this.request<ArbitrageSummary>('/arbitrage/summary');
+  }
+
+  async fetchTransferOpportunities(limit = 10): Promise<TransferOpportunity[]> {
+    return this.request<TransferOpportunity[]>(`/arbitrage/opportunities?limit=${limit}`);
+  }
+
+  async simulateTransfer(transferId: string): Promise<any> {
+    return this.request<any>('/arbitrage/simulate-transfer', {
+      method: 'POST',
+      body: JSON.stringify({ transfer_id: transferId }),
+    });
+  }
+
+  async fetchAgentReasoningStream(): Promise<AgentReasoningTrace> {
+    return this.request<AgentReasoningTrace>('/arbitrage/agent-stream');
+  }
+
+  /* --- 2D/3D Semantic Vector Manifold Visualizer --- */
+
+  async fetchSemanticManifold(limit = 150, projectionDims = 3): Promise<ManifoldResponse> {
+    return this.request<ManifoldResponse>(`/dataset/semantic-manifold?limit=${limit}&projection_dims=${projectionDims}`);
+  }
+}
+
+export interface ArbitrageSummary {
+  total_national_savings_cr: number;
+  direct_arbitrage_savings_cr: number;
+  dormant_capital_unlocked_cr: number;
+  avg_price_disparity_pct: number;
+  total_rationalized_groups: number;
+  total_materials_indexed: number;
+  commodity_breakdown: Array<{
+    commodity: string;
+    total_spend_cr: number;
+    arbitrage_savings_cr: number;
+    variance_pct: number;
+    highest_buyer: string;
+    lowest_buyer: string;
+  }>;
+  currency: string;
+  last_updated: string;
+}
+
+export interface TransferOpportunity {
+  id: string;
+  canonical_name: string;
+  cnmc_code: string;
+  origin_cpse: string;
+  origin_depot: string;
+  destination_cpse: string;
+  destination_depot: string;
+  quantity: number;
+  uom: string;
+  surplus_holding_days: number;
+  current_origin_price: number;
+  tender_planned_price: number;
+  price_arbitrage_savings_lakhs: number;
+  carrying_cost_saved_lakhs: number;
+  total_savings_lakhs: number;
+  lead_time_days_saved: number;
+  logistics_status: string;
+  feasibility_score: number;
+  status: string;
+}
+
+export interface AgentReasoningStep {
+  step_index: number;
+  phase: string;
+  thought: string;
+  action: string;
+  observation: string;
+}
+
+export interface AgentReasoningTrace {
+  agent_id: string;
+  execution_status: string;
+  reasoning_steps: AgentReasoningStep[];
+  strategic_takeaways: string[];
+  execution_timestamp: string;
+}
+
+export interface ManifoldNode {
+  id: string;
+  code: string;
+  cpse: string;
+  description: string;
+  normalized?: string;
+  noun: string;
+  modifier: string;
+  grade: string;
+  dimensions: string;
+  pressure: string;
+  uom: string;
+  cluster_id: string;
+  proposed_cnmc?: string;
+  is_anchor: boolean;
+  x: number;
+  y: number;
+  z: number;
+  embedding_norm?: number;
+}
+
+export interface ManifoldCluster {
+  cluster_id: string;
+  proposed_cnmc?: string;
+  noun?: string;
+  member_count: number;
+  centroid: { x: number; y: number; z: number };
+  radius: number;
+  anchor_id: string;
+  anchor_code: string;
+}
+
+export interface ManifoldEdge {
+  source: string;
+  target: string;
+  type: 'SEMANTIC_SIMILARITY' | 'PHYSICS_CONTRADICTION';
+  weight: number;
+  label: string;
+}
+
+export interface ManifoldResponse {
+  nodes: ManifoldNode[];
+  clusters: ManifoldCluster[];
+  edges: ManifoldEdge[];
+  summary: {
+    total_nodes: number;
+    total_clusters: number;
+    embedding_dim: number;
+    projection_dims: number;
+    reduction_algorithm: string;
+    coordinate_bound: number[];
+  };
 }
 
 export const api = new ApiService();

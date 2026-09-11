@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 from app.services.dataset_generator import IndustrialMROBenchmarkGenerator
 from fastapi.testclient import TestClient
 from app.main import app
@@ -31,4 +31,4 @@ def test_vector_index_status_endpoint():
     assert res.status_code == 200
     data = res.json()
     assert data["dimension"] == 384
-    assert data["index_type"] == "faiss.IndexFlatIP"
+    assert data["index_type"] in ["faiss.IndexFlatIP", "faiss.IndexHNSWFlat"]

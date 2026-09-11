@@ -38,6 +38,7 @@ export const AppShell: React.FC = () => {
       label: 'Catalog Management',
       items: [
         { id: 'master', label: 'Master Catalog', icon: 'inventory_2' },
+        { id: 'manifold', label: '3D Semantic Manifold', icon: 'scatter_plot' },
         { id: 'detail', label: 'Material Spec Sheet', icon: 'description' },
         { id: 'datahub', label: 'CPSE Data Hub', icon: 'dataset' },
       ],
@@ -54,6 +55,7 @@ export const AppShell: React.FC = () => {
           badge: reviewQueue.length,
         },
         { id: 'rationalization', label: 'Rationalization', icon: 'hub' },
+        { id: 'arbitrage', label: 'Capital Arbitrage & Transfers', icon: 'currency_rupee' },
       ],
     },
     {

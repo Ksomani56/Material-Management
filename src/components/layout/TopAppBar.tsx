@@ -57,7 +57,20 @@ export const TopAppBar: React.FC = () => {
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-4 ml-6">
+      <div className="flex items-center gap-3 ml-6">
+        {/* Download Project Documentation Button */}
+        <a
+          href="/NUMM_National_Unified_Material_Master_Documentation.docx"
+          download="NUMM_National_Unified_Material_Master_Documentation.docx"
+          title="Download Complete Project Documentation (.docx)"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-pointer group"
+        >
+          <span className="material-symbols-outlined text-[16px] text-emerald-400 group-hover:translate-y-0.5 transition-transform">
+            download
+          </span>
+          <span className="font-mono text-[11px] font-bold">Download Docs (.docx)</span>
+        </a>
+
         {/* Upload Dataset Button */}
         <button
           onClick={() => openUploadModal('ONGC')}
@@ -66,7 +79,7 @@ export const TopAppBar: React.FC = () => {
             border: '1px solid var(--border)',
             color: 'var(--text-primary)',
           }}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm hover:opacity-80"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm hover:opacity-80"
         >
           <span
             className="material-symbols-outlined text-[16px]"

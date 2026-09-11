@@ -217,13 +217,29 @@ export const HomeScreen: React.FC = () => {
       </div>
 
       {/* 2. Main Page Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
-          Problem & Architecture
-        </h1>
-        <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-4xl">
-          Understanding the need, approach and system architecture for a unified national material master.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-white font-sans flex items-center gap-3">
+            <span>Problem & Architecture</span>
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+              SIH26099
+            </span>
+          </h1>
+          <p className="text-xs md:text-sm text-[#9CA3AF] leading-relaxed max-w-3xl">
+            Understanding the need, neuro-symbolic approach and system architecture for a unified national material master.
+          </p>
+        </div>
+
+        <a
+          href="/NUMM_National_Unified_Material_Master_Documentation.docx"
+          download="NUMM_National_Unified_Material_Master_Documentation.docx"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition-all shadow-lg hover:shadow-emerald-950/50 group shrink-0"
+        >
+          <span className="material-symbols-outlined text-[18px] text-emerald-400 group-hover:translate-y-0.5 transition-transform">
+            download
+          </span>
+          <span>Download Master Project Report (.docx)</span>
+        </a>
       </div>
 
       {/* 3. Hero Split Row: Context vs Key Performance Metrics */}
@@ -835,6 +851,41 @@ export const HomeScreen: React.FC = () => {
                         {compareResult.explanation || 'High multi-signal confidence with verified agreement across critical physical parameters. Records can safely share an identical CNMC.'}
                       </p>
                     </div>
+                  </div>
+                )}
+
+                {/* 2-Sentence Engineering XAI Rationale & Steward Recommendation */}
+                {compareResult.engineering_rationale && (
+                  <div className="p-3.5 rounded-lg bg-[#161B18] border border-[#232825] space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[#22D3EE] text-[16px]">psychology</span>
+                        <span className="text-[11px] font-bold text-white uppercase tracking-wider">
+                          Engineering Explainability Rationale (XAI)
+                        </span>
+                      </div>
+                      {compareResult.steward_action_recommendation && (
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                          compareResult.steward_action_recommendation === 'APPROVE_MERGE'
+                            ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40'
+                            : compareResult.steward_action_recommendation === 'REJECT_INCOMPATIBLE'
+                            ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40'
+                            : 'bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40'
+                        }`}>
+                          {compareResult.steward_action_recommendation}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#E5E7EB] leading-relaxed italic">
+                      "{compareResult.engineering_rationale}"
+                    </p>
+                    {compareResult.epistemic_uncertainty !== undefined && (
+                      <div className="flex items-center gap-3 pt-1 text-[10px] font-mono text-[#6B7280]">
+                        <span>Calibrated Prob: <strong className="text-white">{(compareResult.calibrated_probability! * 100).toFixed(1)}%</strong></span>
+                        <span>•</span>
+                        <span>Epistemic Uncertainty: <strong className={compareResult.epistemic_uncertainty < 0.3 ? 'text-[#10B981]' : 'text-[#F59E0B]'}>{(compareResult.epistemic_uncertainty * 100).toFixed(1)}%</strong></span>
+                      </div>
+                    )}
                   </div>
                 )}
 

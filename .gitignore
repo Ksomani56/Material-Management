@@ -20,6 +20,12 @@ env/
 *.docm
 *.dotx
 ~$*.doc*
+!public/*.docx
+!docs/*.docx
+
+# IDE files
+.vscode/
+
 
 # Antigravity IDE agent files
 .agents/

@@ -20,6 +20,8 @@ export type ScreenType =
   | 'detail'
   | 'review'
   | 'rationalization'
+  | 'arbitrage'
+  | 'manifold'
   | 'analytics'
   | 'governance'
   | 'settings'
@@ -290,23 +292,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     try {
       // 1. Verify health
-      await api.checkHealth();
-      setIsBackendConnected(true);
+      let connected = false;
+      try {
+        await api.checkHealth();
+        connected = true;
+        setIsBackendConnected(true);
+      } catch (healthErr) {
+        console.warn('FastAPI backend health probe pending/offline:', healthErr);
+        setIsBackendConnected(false);
+      }
 
-      // 2. Fetch parallel backend resources
-      const [cpses, catalogue, reviews, logs, analytics] = await Promise.all([
+      // 2. Fetch parallel backend resources safely with zero crash risk
+      const [cpsesRes, catalogueRes, reviewsRes, logsRes, analyticsRes] = await Promise.allSettled([
         api.fetchCPSEs(),
         api.fetchCatalogue(),
         api.fetchReviewQueue(),
         api.fetchAuditLogs(50),
-        api.fetchNationalAnalytics().catch(() => null)
+        api.fetchNationalAnalytics()
       ]);
 
-      setCpseList(cpses);
-      setCatalogueMaterials(catalogue);
-      setReviewQueue(reviews);
-      setAuditLogs(logs);
-      setNationalAnalytics(analytics);
+      const cpses = cpsesRes.status === 'fulfilled' ? cpsesRes.value : [];
+      const catalogue = catalogueRes.status === 'fulfilled' ? catalogueRes.value : [];
+      const reviews = reviewsRes.status === 'fulfilled' ? reviewsRes.value : [];
+      const logs = logsRes.status === 'fulfilled' ? logsRes.value : [];
+      const analytics = analyticsRes.status === 'fulfilled' ? analyticsRes.value : null;
+
+      if (cpses.length > 0) setCpseList(cpses);
+      if (catalogue.length > 0) setCatalogueMaterials(catalogue);
+      if (reviews.length > 0) setReviewQueue(reviews);
+      if (logs.length > 0) setAuditLogs(logs);
+      if (analytics) setNationalAnalytics(analytics);
+
+      if (connected) {
+        setBackendError(null);
+      } else if (cpses.length === 0 && catalogue.length === 0) {
+        setBackendError('FastAPI backend at http://127.0.0.1:8000 is initializing. Reconnecting in background...');
+      }
 
       if (catalogue.length > 0 && !selectedCnmcId) {
         setSelectedCnmcId(catalogue[0].cnmc);

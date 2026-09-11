@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Path, status
 from sqlalchemy.orm import Session
@@ -232,7 +232,7 @@ def sync_cpse_catalog(
         "cpse_name": cpse.name,
         "records_analyzed": total_count,
         "records_indexed": indexed_count,
-        "last_sync": datetime.utcnow().isoformat(),
+        "last_sync": datetime.now(timezone.utc).isoformat(),
         "message": f"Live delta sync completed for {cpse.code} ({total_count} records synchronized with FAISS vector index)."
     }
 
